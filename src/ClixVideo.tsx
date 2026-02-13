@@ -1,283 +1,207 @@
 import {
     AbsoluteFill,
     interpolate,
-    Sequence,
     useCurrentFrame,
     useVideoConfig,
     spring,
+    Easing,
 } from "remotion";
 import React from "react";
+import { MousePointer2 } from "lucide-react";
 
 const Theme = {
-    primary: "#6366f1",
-    secondary: "#ec4899",
-    background: "#0f172a",
+    primary: "#ff8c00", // Orange
+    background: "#050505", // Deep Black
     text: "#f8fafc",
-    accent: "#00d2ff",
-};
-
-const Logo: React.FC<{ progress: number }> = ({ progress }) => {
-    return (
-        <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "20px",
-            transform: `scale(${progress})`,
-            opacity: progress,
-        }}>
-            <div style={{
-                width: "80px",
-                height: "80px",
-                background: `linear-gradient(135deg, ${Theme.primary}, ${Theme.secondary})`,
-                borderRadius: "20px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                boxShadow: "0 10px 30px rgba(99, 102, 241, 0.4)",
-            }}>
-                <div style={{
-                    width: "40px",
-                    height: "40px",
-                    border: "6px solid white",
-                    borderRadius: "10px",
-                    transform: "rotate(45deg)",
-                }} />
-            </div>
-            <span style={{
-                fontSize: "72px",
-                fontWeight: 900,
-                color: Theme.text,
-                letterSpacing: "-2px",
-            }}>Clix</span>
-        </div>
-    );
+    purple: "#a855f7",
 };
 
 export const ClixVideo: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps, width, height } = useVideoConfig();
 
-    const introSpring = spring({
+    // Timings (Faster pacing)
+    const T1 = 15;  // Everything scale in
+    const T2 = 30;  // Everything shift + Sentence entrance
+    const T3 = 60;  // Pointer entrance
+    const T4 = 90; // Pointer path start
+    const T5 = 120; // Impact / Click
+    const T6 = 130; // Spark reveal
+
+    // 1. "Everything" entrance (0-T1)
+    const everythingEntrance = spring({
         frame,
         fps,
-        config: { damping: 12 },
+        config: { damping: 12, stiffness: 150 },
     });
 
-    const feature1Spring = spring({
-        frame: frame - 90,
+    // 2. Everything shifts left while others arrive (T2+)
+    const everythingShift = spring({
+        frame: frame - T2,
+        fps,
+        config: { damping: 15, stiffness: 120 },
+    });
+
+    // 3. "starts with a" + "box" entrance (T2+)
+    const sentenceEntrance = spring({
+        frame: frame - T2,
+        fps,
+        config: { damping: 15, stiffness: 120 },
+    });
+
+    // 4. Pointer logic
+    const pointerEntrance = spring({
+        frame: frame - T3,
         fps,
         config: { damping: 12 },
     });
 
-    const feature2Spring = spring({
-        frame: frame - 210,
+    // Pointer trajectory (Direct but slightly curved path)
+    const pointerPath = spring({
+        frame: frame - T4,
+        fps,
+        config: { stiffness: 80, damping: 15 },
+    });
+
+    // Positions (Fitted to frame)
+    const baseFontSize = 85;
+    const finalEverythingX = -450;
+    const finalStartsX = -80;
+    const finalBoxX = 300;
+
+    const pointerStartX = -width / 2.5;
+    const pointerStartY = -height / 2.5;
+    const pointerTargetX = finalBoxX + 20;
+    const pointerTargetY = 30;
+
+    const pointerX = interpolate(pointerPath, [0, 1], [pointerStartX, pointerTargetX]);
+    const pointerY = interpolate(pointerPath, [0, 1], [pointerStartY, pointerTargetY]);
+
+    // Pointer Click Effect (Quick dip at T5)
+    const clickAnim = spring({
+        frame: frame - T5,
+        fps,
+        config: { stiffness: 400, damping: 10 },
+    });
+    const pointerScale = 1 - clickAnim * 0.2;
+
+    // 5. Box / Spark logic
+    const boxGlow = spring({
+        frame: frame - T5,
+        fps,
+        config: { stiffness: 200, damping: 10 },
+    });
+
+    const sparkReveal = spring({
+        frame: frame - T6,
         fps,
         config: { damping: 12 },
     });
 
-    const ctaSpring = spring({
-        frame: frame - 330,
-        fps,
-        config: { damping: 12 },
-    });
+    // Moving gradient background for the box
+    const bgPhase = frame * 2;
+    const gradientPos = `${interpolate(bgPhase % 200, [0, 200], [0, 100])}%`;
 
-    // Background animation
-    const bgPos = interpolate(frame, [0, 450], [0, 100]);
+    // Background water-like motion (Subtle)
+    const t = frame / fps;
+    const move1X = interpolate(Math.sin(t * 1.5), [-1, 1], [30, 70]);
+    const move1Y = interpolate(Math.cos(t * 1.0), [-1, 1], [20, 80]);
+    const noiseUrl = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E`;
 
     return (
         <AbsoluteFill style={{
             backgroundColor: Theme.background,
             color: Theme.text,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: "'Archivo', sans-serif",
             overflow: "hidden",
         }}>
-            {/* Dynamic Background Gradient */}
+            {/* Background */}
             <div style={{
                 position: "absolute",
                 inset: -200,
-                background: `radial-gradient(circle at ${bgPos}% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                             radial-gradient(circle at ${100 - bgPos}% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)`,
-                filter: "blur(80px)",
+                background: `radial-gradient(circle at ${move1X}% ${move1Y}%, rgba(255, 140, 0, 0.12) 0%, transparent 60%)`,
+                filter: "blur(60px)",
             }} />
+            <AbsoluteFill style={{ backgroundImage: `url("${noiseUrl}")`, opacity: 0.4, pointerEvents: "none" }} />
 
-            {/* Intro Sequence */}
-            <Sequence from={0} durationInFrames={120}>
+            {/* Main Stage */}
+            <div style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: `${baseFontSize}px`,
+                fontWeight: 800,
+                letterSpacing: "-1.5px",
+                flexDirection: "row",
+                gap: "25px", // Tightened spacing
+            }}>
+                {/* Word: Everything (Starts Centered) */}
                 <div style={{
-                    flex: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    transform: `translateY(${interpolate(introSpring, [0, 1], [50, 0])}px)`,
+                    opacity: everythingEntrance,
+                    transform: `translateX(${interpolate(everythingShift, [0, 1], [0, finalEverythingX])}px) scale(${everythingEntrance})`,
+                    whiteSpace: "nowrap",
                 }}>
-                    <Logo progress={introSpring} />
+                    Everything
                 </div>
-            </Sequence>
 
-            {/* Feature 1: The Problem */}
-            <Sequence from={90} durationInFrames={150}>
+                {/* Word: starts with a */}
                 <div style={{
-                    flex: 1,
+                    opacity: sentenceEntrance,
+                    transform: `translateX(${interpolate(sentenceEntrance, [0, 1], [width / 2, finalStartsX])}px)`,
+                    whiteSpace: "nowrap",
+                }}>
+                    starts with a
+                </div>
+
+                {/* THE BOX (Gradient reveal) */}
+                <div style={{
+                    width: "240px",
+                    height: "120px",
+                    borderRadius: "20px",
                     display: "flex",
-                    flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    opacity: feature1Spring,
-                    transform: `scale(${interpolate(feature1Spring, [0, 1], [0.9, 1])})`,
+                    position: "relative",
+                    background: `linear-gradient(45deg, #ffffff, ${Theme.purple}, #ffffff)`,
+                    backgroundSize: "200% 200%",
+                    backgroundPosition: `${gradientPos} center`,
+                    opacity: sentenceEntrance,
+                    transform: `translateX(${interpolate(sentenceEntrance, [0, 1], [width / 2, finalBoxX])}px) scale(${1 + boxGlow * 0.1})`,
+                    boxShadow: boxGlow > 0 ? `0 0 ${boxGlow * 120}px rgba(168, 85, 247, 0.7)` : "none",
+                    overflow: "hidden",
                 }}>
-                    <h2 style={{
-                        fontSize: "64px",
-                        fontWeight: 800,
-                        textAlign: "center",
-                        maxWidth: "800px",
-                        lineHeight: 1.1,
-                        marginBottom: "40px",
-                    }}>
-                        Tired of <span style={{ color: Theme.secondary }}>low CTR</span> thumbnails?
-                    </h2>
+                    {/* Inner Content: Spark */}
                     <div style={{
-                        display: "flex",
-                        gap: "20px",
-                        marginTop: "40px",
-                    }}>
-                        {[1, 2, 3].map(i => (
-                            <div key={i} style={{
-                                width: "300px",
-                                height: "170px",
-                                background: "rgba(255, 255, 255, 0.05)",
-                                border: "1px solid rgba(255, 255, 255, 0.1)",
-                                borderRadius: "16px",
-                                position: "relative",
-                                overflow: "hidden",
-                            }}>
-                                <div style={{
-                                    height: "70%",
-                                    background: `linear-gradient(45deg, #334155, #1e293b)`,
-                                }} />
-                                <div style={{ padding: "12px" }}>
-                                    <div style={{ height: "8px", width: "60%", background: "rgba(255,255,255,0.2)", borderRadius: "4px" }} />
-                                </div>
-                                <div style={{
-                                    position: "absolute",
-                                    inset: 0,
-                                    background: "rgba(236, 72, 153, 0.2)",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    opacity: interpolate(feature1Spring, [0.5, 1], [0, 1]),
-                                }}>
-                                    <div style={{
-                                        padding: "8px 16px",
-                                        background: Theme.secondary,
-                                        borderRadius: "20px",
-                                        fontSize: "14px",
-                                        fontWeight: 700,
-                                    }}>BAD CTR</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Sequence>
-
-            {/* Feature 2: The Solution */}
-            <Sequence from={210} durationInFrames={150}>
-                <div style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    opacity: feature2Spring,
-                    transform: `translateY(${interpolate(feature2Spring, [0, 1], [50, 0])}px)`,
-                }}>
-                    <h2 style={{
-                        fontSize: "80px",
+                        color: Theme.background,
+                        fontSize: "56px",
+                        opacity: sparkReveal,
+                        transform: `translateY(${interpolate(sparkReveal, [0, 1], [20, 0])}px)`,
                         fontWeight: 900,
-                        textAlign: "center",
-                        background: `linear-gradient(to right, ${Theme.accent}, ${Theme.primary})`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
                     }}>
-                        AI-Powered Results
-                    </h2>
-                    <p style={{ fontSize: "32px", color: "rgba(255,255,255,0.6)", marginTop: "20px" }}>
-                        Generate high-converting thumbnails in seconds
-                    </p>
-
-                    {/* Visual representation of growth */}
-                    <div style={{
-                        marginTop: "60px",
-                        width: "800px",
-                        height: "300px",
-                        background: "rgba(255,255,255,0.03)",
-                        borderRadius: "24px",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        padding: "40px",
-                        display: "flex",
-                        alignItems: "flex-end",
-                        gap: "20px",
-                    }}>
-                        {[0.2, 0.4, 0.3, 0.8, 0.6, 0.9, 1].map((h, i) => (
-                            <div key={i} style={{
-                                flex: 1,
-                                height: `${h * 100 * feature2Spring}%`,
-                                background: i === 6 ? `linear-gradient(to top, ${Theme.primary}, ${Theme.accent})` : "rgba(255,255,255,0.1)",
-                                borderRadius: "8px 8px 0 0",
-                                position: "relative",
-                            }}>
-                                {i === 6 && (
-                                    <div style={{
-                                        position: "absolute",
-                                        top: "-40px",
-                                        left: "50%",
-                                        transform: "translateX(-50%)",
-                                        color: Theme.accent,
-                                        fontWeight: 800,
-                                        fontSize: "24px",
-                                    }}>+240%</div>
-                                )}
-                            </div>
-                        ))}
+                        spark
                     </div>
                 </div>
-            </Sequence>
+            </div>
 
-            {/* CTA Sequence */}
-            <Sequence from={330} durationInFrames={120}>
-                <div style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    opacity: ctaSpring,
-                }}>
-                    <Logo progress={ctaSpring} />
-                    <h2 style={{
-                        fontSize: "48px",
-                        fontWeight: 700,
-                        marginTop: "40px",
-                        marginBottom: "40px",
-                    }}>
-                        Ready to dominate YouTube?
-                    </h2>
-                    <div style={{
-                        padding: "24px 60px",
-                        background: `linear-gradient(to right, ${Theme.primary}, ${Theme.secondary})`,
-                        borderRadius: "50px",
-                        fontSize: "32px",
-                        fontWeight: 800,
-                        boxShadow: "0 20px 50px rgba(99, 102, 241, 0.3)",
-                        cursor: "pointer",
-                        transform: `scale(${interpolate(ctaSpring, [0.8, 1], [0.8, 1])})`,
-                    }}>
-                        Start Free with Clix
-                    </div>
-                    <p style={{ marginTop: "30px", color: "rgba(255,255,255,0.4)" }}>
-                        No credit card required
-                    </p>
-                </div>
-            </Sequence>
+            {/* MOUSE POINTER */}
+            <div style={{
+                position: "absolute",
+                left: `calc(50% + ${pointerX}px)`,
+                top: `calc(50% + ${pointerY}px)`,
+                opacity: pointerEntrance,
+                transform: `translate(-50%, -50%) scale(${pointerScale})`,
+                color: Theme.text, // White cursor for contrast
+            }}>
+                <MousePointer2
+                    size={64}
+                    fill={Theme.text}
+                    strokeWidth={2}
+                    style={{
+                        filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))"
+                    }}
+                />
+            </div>
         </AbsoluteFill>
     );
 };
