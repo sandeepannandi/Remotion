@@ -8,10 +8,10 @@ import {
 } from 'remotion';
 
 const DotAnimation: React.FC<{ frame: number; start: number; text: string }> = ({ frame, start, text }) => {
-    // 2.5s total duration = 75 frames. Dots appear at 20, 35, 50 frames into the segment.
-    const dot1 = frame >= start + 20 ? "." : "";
-    const dot2 = frame >= start + 35 ? "." : "";
-    const dot3 = frame >= start + 50 ? "." : "";
+    // 1.7s total duration = 51 frames. Dots appear faster: 15, 25, 35 frames in.
+    const dot1 = frame >= start + 15 ? "." : "";
+    const dot2 = frame >= start + 25 ? "." : "";
+    const dot3 = frame >= start + 35 ? "." : "";
 
     return (
         <span>
@@ -20,16 +20,36 @@ const DotAnimation: React.FC<{ frame: number; start: number; text: string }> = (
     );
 };
 
+const WordPairFlasher: React.FC<{ frame: number; start: number; text: string; speed?: number }> = ({ frame, start, text, speed = 12 }) => {
+    const words = text.split(' ');
+    const framePerPair = speed;
+    const pairIndex = Math.floor((frame - start) / framePerPair);
+    const startIndex = Math.min(pairIndex * 2, words.length - 2);
+
+    return (
+        <span>
+            {words.slice(startIndex, startIndex + 2).join(' ')}
+        </span>
+    );
+};
+
 export const VideoOverlay: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    // Segment duration: 75 frames (2.5s at 30fps)
+    // Mapping segments with specific durations
     const segments = [
-        { start: 0, end: 75, baseText: "Bills everywhere" },
-        { start: 77, end: 152, baseText: "Subscriptions you forgot about" },
-        { start: 154, end: 229, baseText: "Expenses you think you remember" },
-        { start: 231, end: 320, baseText: "And somehow" }, // Extended end to allow for transition
+        { start: 0, end: 51, baseText: "Bills everywhere", type: 'flip' },
+        { start: 53, end: 104, baseText: "Subscriptions you forgot about", type: 'flip' },
+        { start: 106, end: 157, baseText: "Expenses you think you remember", type: 'flip' },
+        { start: 159, end: 210, baseText: "And somehow", type: 'special' },
+        { start: 210, end: 261, baseText: "money just disappears", type: 'fade-only' },
+        { start: 263, end: 314, baseText: "You work hard.", type: 'flip' },
+        { start: 316, end: 367, baseText: "But you don’t know where your money goes.", type: 'reveal', speed: 12 },
+        { start: 369, end: 414, baseText: "Tracking manually?", type: 'scroll' },
+        { start: 416, end: 461, baseText: "Spreadsheets?", type: 'scroll' },
+        { start: 463, end: 508, baseText: "Notes app?", type: 'scroll' },
+        { start: 510, end: 558, baseText: "That’s a pain in the ass.", type: 'reveal', speed: 9 }, // Reduced to 48 frames and faster flasher
     ];
 
     const activeSegmentIndex = segments.findIndex(s => frame >= s.start && frame <= s.end);
@@ -38,120 +58,100 @@ export const VideoOverlay: React.FC = () => {
     let opacity = 0;
     let rotateX = 0;
     let scale = 1;
+    let transform = 'none';
 
     if (activeSegment) {
         const relativeFrame = frame - activeSegment.start;
         const segDuration = activeSegment.end - activeSegment.start;
 
-        // Entrance
         const entrance = spring({
             frame: relativeFrame,
             fps,
             config: { damping: 25, stiffness: 300 },
         });
 
-        // Exit (for standard segments)
         const exit = spring({
             frame: relativeFrame - (segDuration - 6),
             fps,
             config: { damping: 25, stiffness: 300 },
         });
 
-        if (activeSegmentIndex === 3) {
-            rotateX = 0;
-            // "And somehow" entrance stays, disappearance handled by moneySequence logic
-            opacity = entrance;
-        } else {
+        if (activeSegment.type === 'flip' || activeSegment.type === 'reveal' || (activeSegment.type === 'fade-only' && activeSegmentIndex > 4)) {
             rotateX = interpolate(entrance, [0, 1], [90, 0]) + interpolate(exit, [0, 1], [0, -90]);
             opacity = interpolate(entrance, [0, 0.4], [0, 1]) * interpolate(exit, [0.6, 1], [1, 0]);
+            scale = interpolate(entrance, [0, 1], [0.95, 1]);
+        } else if (activeSegment.type === 'scroll') {
+            const scrollEntranceY = interpolate(entrance, [0, 1], [100, 0]);
+            const scrollExitY = interpolate(exit, [0, 1], [0, -100]);
+            transform = `translateY(${scrollEntranceY + scrollExitY}px)`;
+            opacity = interpolate(entrance, [0, 0.4], [0, 1]) * interpolate(exit, [0.6, 1], [1, 0]);
+        } else if (activeSegment.type === 'special') {
+            opacity = entrance;
         }
-        scale = interpolate(entrance, [0, 1], [0.95, 1]);
     }
 
-    // Final Transition (And somehow... money just disappears.)
-    // Start transition earlier to make it feel snappier
-    const moneySequenceStart = 310;
+    const moneySequenceStart = 210;
     const finalShiftProgress = spring({
         frame: frame - moneySequenceStart,
         fps,
         config: { damping: 25, stiffness: 300 },
     });
 
-    // Animate "And somehow..." moving left AND fading out
     const andSomehowX = interpolate(finalShiftProgress, [0, 1], [0, -200]);
     const andSomehowFinalOpacity = interpolate(finalShiftProgress, [0.3, 0.7], [1, 0]);
-
-    // Animate "money just disappears." moving into center from right
-    // We use a separate AbsoluteFill for the final state to ensure perfect centering
     const moneyOpacity = interpolate(finalShiftProgress, [0.2, 0.6], [0, 1]);
-    const moneyX = interpolate(finalShiftProgress, [0, 1], [300, 0]);
+    const moneyX = interpolate(finalShiftProgress, [0, 1], [250, 0]);
 
-    // Overall disappearance of the intro text at the very end of 18s (540 frames)
-    const totalIntroOpacity = interpolate(frame, [510, 540], [1, 0]);
+    // Update total intro disappearance
+    const totalIntroOpacity = interpolate(frame, [558, 567], [1, 0]);
 
     return (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-            {/* Light white overlay */}
             <AbsoluteFill style={{ backgroundColor: 'rgba(255, 255, 255, 0.35)', opacity: totalIntroOpacity }} />
 
-            {/* Standard Flipping Segments (0, 1, 2) */}
+            {/* segments 0, 1, 2 */}
             {activeSegmentIndex !== -1 && activeSegmentIndex < 3 && (
-                <div
-                    style={{
-                        transform: `rotateX(${rotateX}deg) scale(${scale})`,
-                        opacity: opacity * totalIntroOpacity,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 1,
-                    }}
-                >
-                    <h1 style={{
-                        color: 'black',
-                        fontSize: 85,
-                        fontWeight: 800,
-                        textAlign: 'center',
-                        fontFamily: "'Geist', sans-serif",
-                        margin: 0,
-                    }}>
+                <div style={{ transform: `rotateX(${rotateX}deg) scale(${scale})`, opacity: opacity * totalIntroOpacity, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                    <h1 style={{ color: 'black', fontSize: 85, fontWeight: 800, textAlign: 'center', fontFamily: "'Geist', sans-serif", margin: 0 }}>
                         <DotAnimation frame={frame} start={activeSegment.start} text={activeSegment.baseText} />
                     </h1>
                 </div>
             )}
 
-            {/* Final Sequence Transition Logic */}
-            {frame >= 231 && frame < 540 && (
+            {/* "And somehow... money just disappears." */}
+            {frame >= 159 && frame < 263 && (
                 <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center', opacity: totalIntroOpacity }}>
-                    {/* "And somehow..." - shifts and disappears */}
-                    <div style={{
-                        opacity: (frame < moneySequenceStart ? opacity : andSomehowFinalOpacity),
-                        transform: `translateX(${andSomehowX}px)`,
-                        color: 'black',
-                        fontSize: 85,
-                        fontWeight: 800,
-                        fontFamily: "'Geist', sans-serif",
-                        position: 'absolute'
-                    }}>
-                        <DotAnimation frame={frame} start={231} text="And somehow" />
+                    <div style={{ opacity: (frame < moneySequenceStart ? 1 : andSomehowFinalOpacity) * (frame < 159 ? 0 : 1), transform: `translateX(${andSomehowX}px)`, color: 'black', fontSize: 85, fontWeight: 800, fontFamily: "'Geist', sans-serif", position: 'absolute' }}>
+                        <DotAnimation frame={frame} start={159} text="And somehow" />
                     </div>
-
-                    {/* "money just disappears." - arrives and stays centered */}
                     {frame >= moneySequenceStart && (
-                        <div style={{
-                            opacity: moneyOpacity,
-                            transform: `translateX(${moneyX}px)`,
-                            color: 'black',
-                            fontSize: 85,
-                            fontWeight: 800,
-                            fontFamily: "'Geist', sans-serif",
-                            position: 'absolute',
-                            textAlign: 'center',
-                            width: '100%'
-                        }}>
+                        <div style={{ opacity: moneyOpacity, transform: `translateX(${moneyX}px)`, color: 'black', fontSize: 85, fontWeight: 800, fontFamily: "'Geist', sans-serif", position: 'absolute', textAlign: 'center', width: '100%' }}>
                             money just disappears.
                         </div>
                     )}
                 </AbsoluteFill>
+            )}
+
+            {/* reveal/flip segments after money sequence */}
+            {activeSegmentIndex >= 5 && (activeSegment.type === 'flip' || activeSegment.type === 'reveal') && (
+                <div style={{ transform: `rotateX(${rotateX}deg) scale(${scale})`, opacity: opacity * totalIntroOpacity, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+                    <h1 style={{ color: 'black', fontSize: 85, fontWeight: 800, textAlign: 'center', fontFamily: "'Geist', sans-serif", margin: 0 }}>
+                        {activeSegment.type === 'reveal' ? (
+                            <WordPairFlasher frame={frame} start={activeSegment.start} text={activeSegment.baseText} speed={activeSegment.speed} />
+                        ) : (
+                            activeSegment.baseText
+                        )}
+                    </h1>
+                </div>
+            )}
+
+            {/* scrolling segments */}
+            {activeSegmentIndex >= 7 && activeSegment.type === 'scroll' && (
+                <div style={{ transform, opacity: opacity * totalIntroOpacity, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1, position: 'absolute' }}>
+                    <h1 style={{ color: 'black', fontSize: 85, fontWeight: 800, textAlign: 'center', fontFamily: "'Geist', sans-serif", margin: 0 }}>
+                        {activeSegment.baseText}
+                    </h1>
+                </div>
             )}
         </AbsoluteFill>
     );

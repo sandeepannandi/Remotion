@@ -1,46 +1,35 @@
 import React from 'react';
 import { interpolate, useCurrentFrame, useVideoConfig, spring, AbsoluteFill } from 'remotion';
 
+const WordPairFlasher: React.FC<{ frame: number; start: number; text: string; speed?: number }> = ({ frame, start, text, speed = 12 }) => {
+    const words = text.split(' ');
+    const framePerPair = speed;
+    const pairIndex = Math.floor((frame - start) / framePerPair);
+    const startIndex = Math.min(pairIndex * 2, words.length - (words.length % 2 === 0 ? 0 : -1));
+
+    // Safety check for indices
+    const currentPair = words.slice(pairIndex * 2, pairIndex * 2 + 2).join(' ');
+
+    return (
+        <span>
+            {currentPair}
+        </span>
+    );
+};
+
 export const FirstFrame: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    // Animation 1: Initial "What" entrance (zoom-out)
-    // Starts at frame 0, ends at frame 15
-    const whatEntrance = spring({
-        frame,
-        fps,
-        config: { damping: 20, stiffness: 200 },
-    });
+    const text = "What if tracking was automatic?";
+    // 5 words = 3 pairs ("What if", "tracking was", "automatic?")
+    // 3 pairs * 15 frames each = 45 frames per total narrative
+    // But we'll use the user's preferred 1.7s (51 frames) for the whole transition block if desired, 
+    // or just follow the same speed as the intro segments.
+    // Let's use 18 frames per pair to make it readable but fast.
 
-    // Animation 2: The shift (happens fast)
-    // Starts at frame 20, ends at frame 32 (12 frames = 0.4s)
-    const shiftProgress = spring({
-        frame: frame - 20,
-        fps,
-        config: { damping: 20, stiffness: 200 },
-    });
-
-    // Interpolations for "What"
-    // Zoom out entrance: start big, settle to normal
-    const initialZoom = interpolate(whatEntrance, [0, 1], [3, 1]);
-    const entranceOpacity = interpolate(whatEntrance, [0, 0.5], [0, 1]);
-
-    // Shift transitions
-    const shiftScale = interpolate(shiftProgress, [0, 1], [1, 0.7]);
-    const whatX = interpolate(shiftProgress, [0, 1], [0, -145]); // Slightly adjusted for better visual centering
-
-    // Final What scale combines entrance zoom and shift reduction
-    const finalWhatScale = initialZoom * shiftScale;
-
-    // Interpolations for "if"
-    // Speed up "if" appearance: starts at the beginning of the shift and finishes quickly
-    const ifOpacity = interpolate(frame, [20, 26], [0, 1], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-    });
-    const ifX = interpolate(shiftProgress, [0, 1], [400, 145]);
-    const ifScale = interpolate(shiftProgress, [0, 1], [0.3, 0.6]);
+    const startFrame = 0;
+    const speed = 18;
 
     return (
         <AbsoluteFill
@@ -49,7 +38,6 @@ export const FirstFrame: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                fontFamily: "'Garet', sans-serif",
             }}
         >
             <div
@@ -60,39 +48,24 @@ export const FirstFrame: React.FC = () => {
                     justifyContent: 'center',
                     width: '100%',
                     height: '100%',
-                    position: 'relative',
                 }}
             >
-                {/* "What" text */}
-                <div
+                <h1
                     style={{
                         color: 'white',
-                        fontSize: 200,
-                        fontWeight: 600, // Semibold
-                        opacity: entranceOpacity,
-                        transform: `translateX(${whatX}px) scale(${finalWhatScale})`,
-                        position: 'absolute',
-                        // No shadows
+                        fontSize: 120,
+                        fontWeight: 800, // Extra Bold
+                        fontFamily: "'Geist', sans-serif",
+                        textAlign: 'center',
                     }}
                 >
-                    What
-                </div>
-
-                {/* "if" text */}
-                <div
-                    style={{
-                        color: 'white',
-                        fontSize: 210, // Matching user's previous manual edit
-                        fontWeight: 600, // Semibold
-                        opacity: ifOpacity,
-                        transform: `translateX(${ifX}px) scale(${ifScale})`,
-                        position: 'absolute',
-                        // Fixed vertical alignment (font baseline might differ, but absolute position in flex center should keep them aligned)
-                        // No shadows
-                    }}
-                >
-                    if
-                </div>
+                    <WordPairFlasher
+                        frame={frame}
+                        start={startFrame}
+                        text={text}
+                        speed={speed}
+                    />
+                </h1>
             </div>
         </AbsoluteFill>
     );

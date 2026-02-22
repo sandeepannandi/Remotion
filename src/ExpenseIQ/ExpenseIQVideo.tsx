@@ -1,13 +1,15 @@
+import React from 'react';
 import { Sequence, Video, staticFile } from 'remotion';
 import { FirstFrame } from './FirstFrame';
 import { VideoOverlay } from './VideoOverlay';
 
 export const ExpenseIQVideo: React.FC = () => {
-    const videoDuration = 18 * 30; // 18 seconds * 30 fps = 540 frames
+    // Reduced intro duration to 567 frames to reflect faster final segment
+    const videoDuration = 567;
 
     return (
         <>
-            {/* Show the expense video for the first 18 seconds, muted */}
+            {/* Show the expense video for the intro, muted */}
             <Sequence durationInFrames={videoDuration}>
                 <Video
                     src={staticFile("expensevideo.mp4")}
@@ -18,12 +20,13 @@ export const ExpenseIQVideo: React.FC = () => {
                         objectFit: 'cover',
                     }}
                     startFrom={0}
-                    endAt={videoDuration}
+                    // video is 540 frames, loop or stay on final frame
+                    endAt={567}
                 />
                 <VideoOverlay />
             </Sequence>
 
-            {/* Show the What if animation after 18 seconds */}
+            {/* Show the What if animation after the refined intro */}
             <Sequence from={videoDuration} durationInFrames={300}>
                 <FirstFrame />
             </Sequence>
