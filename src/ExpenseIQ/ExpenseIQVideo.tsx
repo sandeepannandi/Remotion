@@ -2,6 +2,7 @@ import React from 'react';
 import { Sequence, Video, staticFile } from 'remotion';
 import { FirstFrame } from './FirstFrame';
 import { VideoOverlay } from './VideoOverlay';
+import { ProsperityFlash } from './ProsperityFlash';
 
 export const ExpenseIQVideo: React.FC = () => {
     // Reduced intro duration to 567 frames to reflect faster final segment
@@ -24,6 +25,11 @@ export const ExpenseIQVideo: React.FC = () => {
                     endAt={567}
                 />
                 <VideoOverlay />
+            </Sequence>
+
+            {/* Prosperity Flash Transition */}
+            <Sequence from={videoDuration - 10} durationInFrames={20}>
+                <ProsperityFlash />
             </Sequence>
 
             {/* Show the What if animation after the refined intro */}

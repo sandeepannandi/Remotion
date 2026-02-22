@@ -1,33 +1,54 @@
 import React from 'react';
 import { interpolate, useCurrentFrame, useVideoConfig, spring, AbsoluteFill } from 'remotion';
 
-const WordPairFlasher: React.FC<{ frame: number; start: number; text: string; speed?: number }> = ({ frame, start, text, speed = 12 }) => {
+const WordPairFlasher: React.FC<{ frame: number; start: number; text: string; speed?: number }> = ({ frame, start, text, speed = 18 }) => {
     const words = text.split(' ');
-    const framePerPair = speed;
-    const pairIndex = Math.floor((frame - start) / framePerPair);
-    const startIndex = Math.min(pairIndex * 2, words.length - (words.length % 2 === 0 ? 0 : -1));
+    const pairIndex = Math.floor((frame - start) / speed);
 
-    // Safety check for indices
-    const currentPair = words.slice(pairIndex * 2, pairIndex * 2 + 2).join(' ');
+    // Safety check: if we're past the last possible pair, stay on the last one
+    const safePairIndex = Math.min(pairIndex, Math.ceil(words.length / 2) - 1);
+    const startWordIndex = safePairIndex * 2;
+    const currentWords = words.slice(startWordIndex, startWordIndex + 2);
+
+    const isLastSegment = startWordIndex + 2 >= words.length;
 
     return (
-        <span>
-            {currentPair}
+        <span style={{ position: 'relative' }}>
+            {currentWords.map((word, i) => {
+                const isAutomatic = word.toLowerCase().includes('automatic');
+                if (isAutomatic) {
+                    return (
+                        <span
+                            key={word}
+                            style={{
+                                display: 'inline-block',
+                                background: '#fff',
+                                backgroundSize: '200% auto',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundPosition: `${(frame * 2) % 200}% 0%`,
+                                filter: 'drop-shadow(0 0 15px rgba(255, 255, 255, 0.4))',
+                                marginLeft: i === 0 ? 0 : '15px'
+                            }}
+                        >
+                            {word}
+                        </span>
+                    );
+                }
+                return (
+                    <span key={word} style={{ marginLeft: i === 0 ? 0 : '15px' }}>
+                        {word}
+                    </span>
+                );
+            })}
         </span>
     );
 };
 
 export const FirstFrame: React.FC = () => {
     const frame = useCurrentFrame();
-    const { fps } = useVideoConfig();
 
     const text = "What if tracking was automatic?";
-    // 5 words = 3 pairs ("What if", "tracking was", "automatic?")
-    // 3 pairs * 15 frames each = 45 frames per total narrative
-    // But we'll use the user's preferred 1.7s (51 frames) for the whole transition block if desired, 
-    // or just follow the same speed as the intro segments.
-    // Let's use 18 frames per pair to make it readable but fast.
-
     const startFrame = 0;
     const speed = 18;
 
@@ -54,7 +75,7 @@ export const FirstFrame: React.FC = () => {
                     style={{
                         color: 'white',
                         fontSize: 120,
-                        fontWeight: 800, // Extra Bold
+                        fontWeight: 800,
                         fontFamily: "'Geist', sans-serif",
                         textAlign: 'center',
                     }}
