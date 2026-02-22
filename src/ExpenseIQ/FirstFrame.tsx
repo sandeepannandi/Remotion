@@ -28,15 +28,18 @@ export const FirstFrame: React.FC = () => {
 
     // Shift transitions
     const shiftScale = interpolate(shiftProgress, [0, 1], [1, 0.7]);
-    const whatX = interpolate(shiftProgress, [0, 1], [0, -160]);
+    const whatX = interpolate(shiftProgress, [0, 1], [0, -145]); // Slightly adjusted for better visual centering
 
     // Final What scale combines entrance zoom and shift reduction
     const finalWhatScale = initialZoom * shiftScale;
 
     // Interpolations for "if"
-    // "if" should be smaller than "what" (e.g., 0.6 scale relative to what's final size)
-    const ifOpacity = interpolate(shiftProgress, [0, 0.5], [0, 1]);
-    const ifX = interpolate(shiftProgress, [0, 1], [400, 160]); // 178px gap from center
+    // Speed up "if" appearance: starts at the beginning of the shift and finishes quickly
+    const ifOpacity = interpolate(frame, [20, 26], [0, 1], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+    });
+    const ifX = interpolate(shiftProgress, [0, 1], [400, 145]);
     const ifScale = interpolate(shiftProgress, [0, 1], [0.3, 0.6]);
 
     return (
@@ -57,6 +60,7 @@ export const FirstFrame: React.FC = () => {
                     justifyContent: 'center',
                     width: '100%',
                     height: '100%',
+                    position: 'relative',
                 }}
             >
                 {/* "What" text */}
@@ -64,11 +68,11 @@ export const FirstFrame: React.FC = () => {
                     style={{
                         color: 'white',
                         fontSize: 200,
-                        fontWeight: '600', // Semibold
+                        fontWeight: 600, // Semibold
                         opacity: entranceOpacity,
                         transform: `translateX(${whatX}px) scale(${finalWhatScale})`,
                         position: 'absolute',
-                        textShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                        // No shadows
                     }}
                 >
                     What
@@ -78,12 +82,13 @@ export const FirstFrame: React.FC = () => {
                 <div
                     style={{
                         color: 'white',
-                        fontSize: 210,
-                        fontWeight: '600', // Semibold
+                        fontSize: 210, // Matching user's previous manual edit
+                        fontWeight: 600, // Semibold
                         opacity: ifOpacity,
                         transform: `translateX(${ifX}px) scale(${ifScale})`,
                         position: 'absolute',
-                        textShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                        // Fixed vertical alignment (font baseline might differ, but absolute position in flex center should keep them aligned)
+                        // No shadows
                     }}
                 >
                     if
