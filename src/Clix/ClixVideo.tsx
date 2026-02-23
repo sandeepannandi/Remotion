@@ -53,9 +53,9 @@ export const ClixVideo: React.FC = () => {
     // Timeline Configuration (Faster beats)
     const beats = {
         intro: 70,
-        thumbnail: 70,
-        mrBeast: 85,
-        fact: 100
+        thumbnail: 52, // Reduced by 0.4s (12 frames)
+        mrBeast: 85,   // Reduced duration by 0.5s (15 frames)
+        fact: 90
     };
 
     const flipPoint1 = beats.intro;
