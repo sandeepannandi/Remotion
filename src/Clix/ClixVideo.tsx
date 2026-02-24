@@ -486,7 +486,8 @@ const ClixBrandReveal: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
     const firstEntrance = spring({ frame, fps, config: smoothSpring });
     const clixEntrance = spring({ frame: frame - revealStart, fps, config: smoothSpring });
 
-    const totalFirstPartX = interpolate(clixEntrance, [0, 1], [0, -450]);
+    const totalFirstPartX = interpolate(clixEntrance, [0, 1], [0, -320]);
+    const firstPartOpacity = 1;
 
     return (
         <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -494,30 +495,31 @@ const ClixBrandReveal: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
                 display: 'flex',
                 alignItems: 'center',
                 transform: `translateX(${totalFirstPartX}px) scale(${interpolate(firstEntrance, [0, 1], [0.5, 1])})`,
-                opacity: firstEntrance,
+                opacity: firstEntrance * firstPartOpacity,
                 position: 'absolute'
             }}>
                 <h1 style={{ fontSize: 130, margin: 0, whiteSpace: 'nowrap' }}>Introducing</h1>
             </div>
             {frame >= revealStart && (
                 <div style={{
-                    transform: `translateX(${interpolate(clixEntrance, [0, 1], [800, 300])}px)`,
+                    transform: `translateX(${interpolate(clixEntrance, [0, 1], [1000, 310])}px)`,
                     opacity: clixEntrance,
                     position: 'absolute',
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
-                    <h1 style={{ fontSize: 150, margin: 0, whiteSpace: 'nowrap', color: 'white' }}>Clix</h1>
                     <Img
                         src={staticFile("clix.png")}
                         style={{
                             width: 180,
                             height: 180,
-                            marginLeft: 40,
+                            marginRight: 40,
                             transform: `scale(${clixEntrance}) rotate(${interpolate(clixEntrance, [0, 1], [-20, 0])}deg)`,
-                            filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))'
+                            filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0))'
                         }}
                     />
+                    <h1 style={{ fontSize: 150, margin: 0, whiteSpace: 'nowrap', color: 'white' }}>Clix</h1>
                 </div>
             )}
         </div>
