@@ -12,9 +12,9 @@ import {
 
 // --- Sub-components ---
 
-const YouTubeLogo = ({ style }: { style?: React.CSSProperties }) => (
+const YouTubeLogo = ({ style, color = "white" }: { style?: React.CSSProperties; color?: string }) => (
     <svg viewBox="0 0 24 24" style={{ width: 120, height: 120, ...style }}>
-        <path fill="white" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+        <path fill={color} d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
     </svg>
 );
 
@@ -153,7 +153,8 @@ export const ClixVideo: React.FC = () => {
         fact: 85,
         issues: 274, // Transition starts 0.8s after Generic Faces becomes active
         builtDifferent: 50, // 5 words * 6 frames + buffer
-        brand: 120
+        brand: 75, // Reduced by another 0.5s (total 1.5s reduction)
+        valueProp: 100 // 5 pairs * 15 frames + buffer
     };
 
     const T1 = beats.intro;
@@ -162,6 +163,7 @@ export const ClixVideo: React.FC = () => {
     const T4 = T3 + beats.fact;
     const T5 = T4 + beats.issues;
     const T6 = T5 + beats.builtDifferent;
+    const T7 = T6 + beats.brand;
 
     const smoothSpring = { damping: 20, stiffness: 150 };
     const flip1 = spring({ frame: frame - T1, fps, config: smoothSpring });
@@ -170,6 +172,7 @@ export const ClixVideo: React.FC = () => {
     const flip4 = spring({ frame: frame - T4, fps, config: smoothSpring });
     const flip5 = spring({ frame: frame - T5, fps, config: smoothSpring });
     const flip6 = spring({ frame: frame - T6, fps, config: smoothSpring });
+    const flip7 = spring({ frame: frame - T7, fps, config: smoothSpring });
 
     return (
         <AbsoluteFill style={{
@@ -218,9 +221,15 @@ export const ClixVideo: React.FC = () => {
                 </FlipSegment>
             </Sequence>
 
-            <Sequence from={T6} durationInFrames={beats.brand}>
-                <FlipSegment fromPrev={flip6}>
+            <Sequence from={T6} durationInFrames={beats.brand + 10}>
+                <FlipSegment fromPrev={flip6} toNext={flip7}>
                     <ClixBrandReveal frame={frame - T6} fps={fps} />
+                </FlipSegment>
+            </Sequence>
+
+            <Sequence from={T7} durationInFrames={beats.valueProp}>
+                <FlipSegment fromPrev={flip7}>
+                    <ClixValueProp frame={frame - T7} fps={fps} />
                 </FlipSegment>
             </Sequence>
         </AbsoluteFill>
@@ -523,5 +532,61 @@ const ClixBrandReveal: React.FC<{ frame: number; fps: number }> = ({ frame, fps 
                 </div>
             )}
         </div>
+    );
+};
+
+const ClixValueProp: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+    const pairs = [
+        ["A", "premium"],
+        ["AI", "thumbnail"],
+        ["engine", "built"],
+        ["specifically", "for"],
+        ["YouTube.", ""]
+    ];
+
+    const framesPerPair = 15; // 0.5 seconds
+    const currentPairIndex = Math.min(Math.floor(frame / framesPerPair), pairs.length - 1);
+    const frameInPair = frame % framesPerPair;
+
+    const smoothConfig = { damping: 40, stiffness: 200 };
+    const entrance = spring({ frame: frameInPair, fps, config: smoothConfig });
+
+    return (
+        <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                {currentPairIndex === pairs.length - 1 && (
+                    <YouTubeLogo
+                        color="white"
+                        style={{
+                            width: 120,
+                            height: 120,
+                            transform: `scale(${entrance})`,
+                            opacity: entrance
+                        }}
+                    />
+                )}
+
+                <div style={{ display: 'flex', gap: 30 }}>
+                    <h1 style={{
+                        fontSize: 130,
+                        margin: 0,
+                        transform: `scale(${interpolate(entrance, [0, 1], [0.95, 1])})`,
+                        opacity: entrance
+                    }}>
+                        {pairs[currentPairIndex][0]}
+                    </h1>
+                    {pairs[currentPairIndex][1] && (
+                        <h1 style={{
+                            fontSize: 130,
+                            margin: 0,
+                            transform: `scale(${interpolate(entrance, [0, 1], [0.95, 1])})`,
+                            opacity: entrance
+                        }}>
+                            {pairs[currentPairIndex][1]}
+                        </h1>
+                    )}
+                </div>
+            </div>
+        </AbsoluteFill>
     );
 };
