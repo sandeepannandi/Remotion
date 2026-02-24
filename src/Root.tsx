@@ -30,7 +30,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Clix"
         component={ClixVideo}
-        durationInFrames={800}
+        durationInFrames={950}
         fps={30}
         width={1920}
         height={1080}

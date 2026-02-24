@@ -6,7 +6,8 @@ import {
     useVideoConfig,
     spring,
     Img,
-    Sequence
+    Sequence,
+    staticFile
 } from 'remotion';
 
 // --- Sub-components ---
@@ -148,21 +149,27 @@ export const ClixVideo: React.FC = () => {
     const beats = {
         intro: 70,
         thumbnail: 52,
-        mrBeast: 105,
-        fact: 100,
-        issues: 330
+        mrBeast: 81,
+        fact: 85,
+        issues: 274, // Transition starts 0.8s after Generic Faces becomes active
+        builtDifferent: 50, // 5 words * 6 frames + buffer
+        brand: 120
     };
 
     const T1 = beats.intro;
     const T2 = T1 + beats.thumbnail;
     const T3 = T2 + beats.mrBeast;
     const T4 = T3 + beats.fact;
+    const T5 = T4 + beats.issues;
+    const T6 = T5 + beats.builtDifferent;
 
     const smoothSpring = { damping: 20, stiffness: 150 };
     const flip1 = spring({ frame: frame - T1, fps, config: smoothSpring });
     const flip2 = spring({ frame: frame - T2, fps, config: smoothSpring });
     const flip3 = spring({ frame: frame - T3, fps, config: smoothSpring });
     const flip4 = spring({ frame: frame - T4, fps, config: smoothSpring });
+    const flip5 = spring({ frame: frame - T5, fps, config: smoothSpring });
+    const flip6 = spring({ frame: frame - T6, fps, config: smoothSpring });
 
     return (
         <AbsoluteFill style={{
@@ -199,9 +206,21 @@ export const ClixVideo: React.FC = () => {
                 </FlipSegment>
             </Sequence>
 
-            <Sequence from={T4} durationInFrames={beats.issues}>
-                <FlipSegment fromPrev={flip4}>
+            <Sequence from={T4} durationInFrames={beats.issues + 10}>
+                <FlipSegment fromPrev={flip4} toNext={flip5}>
                     <ClixMakersIssues frame={frame - T4} fps={fps} />
+                </FlipSegment>
+            </Sequence>
+
+            <Sequence from={T5} durationInFrames={beats.builtDifferent + 10}>
+                <FlipSegment fromPrev={flip5} toNext={flip6}>
+                    <ClixBuiltSomethingDifferent frame={frame - T5} fps={fps} />
+                </FlipSegment>
+            </Sequence>
+
+            <Sequence from={T6} durationInFrames={beats.brand}>
+                <FlipSegment fromPrev={flip6}>
+                    <ClixBrandReveal frame={frame - T6} fps={fps} />
                 </FlipSegment>
             </Sequence>
         </AbsoluteFill>
@@ -439,11 +458,68 @@ const ClixMakersIssues: React.FC<{ frame: number; fps: number }> = ({ frame, fps
                             transform: `scale(${interpolate(scrollProgress, [0, 0.1, 0.9, 1], [1, 0.95, 0.95, 1])})`,
                             opacity: interpolate(scrollProgress, [0, 0.1, 0.9, 1], [1, 0, 0, 1])
                         }}>
-                            {points[pointIndex].graphic}
+                            {points[activeGraphicIndex].graphic}
                         </div>
                     </div>
                 </div>
             )}
         </AbsoluteFill>
+    );
+};
+
+const ClixBuiltSomethingDifferent: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+    const words = "So we built something different.".split(" ");
+    const framesPerWord = 6; // 0.2 seconds
+    const currentWordIndex = Math.min(Math.floor(frame / framesPerWord), words.length - 1);
+
+    return (
+        <AbsoluteFill style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <h1 style={{ fontSize: 130, margin: 0, textAlign: 'center' }}>{words[currentWordIndex]}</h1>
+        </AbsoluteFill>
+    );
+};
+
+const ClixBrandReveal: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+    const revealStart = 25;
+    const smoothSpring = { damping: 20, stiffness: 150 };
+
+    const firstEntrance = spring({ frame, fps, config: smoothSpring });
+    const clixEntrance = spring({ frame: frame - revealStart, fps, config: smoothSpring });
+
+    const totalFirstPartX = interpolate(clixEntrance, [0, 1], [0, -450]);
+
+    return (
+        <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                transform: `translateX(${totalFirstPartX}px) scale(${interpolate(firstEntrance, [0, 1], [0.5, 1])})`,
+                opacity: firstEntrance,
+                position: 'absolute'
+            }}>
+                <h1 style={{ fontSize: 130, margin: 0, whiteSpace: 'nowrap' }}>Introducing</h1>
+            </div>
+            {frame >= revealStart && (
+                <div style={{
+                    transform: `translateX(${interpolate(clixEntrance, [0, 1], [800, 300])}px)`,
+                    opacity: clixEntrance,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center'
+                }}>
+                    <h1 style={{ fontSize: 150, margin: 0, whiteSpace: 'nowrap', color: 'white' }}>Clix</h1>
+                    <Img
+                        src={staticFile("clix.png")}
+                        style={{
+                            width: 180,
+                            height: 180,
+                            marginLeft: 40,
+                            transform: `scale(${clixEntrance}) rotate(${interpolate(clixEntrance, [0, 1], [-20, 0])}deg)`,
+                            filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))'
+                        }}
+                    />
+                </div>
+            )}
+        </div>
     );
 };
