@@ -3,6 +3,7 @@ import { Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { ClixVideo } from "./Clix/ClixVideo";
+import { OreVideo } from "./Ore/OreVideo";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -31,6 +32,14 @@ export const RemotionRoot: React.FC = () => {
         id="Clix"
         component={ClixVideo}
         durationInFrames={1100}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Ore"
+        component={OreVideo}
+        durationInFrames={120}
         fps={30}
         width={1920}
         height={1080}
