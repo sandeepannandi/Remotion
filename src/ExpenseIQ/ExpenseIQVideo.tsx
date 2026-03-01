@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sequence, Video, staticFile } from 'remotion';
+import { Audio, Sequence, Video, staticFile } from 'remotion';
 import { FirstFrame } from './FirstFrame';
 import { VideoOverlay } from './VideoOverlay';
 import { ProsperityFlash } from './ProsperityFlash';
@@ -10,6 +10,15 @@ export const ExpenseIQVideo: React.FC = () => {
 
     return (
         <>
+            {/* Background Audio */}
+            <Audio src={staticFile("bills.wav")} />
+            <Sequence from={53}>
+                <Audio src={staticFile("subscriptions.wav")} />
+            </Sequence>
+            <Sequence from={106}>
+                <Audio src={staticFile("expenses.wav")} />
+            </Sequence>
+
             {/* Show the expense video for the intro, muted */}
             <Sequence durationInFrames={videoDuration}>
                 <Video
