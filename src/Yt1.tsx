@@ -58,7 +58,7 @@ export const Yt1: React.FC = () => {
         <AbsoluteFill style={CONTAINER_STYLE}>
           <div style={TEXT_STYLE}>
             <span style={{ opacity: 1 }}>MY</span>
-            <span style={{ opacity: frame >= laptopStart + 8 ? 1 : 0 }}>LAPTOP</span>
+            <span style={{ opacity: frame >= laptopStart + 8 ? 1 : 0 }}>WINDOWS</span>
             <span style={{ opacity: frame >= laptopStart + 16 ? 1 : 0 }}>DOES</span>
           </div>
         </AbsoluteFill>
