@@ -3,10 +3,19 @@ import { Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { OreVideo } from "./Ore/OreVideo";
+import { Yt1 } from "./Yt1";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="Yt1"
+        component={Yt1}
+        durationInFrames={300}
+        fps={30}
+        width={7680}
+        height={4320}
+      />
       <Composition
         id="MarketingVideo"
         component={MarketingVideo}
