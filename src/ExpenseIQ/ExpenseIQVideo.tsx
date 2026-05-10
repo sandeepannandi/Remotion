@@ -1,10 +1,11 @@
-import React from 'react';
 import {
     AbsoluteFill,
     useCurrentFrame,
     useVideoConfig,
     interpolate,
     staticFile,
+    Easing,
+    spring,
 } from 'remotion';
 
 const noiseUrl = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E`;
@@ -55,8 +56,8 @@ export const ExpenseIQVideo: React.FC = () => {
     
     // Stage 6: "situation" + Card Stream
     const situationStart = 140;
-    // Word "situation" just fades
-    const situationOpacity = interpolate(frame, [situationStart, situationStart + 5, situationStart + 25, situationStart + 35], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    // Word "situation" fades in fast and out faster
+    const situationOpacity = interpolate(frame, [situationStart, situationStart + 5, situationStart + 15, situationStart + 20], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
     return (
         <AbsoluteFill
@@ -145,11 +146,23 @@ export const ExpenseIQVideo: React.FC = () => {
 
                     {/* Image Cards Stream */}
                     {SITUATION_ASSETS.map((asset, i) => {
-                        const cardStart = situationStart + 5 + (i * 11); // Closer together
+                        const cardStart = situationStart + 5 + (i * 28);
                         if (frame < cardStart) return null;
                         
-                        // Card moves from right to left
-                        const x = interpolate(frame, [cardStart, cardStart + 50], [1920, -1200]);
+                        // Card moves from right to left linearly - slowed down to 180 frames for equal distance
+                        const x = interpolate(frame, [cardStart, cardStart + 125], [1920, -1200], {
+                            extrapolateRight: 'clamp'
+                        });
+
+                        // Entrance spring for scale and opacity
+                        const entrance = spring({
+                            frame: frame - cardStart,
+                            fps,
+                            config: { damping: 15, stiffness: 100 }
+                        });
+
+                        const scale = interpolate(entrance, [0, 1], [0.8, 1]);
+                        const opacity = interpolate(entrance, [0, 1], [0, 1]);
                         
                         return (
                             <div
@@ -158,7 +171,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                     position: 'absolute',
                                     left: 0,
                                     top: '50%',
-                                    transform: `translate(${x}px, -50%) rotate(4deg)`,
+                                    transform: `translate(${x}px, -50%) rotate(4deg) scale(${scale})`,
+                                    opacity: opacity,
                                     width: '600px', // Bigger size
                                     height: '800px', // Bigger size
                                     borderRadius: '60px', // Increased roundness
