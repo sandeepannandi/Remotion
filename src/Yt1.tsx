@@ -1,6 +1,6 @@
-import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
-import { MoveRight } from "lucide-react";
+import { MoveRight, MoveUpRight } from "lucide-react";
 import React from "react";
 
 const { fontFamily } = loadFont();
@@ -60,6 +60,11 @@ export const Yt1: React.FC = () => {
   const snapStart = accStart + 20; // When mac and arrow1 vanish, acc moves left
   const arrow2Start = snapStart + 10;
   const detectedStart = arrow2Start + 10;
+  const funStart = detectedStart + 30;
+  const sourceStart = funStart + 40;
+  const delay400ms = Math.round(0.4 * fps);
+  const arrowMoveDuration = 10;
+  const gigachadStart = sourceStart + delay400ms + arrowMoveDuration + delay400ms;
 
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
@@ -74,6 +79,21 @@ export const Yt1: React.FC = () => {
 
   // Shift amount for initial stage
   const SHIFT_RIGHT = 220;
+
+  // Animations
+  const arrowY = interpolate(
+    frame - sourceStart,
+    [delay400ms, delay400ms + arrowMoveDuration],
+    [CENTER_Y + 800, CENTER_Y + 100],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+
+  const gigachadX = interpolate(
+    frame - gigachadStart,
+    [0, 10],
+    [8000, 6300],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
 
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -187,7 +207,7 @@ export const Yt1: React.FC = () => {
       )}
 
       {/* 11. Pivot Snap Sequence */}
-      {frame >= macStart && (
+      {frame >= macStart && frame < funStart && (
         <AbsoluteFill>
           {/* MAC: Visible only until the snap */}
           {frame < snapStart && (
@@ -248,6 +268,66 @@ export const Yt1: React.FC = () => {
               transform: "translate(-50%, -50%)",
             }}>
               <img src={staticFile("detected.png")} style={{ height: `${DETECTED_HEIGHT}px`, width: "auto" }} />
+            </div>
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* 12. fun.png */}
+      {frame >= funStart && frame < sourceStart && (
+        <AbsoluteFill>
+          <img
+            src={staticFile("fun.png")}
+            style={{
+              width: "112.6%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* 13. source.png & gigachad.png sequence */}
+      {frame >= sourceStart && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* source.png: Centered, below top */}
+          <div style={{
+            position: "absolute",
+            left: "50%",
+            top: "54%",
+            transform: "translate(-50%, -50%)",
+          }}>
+            <img 
+              src={staticFile("source.png")} 
+              style={{ height: "4000px", width: "auto" }} 
+            />
+          </div>
+
+          {/* Arrow: Center left of the image, animated upwards */}
+          <div style={{
+            position: "absolute",
+            left: "12%",
+            top: arrowY,
+            rotate: "-20deg",
+            transform: "translate(-50%, -50%)",
+            color: "white",
+            overflow: "visible",
+          }}>
+            <MoveUpRight size={1000} strokeWidth={3} />
+          </div>
+
+          {/* gigachad.png: Slide in from right */}
+          {frame >= gigachadStart && (
+            <div style={{
+              position: "absolute",
+              left: gigachadX,
+              top: "33.1%",
+              transform: "translate(-50%, -50%)",
+            }}>
+              <img 
+                src={staticFile("gigachad.png")} 
+                style={{ height: "5800px", width: "auto" }} 
+              />
             </div>
           )}
         </AbsoluteFill>
