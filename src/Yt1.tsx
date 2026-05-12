@@ -1,4 +1,4 @@
-import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
+import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { MoveRight, MoveUpRight } from "lucide-react";
 import React from "react";
@@ -66,6 +66,9 @@ export const Yt1: React.FC = () => {
   const arrowMoveDuration = 10;
   const gigachadStart = sourceStart + delay400ms + arrowMoveDuration + delay400ms;
 
+  // New Timing
+  const builtStart = gigachadStart + 28; // Slide-in (10) + Stay (18 = 600ms)
+  
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
   const DETECTED_HEIGHT = 1800;
@@ -76,6 +79,10 @@ export const Yt1: React.FC = () => {
   const CENTER_X = 3840;
   const RIGHT_X = 5880;
   const CENTER_Y = 2160;
+
+  // Final positions for windows/gif to have proper gap
+  const WINDOWS_FINAL_X = 2180;
+  const GIF_X = 7750;
 
   // Shift amount for initial stage
   const SHIFT_RIGHT = 220;
@@ -288,7 +295,7 @@ export const Yt1: React.FC = () => {
       )}
 
       {/* 13. source.png & gigachad.png sequence */}
-      {frame >= sourceStart && (
+      {frame >= sourceStart && frame < builtStart && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           {/* source.png: Centered, below top */}
           <div style={{
@@ -310,7 +317,7 @@ export const Yt1: React.FC = () => {
             top: arrowY,
             rotate: "-20deg",
             transform: "translate(-50%, -50%)",
-            color: "white",
+            color: "#F5F2E3",
             overflow: "visible",
           }}>
             <MoveUpRight size={1000} strokeWidth={3} />
@@ -331,6 +338,69 @@ export const Yt1: React.FC = () => {
             </div>
           )}
         </AbsoluteFill>
+      )}
+
+      {/* 14. built.mp4 and Overlays */}
+      <Sequence from={builtStart}>
+        <Video 
+          src={staticFile("built.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+
+        {/* 15. windows.png Overlay & rub.gif */}
+        <Sequence from={24}> {/* 800ms after video starts */}
+          <FinalOverlay 
+            CENTER_X={CENTER_X} 
+            CENTER_Y={CENTER_Y} 
+            WINDOWS_FINAL_X={WINDOWS_FINAL_X} 
+            GIF_X={GIF_X} 
+          />
+        </Sequence>
+      </Sequence>
+    </AbsoluteFill>
+  );
+};
+
+const FinalOverlay: React.FC<{
+  CENTER_X: number;
+  CENTER_Y: number;
+  WINDOWS_FINAL_X: number;
+  GIF_X: number;
+}> = ({ CENTER_X, CENTER_Y, WINDOWS_FINAL_X, GIF_X }) => {
+  const frame = useCurrentFrame();
+  const rubStart = 30; // 1s shift delay
+
+  const windowsX = interpolate(
+    frame - rubStart,
+    [0, 10],
+    [CENTER_X, WINDOWS_FINAL_X],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+
+  return (
+    <AbsoluteFill>
+      <div style={{
+        position: "absolute",
+        left: windowsX,
+        top: CENTER_Y,
+        transform: "translate(-50%, -50%)",
+      }}>
+        <img src={staticFile("windows.png")} style={{ height: "2800px", width: "auto" }} />
+      </div>
+
+      {frame >= rubStart && (
+        <div style={{
+          position: "absolute",
+          left: GIF_X,
+          top: CENTER_Y,
+          transform: "translate(-50%, -50%)",
+          clipPath: "inset(0 50% 0 0)",
+        }}>
+          <img 
+            src={staticFile("rub.gif")} 
+            style={{ height: "3800px", width: "auto" }} 
+          />
+        </div>
       )}
     </AbsoluteFill>
   );

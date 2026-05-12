@@ -7,6 +7,7 @@
   "private": true,
   "dependencies": {
     "@remotion/cli": "4.0.420",
+    "@remotion/gif": "^4.0.460",
     "@remotion/google-fonts": "^4.0.459",
     "@remotion/tailwind-v4": "4.0.420",
     "@remotion/zod-types": "4.0.420",
