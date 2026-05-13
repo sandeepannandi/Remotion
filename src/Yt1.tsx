@@ -1,4 +1,4 @@
-import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, spring, interpolate, Sequence } from "remotion";
+import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { MoveRight, MoveUpRight } from "lucide-react";
 import React from "react";
@@ -68,6 +68,18 @@ export const Yt1: React.FC = () => {
 
   // New Timing
   const builtStart = gigachadStart + 28; // Slide-in (10) + Stay (18 = 600ms)
+  const builtDuration = 163;
+  const easyStart = builtStart + builtDuration;
+  const easyDuration = Math.round(0.8 * fps);
+  const itWasNotStart = easyStart + easyDuration;
+  const itWasNotDuration = 30; // 1s stay
+  const noaccStart = itWasNotStart + itWasNotDuration;
+  const noaccDuration = 206; // ~6.86s at 30fps
+  const howtoStart = noaccStart + noaccDuration;
+  const howtoDuration = 80; // ~2.16s
+  const spikeStart = howtoStart + howtoDuration;
+  const spikeDuration = 602; // ~20.05s at 30fps
+  const cortisolStart = 27; // 900ms after spike starts
   
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
@@ -341,7 +353,7 @@ export const Yt1: React.FC = () => {
       )}
 
       {/* 14. built.mp4 and Overlays */}
-      <Sequence from={builtStart}>
+      <Sequence from={builtStart} durationInFrames={builtDuration}>
         <Video 
           src={staticFile("built.mp4")} 
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -355,6 +367,65 @@ export const Yt1: React.FC = () => {
             WINDOWS_FINAL_X={WINDOWS_FINAL_X} 
             GIF_X={GIF_X} 
           />
+        </Sequence>
+      </Sequence>
+
+      {/* 16. easy.gif full screen */}
+      {frame >= easyStart && frame < itWasNotStart && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("easy.gif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* 17. IT WAS NOT (Word by word) */}
+      {frame >= itWasNotStart && frame < howtoStart && (
+        <AbsoluteFill style={CONTAINER_STYLE}>
+          <div style={{ ...TEXT_STYLE, fontSize: 1200 }}>
+            <span style={{ opacity: 1 }}>IT</span>
+            <span style={{ opacity: frame >= itWasNotStart + 6 ? 1 : 0 }}>WAS</span>
+            <span style={{ opacity: frame >= itWasNotStart + 12 ? 1 : 0 }}>NOT</span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* 18. noacc.mp4 */}
+      <Sequence from={noaccStart} durationInFrames={noaccDuration}>
+        <Video 
+          src={staticFile("noacc.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
+
+      {/* 19. howto.mp4 */}
+      <Sequence from={howtoStart} durationInFrames={howtoDuration}>
+        <Video 
+          src={staticFile("howto.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
+
+      {/* 20. spike.mp4 */}
+      <Sequence from={spikeStart} durationInFrames={spikeDuration}>
+        <Video 
+          src={staticFile("spike.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        
+        {/* cortisol.png Overlay */}
+        <Sequence from={cortisolStart}>
+          <AbsoluteFill style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <img 
+              src={staticFile("cortisol.png")} 
+              style={{ width: "65%", height: "auto", objectFit: "contain" }}
+            />
+          </AbsoluteFill>
         </Sequence>
       </Sequence>
     </AbsoluteFill>
@@ -405,3 +476,4 @@ const FinalOverlay: React.FC<{
     </AbsoluteFill>
   );
 };
+
