@@ -77,9 +77,16 @@ export const Yt1: React.FC = () => {
   const noaccDuration = 206; // ~6.86s at 30fps
   const howtoStart = noaccStart + noaccDuration;
   const howtoDuration = 80; // ~2.16s
-  const spikeStart = howtoStart + howtoDuration;
-  const spikeDuration = 602; // ~20.05s at 30fps
-  const cortisolStart = 27; // 900ms after spike starts
+  const thinkStart = howtoStart + howtoDuration;
+  const thinkDuration = 52; // 1.5s at 30fps
+  const knockStart = thinkStart + thinkDuration;
+  const knockDuration = 128; // ~4.26s at 30fps
+  const outroStart = knockStart + knockDuration;
+  const outroDuration = 60; // 2s at 30fps
+  const simpleStart = outroStart + outroDuration;
+  const simpleDuration = 60; // 2s at 30fps
+  const listStart = simpleStart + simpleDuration;
+  const listDuration = 150; // 5s at 30fps
   
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
@@ -411,23 +418,111 @@ export const Yt1: React.FC = () => {
         />
       </Sequence>
 
-      {/* 20. spike.mp4 */}
-      <Sequence from={spikeStart} durationInFrames={spikeDuration}>
+      {/* 20. think.gif */}
+      <Sequence from={thinkStart} durationInFrames={thinkDuration}>
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("think.gif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* 21. knock.mp4 */}
+      <Sequence from={knockStart} durationInFrames={knockDuration}>
         <Video 
-          src={staticFile("spike.mp4")} 
+          src={staticFile("knock.mp4")} 
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
-        
-        {/* cortisol.png Overlay */}
-        <Sequence from={cortisolStart}>
-          <AbsoluteFill style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <img 
-              src={staticFile("cortisol.png")} 
-              style={{ width: "65%", height: "auto", objectFit: "contain" }}
-            />
-          </AbsoluteFill>
-        </Sequence>
       </Sequence>
+
+      {/* 22. Outro Overlay */}
+      <Sequence from={outroStart} durationInFrames={outroDuration}>
+        <OutroOverlay CENTER_X={CENTER_X} CENTER_Y={CENTER_Y} />
+      </Sequence>
+
+      {/* 23. simple.gif */}
+      <Sequence from={simpleStart} durationInFrames={simpleDuration}>
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("simple.gif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* 24. Steps List (Word by word, Line by line) */}
+      <Sequence from={listStart} durationInFrames={listDuration}>
+        <AbsoluteFill style={{ ...CONTAINER_STYLE, alignItems: "flex-start", justifyContent: "center", paddingLeft: "600px" }}>
+          <div style={{ ...TEXT_STYLE, textAlign: "left", flexDirection: "column", alignItems: "flex-start", fontSize: 800, gap: "200px" }}>
+            {/* Line 1 */}
+            <div style={{ display: "flex", gap: "60px" }}>
+              <span style={{ opacity: frame >= listStart + 0 ? 1 : 0 }}>1.</span>
+              <span style={{ opacity: frame >= listStart + 6 ? 1 : 0 }}>LISTEN</span>
+              <span style={{ opacity: frame >= listStart + 12 ? 1 : 0 }}>TO</span>
+              <span style={{ opacity: frame >= listStart + 18 ? 1 : 0 }}>MIC</span>
+            </div>
+            {/* Line 2 */}
+            <div style={{ display: "flex", gap: "60px" }}>
+              <span style={{ opacity: frame >= listStart + 30 ? 1 : 0 }}>2.</span>
+              <span style={{ opacity: frame >= listStart + 36 ? 1 : 0 }}>DETECT</span>
+              <span style={{ opacity: frame >= listStart + 42 ? 1 : 0 }}>SPIKE</span>
+              <span style={{ opacity: frame >= listStart + 48 ? 1 : 0 }}>IN</span>
+              <span style={{ opacity: frame >= listStart + 54 ? 1 : 0 }}>VOLUME</span>
+            </div>
+            {/* Line 3 */}
+            <div style={{ display: "flex", gap: "60px" }}>
+              <span style={{ opacity: frame >= listStart + 66 ? 1 : 0 }}>3.</span>
+              <span style={{ opacity: frame >= listStart + 72 ? 1 : 0 }}>PLAY</span>
+              <span style={{ opacity: frame >= listStart + 78 ? 1 : 0 }}>THE</span>
+              <span style={{ opacity: frame >= listStart + 84 ? 1 : 0 }}>MOAN</span>
+              <span style={{ opacity: frame >= listStart + 90 ? 1 : 0 }}>SOUND</span>
+            </div>
+          </div>
+        </AbsoluteFill>
+      </Sequence>
+    </AbsoluteFill>
+  );
+};
+
+const OutroOverlay: React.FC<{
+  CENTER_X: number;
+  CENTER_Y: number;
+}> = ({ CENTER_X, CENTER_Y }) => {
+  const frame = useCurrentFrame();
+  const micStart = 15; // 500ms delay
+  const WINDOWS_X = CENTER_X - 1650;
+  const MIC_X = CENTER_X + 1650;
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "black" }}>
+      <div style={{
+        position: "absolute",
+        left: WINDOWS_X,
+        top: CENTER_Y,
+        transform: "translate(-50%, -50%)",
+      }}>
+        <img src={staticFile("windows.png")} style={{ height: "2800px", width: "auto" }} />
+      </div>
+
+      {frame >= micStart && (
+        <div style={{
+          position: "absolute",
+          left: MIC_X,
+          top: CENTER_Y,
+          transform: "translate(-50%, -50%)",
+        }}>
+          <span style={{ fontSize: "2500px", lineHeight: 1 }}>🎤</span>
+        </div>
+      )}
     </AbsoluteFill>
   );
 };
