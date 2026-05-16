@@ -1,6 +1,6 @@
 import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
-import { MoveRight, MoveUpRight, MoveDownLeft } from "lucide-react";
+import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft } from "lucide-react";
 import React from "react";
 
 const { fontFamily } = loadFont();
@@ -95,7 +95,22 @@ export const Yt1: React.FC = () => {
   const pythonDuration = 60; // 2s at 30fps
 
   const librariesStart = pythonStart + pythonDuration;
-  const librariesDuration = 160; // 2s at 30fps
+  const librariesDuration = 190; // 2s + 1s extra at 30fps
+
+  const mainloopStart = librariesStart + librariesDuration;
+  const mainloopDuration = 566; // 18.865s * 30fps
+
+  const elmoStart = mainloopStart + mainloopDuration;
+  const elmoDuration = 60; // 2s at 30fps
+
+  const whystopStart = elmoStart + elmoDuration;
+  const whystopDuration = 60; // 2s at 30fps
+
+  const fewMoreSoundsStart = whystopStart + whystopDuration;
+  const fewMoreSoundsDuration = 30; // 1s at 30fps
+
+  const moresoundsStart = fewMoreSoundsStart + fewMoreSoundsDuration;
+  const moresoundsDuration = 90; // 3s at 30fps (1s each for sui, yk, kiscolor)
   
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
@@ -579,6 +594,98 @@ export const Yt1: React.FC = () => {
               </div>
             </div>
           )}
+        </AbsoluteFill>
+      )}
+      {/* 28. mainloop.mp4 */}
+      <Sequence from={mainloopStart} durationInFrames={mainloopDuration}>
+        <Video 
+          src={staticFile("mainloop.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
+      {/* 29. elmo.gif */}
+      <Sequence from={elmoStart} durationInFrames={elmoDuration}>
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("elmo.gif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+      {/* 30. whystop.jpg */}
+      <Sequence from={whystopStart} durationInFrames={whystopDuration}>
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("whystop.jpg")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+      {/* 31. FEW MORE SOUNDS. (Word by word) */}
+      {frame >= fewMoreSoundsStart && frame < fewMoreSoundsStart + fewMoreSoundsDuration && (
+        <AbsoluteFill style={CONTAINER_STYLE}>
+          <div style={TEXT_STYLE}>
+            <span style={{ opacity: 1 }}>FEW</span>
+            <span style={{ opacity: frame >= fewMoreSoundsStart + 6 ? 1 : 0 }}>MORE</span>
+            <span style={{ opacity: frame >= fewMoreSoundsStart + 12 ? 1 : 0 }}>SOUNDS.</span>
+          </div>
+        </AbsoluteFill>
+      )}
+      {/* 32. moresounds.png + sui.webp + Arrow */}
+      {frame >= moresoundsStart && frame < moresoundsStart + moresoundsDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* moresounds.png on the left */}
+          <img
+            src={staticFile("moresounds.png")}
+            style={{
+              position: "absolute",
+              left: "20%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              height: "100%",
+              width: "auto",
+              objectFit: "contain",
+            }}
+          />
+          
+          {/* Arrow in the center pointing left */}
+          <div style={{
+            position: "absolute",
+            left: "48%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            color: "#F5F2E3",
+          }}>
+            <MoveLeft size={1000} strokeWidth={3} />
+          </div>
+
+          {/* sui.webp, yk.jpg, or kiscolor.webp on the right */}
+          <img
+            src={staticFile(
+              frame - moresoundsStart < 30 
+                ? "sui.webp" 
+                : frame - moresoundsStart < 60 
+                  ? "yk.jpg" 
+                  : "kiscolor.webp"
+            )}
+            style={{
+              position: "absolute",
+              left: "75%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              height: "80%",
+              width: "auto",
+              objectFit: "contain",
+            }}
+          />
         </AbsoluteFill>
       )}
       </AbsoluteFill>
