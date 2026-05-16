@@ -1,6 +1,6 @@
 import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
-import { MoveRight, MoveUpRight } from "lucide-react";
+import { MoveRight, MoveUpRight, MoveDownLeft } from "lucide-react";
 import React from "react";
 
 const { fontFamily } = loadFont();
@@ -87,6 +87,15 @@ export const Yt1: React.FC = () => {
   const simpleDuration = 60; // 2s at 30fps
   const listStart = simpleStart + simpleDuration;
   const listDuration = 150; // 5s at 30fps
+
+  const wemakeStart = listStart + listDuration;
+  const wemakeDuration = 30; // 1s at 30fps
+
+  const pythonStart = wemakeStart + wemakeDuration;
+  const pythonDuration = 60; // 2s at 30fps
+
+  const librariesStart = pythonStart + pythonDuration;
+  const librariesDuration = 160; // 2s at 30fps
   
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
@@ -489,9 +498,92 @@ export const Yt1: React.FC = () => {
           </div>
         </AbsoluteFill>
       </Sequence>
-    </AbsoluteFill>
-  );
-};
+
+      {/* 25. wemake.jpg full screen */}
+      {frame >= wemakeStart && frame < wemakeStart + wemakeDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("wecan.jpg")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* 26. python.png on black screen */}
+      {frame >= pythonStart && frame < pythonStart + pythonDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black", justifyContent: "center", alignItems: "center" }}>
+          <img
+            src={staticFile("python.png")}
+            style={{
+              height: "2800px",
+              width: "auto",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* 27. libraries.png full screen */}
+      {frame >= librariesStart && frame < librariesStart + librariesDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("libraries.png")}
+            style={{
+              width: "118%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= librariesStart + 18 && (
+            <div style={{
+              position: "absolute",
+              left: (() => {
+                if (frame >= librariesStart + 118) return "28%";
+                if (frame >= librariesStart + 98) return "33%";
+                if (frame >= librariesStart + 78) return "28%";
+                if (frame >= librariesStart + 58) return "50%";
+                if (frame >= librariesStart + 38) return "28%";
+                return "32%";
+              })(),
+              top: (() => {
+                if (frame >= librariesStart + 118) return "58%";
+                if (frame >= librariesStart + 98) return "50%";
+                if (frame >= librariesStart + 78) return "42%";
+                if (frame >= librariesStart + 58) return "34%";
+                if (frame >= librariesStart + 38) return "23%";
+                return "15%";
+              })(),
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "40px",
+              color: "#F5F2E3",
+            }}>
+              <MoveDownLeft size={600} strokeWidth={3} />
+              <div style={{ 
+                ...TEXT_STYLE, 
+                fontSize: 400, 
+                textAlign: "left",
+                paddingTop: "60px" 
+              }}>
+                {(() => {
+                  if (frame >= librariesStart + 118) return "builds the UI";
+                  if (frame >= librariesStart + 98) return "detects USB connections";
+                  if (frame >= librariesStart + 78) return "controls audio volume";
+                  if (frame >= librariesStart + 58) return "plays the sound";
+                  if (frame >= librariesStart + 38) return "CALCULATES AUDIO LOUDNESS";
+                  return "LISTENS TO YOUR MIC";
+                })()}
+              </div>
+            </div>
+          )}
+        </AbsoluteFill>
+      )}
+      </AbsoluteFill>
+      );
+      };
 
 const OutroOverlay: React.FC<{
   CENTER_X: number;
