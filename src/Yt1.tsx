@@ -1,6 +1,6 @@
 import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
-import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft } from "lucide-react";
+import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft, MoveUpLeft, MoveDownRight } from "lucide-react";
 import React from "react";
 
 const { fontFamily } = loadFont();
@@ -111,6 +111,20 @@ export const Yt1: React.FC = () => {
 
   const moresoundsStart = fewMoreSoundsStart + fewMoreSoundsDuration;
   const moresoundsDuration = 90; // 3s at 30fps (1s each for sui, yk, kiscolor)
+
+  const centeredMoresoundsStart = moresoundsStart + moresoundsDuration;
+  const centeredMoresoundsDuration = 120; // 4s at 30fps
+
+  const susStart = centeredMoresoundsStart + centeredMoresoundsDuration;
+  const susDuration = 334; // ~11.11s at 30fps
+
+  const onemoreStart = susStart + susDuration;
+  const onemoreDuration = 30; // 1s at 30fps
+
+  const arrowAStart = centeredMoresoundsStart + 15;
+
+  const arrowBStart = arrowAStart + 15;
+  const arrowCStart = arrowBStart + 15;
   
   // Image Sizes
   const MAC_ACC_HEIGHT = 2800;
@@ -688,9 +702,93 @@ export const Yt1: React.FC = () => {
           />
         </AbsoluteFill>
       )}
-      </AbsoluteFill>
-      );
-      };
+      {/* 33. moresounds.png Centered + 3 Arrows */}
+      {frame >= centeredMoresoundsStart && frame < centeredMoresoundsStart + centeredMoresoundsDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("moresounds.png")}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              height: "130%",
+              width: "auto",
+              objectFit: "contain",
+            }}
+          />
+
+          {/* Arrow 1: MoveDownLeft (from Top-Right) */}
+          {frame >= arrowAStart && (
+            <div style={{
+              position: "absolute",
+              left: "52%",
+              top: "23%",
+              transform: "translate(-50%, -50%)",
+              color: "#F5F2E3",
+            }}>
+              <MoveDownLeft size={800} strokeWidth={3} />
+            </div>
+          )}
+
+          {/* Arrow 2: MoveUpLeft (from Bottom-Right) */}
+          {frame >= arrowBStart && (
+            <div style={{
+              position: "absolute",
+              left: "54%",
+              top: "70%",
+              transform: "translate(-50%, -50%)",
+              color: "#F5F2E3",
+            }}>
+              <MoveLeft size={800} strokeWidth={3} />
+            </div>
+          )}
+
+          {/* Arrow 3: MoveDownRight (from Top-Left) */}
+          {frame >= arrowCStart && (
+            <div style={{
+              position: "absolute",
+              left: "28%",
+              top: "32%",
+              transform: "translate(-50%, -50%)",
+              color: "#F5F2E3",
+            }}>
+              <MoveDownRight size={800} strokeWidth={3} />
+            </div>
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* 34. sus.gif */}
+      {frame >= susStart && frame < susStart + susDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("sus.gif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "fill",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* 35. onemore.jfif */}
+      {frame >= onemoreStart && frame < onemoreStart + onemoreDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("onemore.jfif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+    </AbsoluteFill>
+  );
+};
 
 const OutroOverlay: React.FC<{
   CENTER_X: number;
