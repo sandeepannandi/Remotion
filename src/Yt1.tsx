@@ -121,6 +121,12 @@ export const Yt1: React.FC = () => {
   const onemoreStart = susStart + susDuration;
   const onemoreDuration = 30; // 1s at 30fps
 
+  const usbStart = onemoreStart + onemoreDuration;
+  const usbDuration = 706; // ~23.54s at 30fps
+
+  const uiStart = usbStart + usbDuration;
+  const uiDuration = 1145; // ~38.17s at 30fps
+
   const arrowAStart = centeredMoresoundsStart + 15;
 
   const arrowBStart = arrowAStart + 15;
@@ -786,6 +792,22 @@ export const Yt1: React.FC = () => {
           />
         </AbsoluteFill>
       )}
+
+      {/* 36. usb.mp4 */}
+      <Sequence from={usbStart} durationInFrames={usbDuration}>
+        <Video 
+          src={staticFile("usb.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
+
+      {/* 37. ui.mp4 */}
+      <Sequence from={uiStart} durationInFrames={uiDuration}>
+        <Video 
+          src={staticFile("ui.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
     </AbsoluteFill>
   );
 };
