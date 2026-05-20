@@ -1,4 +1,4 @@
-import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence } from "remotion";
+import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence, Audio } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft, MoveUpLeft, MoveDownRight } from "lucide-react";
 import React from "react";
@@ -41,7 +41,11 @@ export const Yt1: React.FC = () => {
   
   const finalImageStart = thatEnd;
   const letmeexplainEnd = finalImageStart + 34; 
-  const postStart = letmeexplainEnd;
+  
+  const scrollStart = letmeexplainEnd;
+  const scrollDuration = Math.round(25.8 * 25); // ~645 frames at 25fps (using 25fps source rate)
+  
+  const postStart = scrollStart + scrollDuration;
   const thisPostJfifStart = postStart + 50; 
   const thisPostJfifEnd = thisPostJfifStart + 40;
 
@@ -126,6 +130,12 @@ export const Yt1: React.FC = () => {
 
   const uiStart = usbStart + usbDuration;
   const uiDuration = 1145; // ~38.17s at 30fps
+  
+  const githubStart = uiStart + uiDuration;
+  const githubDuration = 90; // 3s at 30fps
+
+  const uploadStart = githubStart + githubDuration;
+  const uploadDuration = 210; // 7s at 30fps
 
   const arrowAStart = centeredMoresoundsStart + 15;
 
@@ -172,6 +182,11 @@ export const Yt1: React.FC = () => {
         <Video src={staticFile("start.mp4")} />
       )}
 
+      {/* Audio: yeah.mp3 */}
+      <Sequence from={yeahStart} durationInFrames={letmeexplainEnd - yeahStart}>
+        <Audio src={staticFile("yeah.mp3")} />
+      </Sequence>
+
       {/* 2. YEAH. */}
       {frame >= yeahStart && frame < yeahEnd && (
         <AbsoluteFill style={CONTAINER_STYLE}>
@@ -198,7 +213,7 @@ export const Yt1: React.FC = () => {
       )}
 
       {/* 5. letmeexplain.jpg */}
-      {frame >= finalImageStart && frame < letmeexplainEnd && (
+      {frame >= finalImageStart && frame < scrollStart && (
         <AbsoluteFill>
           <img
             src={staticFile("letmeexplain.jpg")}
@@ -211,21 +226,30 @@ export const Yt1: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* 6. post.png (Background) */}
-      {frame >= postStart && frame < thisPostJfifEnd && (
+      {/* 6. scroll.mp4 */}
+      <Sequence from={scrollStart} durationInFrames={scrollDuration}>
+        <Video 
+          src={staticFile("scroll.mp4")} 
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
+
+      {/* 7. post.png (Background) */}
+      {frame >= postStart && frame < someoneBuiltStart && (
         <AbsoluteFill style={{ ...CONTAINER_STYLE, backgroundColor: "black" }}>
           <img
             src={staticFile("post.png")}
             style={{
+              width: "100%",
               height: "100%",
-              width: "auto",
-              objectFit: "contain",
+              objectFit: frame >= thisPostJfifStart + 30 ? "cover" : "contain",
+              objectPosition: frame >= thisPostJfifStart + 30 ? "50% 100%" : "50% 50%",
             }}
           />
         </AbsoluteFill>
       )}
       {/* 7. thispost.jfif (Overlay) */}
-      {frame >= thisPostJfifStart && frame < thisPostJfifEnd && (
+      {frame >= thisPostJfifStart && frame < thisPostJfifStart + 30 && (
         <AbsoluteFill style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
           <img
             src={staticFile("thispost.jfif")}
@@ -807,6 +831,61 @@ export const Yt1: React.FC = () => {
           src={staticFile("ui.mp4")} 
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
+      </Sequence>
+      
+      {/* 38. github.png */}
+      <Sequence from={githubStart} durationInFrames={githubDuration}>
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("github.png")}
+            style={{
+              width: "108%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          {/* githubicon.png overlay after 1 sec */}
+          <Sequence from={30}>
+            <AbsoluteFill style={{ ...CONTAINER_STYLE, backgroundColor: "transparent", flexDirection: "column", gap: "150px" }}>
+              <img 
+                src={staticFile("githubicon.png")} 
+                style={{ height: "1200px", width: "auto", borderRadius: "20%" }} 
+              />
+              <div style={{ ...TEXT_STYLE, color: "black", fontSize: 700 }}>
+                LINK IN DESCRIPTION
+              </div>
+            </AbsoluteFill>
+          </Sequence>
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* 39. upload.mp4 and moresounds.png */}
+      <Sequence from={uploadStart} durationInFrames={uploadDuration}>
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Video 
+            src={staticFile("upload.mp4")} 
+            style={{
+              position: "absolute",
+              left: "25%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              height: "90%",
+              width: "auto",
+            }}
+          />
+          <img
+            src={staticFile("moresounds.png")}
+            style={{
+              position: "absolute",
+              left: "75%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              height: "90%",
+              width: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
       </Sequence>
     </AbsoluteFill>
   );
