@@ -54,17 +54,17 @@ export const Yt1: React.FC = () => {
   const slapmacwinStart = someoneBuiltEnd;
   const slapmacwinEnd = slapmacwinStart + 30;
   const slapitStart = slapmacwinEnd;
-  const slapitEnd = slapitStart + 30;
+  const slapitEnd = slapitStart + 108; // Added 18 frames (600ms) to previous 90
 
   // Pivot Snap Sequence Timing
   const macStart = slapitEnd;
-  const arrow1Start = macStart + 10;
-  const accStart = arrow1Start + 10;
+  const arrow1Start = macStart + 20; // Increased from 10
+  const accStart = arrow1Start + 20; // Increased from 10
   
-  const snapStart = accStart + 20; // When mac and arrow1 vanish, acc moves left
-  const arrow2Start = snapStart + 10;
-  const detectedStart = arrow2Start + 10;
-  const funStart = detectedStart + 30;
+  const snapStart = accStart + 58; // Added 18 frames (600ms) to previous 40
+  const arrow2Start = snapStart + 20; // Increased from 10
+  const detectedStart = arrow2Start + 20; // Increased from 10
+  const funStart = detectedStart + 71; // Increased to match full 12.16s audio (365 frames)
   const sourceStart = funStart + 40;
   const delay400ms = Math.round(0.4 * fps);
   const arrowMoveDuration = 10;
@@ -125,17 +125,38 @@ export const Yt1: React.FC = () => {
   const onemoreStart = susStart + susDuration;
   const onemoreDuration = 30; // 1s at 30fps
 
-  const usbStart = onemoreStart + onemoreDuration;
+  const usbmemeStart = onemoreStart + onemoreDuration;
+  const usbmemeDuration = 30; // 1s at 30fps
+
+  const usbStart = usbmemeStart + usbmemeDuration;
   const usbDuration = 706; // ~23.54s at 30fps
 
   const uiStart = usbStart + usbDuration;
   const uiDuration = 1145; // ~38.17s at 30fps
-  
-  const githubStart = uiStart + uiDuration;
+
+  const resultStart = uiStart + uiDuration;
+  const resultDuration = (26 - 10) * 30; // 16s at 30fps
+
+  const githubStart = resultStart + resultDuration;
   const githubDuration = 90; // 3s at 30fps
 
   const uploadStart = githubStart + githubDuration;
   const uploadDuration = 210; // 7s at 30fps
+
+  const honestlyStart = uploadStart + uploadDuration;
+  const honestlyDuration = 30; // 1s at 30fps
+
+  const feelbadStart = honestlyStart + honestlyDuration;
+  const feelbadDuration = 60; // 2s at 30fps
+
+  const thudStart = feelbadStart + feelbadDuration;
+  const thudDuration = 14; // ~0.44s at 30fps
+
+  const moanStart = thudStart + thudDuration;
+  const moanDuration = 33; // ~1.1s at 30fps
+
+  const subscribeStart = moanStart + moanDuration;
+  const subscribeDuration = 60; // 2s at 30fps
 
   const arrowAStart = centeredMoresoundsStart + 15;
 
@@ -184,12 +205,17 @@ export const Yt1: React.FC = () => {
 
       {/* Audio: first.m4a Part 1 */}
       <Sequence from={yeahStart} durationInFrames={letmeexplainEnd - yeahStart - 18}>
-        <Audio src={staticFile("first.m4a")} />
+        <Audio src={staticFile("First.m4a")} />
       </Sequence>
 
       {/* Audio: first.m4a Part 2 */}
       <Sequence from={scrollStart} durationInFrames={275 - (letmeexplainEnd - yeahStart - 18)}>
-        <Audio src={staticFile("first.m4a")} startFrom={letmeexplainEnd - yeahStart - 18} />
+        <Audio src={staticFile("First.m4a")} startFrom={letmeexplainEnd - yeahStart - 18} />
+      </Sequence>
+
+      {/* Audio: second.m4a */}
+      <Sequence from={someoneBuiltStart} durationInFrames={funStart - someoneBuiltStart}>
+        <Audio src={staticFile("Second.m4a")} startFrom={15} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -822,6 +848,19 @@ export const Yt1: React.FC = () => {
         </AbsoluteFill>
       )}
 
+      {/* 35.5 usbmeme.png */}
+      {frame >= usbmemeStart && frame < usbmemeStart + usbmemeDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black", justifyContent: "center", alignItems: "center" }}>
+          <img
+            src={staticFile("usbmeme.png")}
+            style={{
+              height: "100%",
+              width: "auto",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
       {/* 36. usb.mp4 */}
       <Sequence from={usbStart} durationInFrames={usbDuration}>
         <Video 
@@ -838,7 +877,16 @@ export const Yt1: React.FC = () => {
         />
       </Sequence>
       
-      {/* 38. github.png */}
+      {/* 38. result.mp4 */}
+      <Sequence from={resultStart} durationInFrames={resultDuration}>
+        <Video 
+          src={staticFile("result.mp4")} 
+          startFrom={10 * 30}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Sequence>
+      
+      {/* 39. github.png */}
       <Sequence from={githubStart} durationInFrames={githubDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           <img
@@ -892,6 +940,45 @@ export const Yt1: React.FC = () => {
           />
         </AbsoluteFill>
       </Sequence>
+
+      {/* 40. HONESTLY? */}
+      {frame >= honestlyStart && frame < honestlyStart + honestlyDuration && (
+        <AbsoluteFill style={CONTAINER_STYLE}>
+          <div style={TEXT_STYLE}>HONESTLY?</div>
+        </AbsoluteFill>
+      )}
+
+      {/* 41. feelbad.gif */}
+      {frame >= feelbadStart && frame < feelbadStart + feelbadDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <img
+            src={staticFile("feelbad.gif")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* 42. thud.mp3 & moan1.mp3 on Black Screen */}
+      {frame >= thudStart && frame < moanStart + moanDuration && (
+        <AbsoluteFill style={{ backgroundColor: "black" }} />
+      )}
+      <Sequence from={thudStart} durationInFrames={thudDuration}>
+        <Audio src={staticFile("thud.mp3")} volume={1} />
+      </Sequence>
+      <Sequence from={moanStart} durationInFrames={moanDuration}>
+        <Audio src={staticFile("moan1.mp3")} volume={0.4} />
+      </Sequence>
+
+      {/* 43. SUBSCRIBE */}
+      {frame >= subscribeStart && frame < subscribeStart + subscribeDuration && (
+        <AbsoluteFill style={CONTAINER_STYLE}>
+          <div style={TEXT_STYLE}>SUBSCRIBE</div>
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
