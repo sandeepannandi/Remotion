@@ -34,20 +34,20 @@ export const Yt1: React.FC = () => {
   const yeahEnd = yeahStart + 23; 
   
   const laptopStart = yeahEnd;
-  const laptopEnd = laptopStart + 18; 
+  const laptopEnd = laptopStart + 24; 
   
   const thatStart = laptopEnd;
   const thatEnd = thatStart + 20; 
   
   const finalImageStart = thatEnd;
-  const letmeexplainEnd = finalImageStart + 34; 
+  const letmeexplainEnd = finalImageStart + 46; 
   
   const scrollStart = letmeexplainEnd;
-  const scrollDuration = Math.round(25.8 * 25); // ~645 frames at 25fps (using 25fps source rate)
+  const scrollDuration = 102; 
   
   const postStart = scrollStart + scrollDuration;
-  const thisPostJfifStart = postStart + 50; 
-  const thisPostJfifEnd = thisPostJfifStart + 40;
+  const thisPostJfifStart = postStart; 
+  const thisPostJfifEnd = thisPostJfifStart + 90;
 
   const someoneBuiltStart = thisPostJfifEnd;
   const someoneBuiltEnd = someoneBuiltStart + 18; 
@@ -182,9 +182,14 @@ export const Yt1: React.FC = () => {
         <Video src={staticFile("start.mp4")} />
       )}
 
-      {/* Audio: yeah.mp3 */}
-      <Sequence from={yeahStart} durationInFrames={letmeexplainEnd - yeahStart}>
-        <Audio src={staticFile("yeah.mp3")} />
+      {/* Audio: first.m4a Part 1 */}
+      <Sequence from={yeahStart} durationInFrames={letmeexplainEnd - yeahStart - 18}>
+        <Audio src={staticFile("first.m4a")} />
+      </Sequence>
+
+      {/* Audio: first.m4a Part 2 */}
+      <Sequence from={scrollStart} durationInFrames={275 - (letmeexplainEnd - yeahStart - 18)}>
+        <Audio src={staticFile("first.m4a")} startFrom={letmeexplainEnd - yeahStart - 18} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -199,8 +204,8 @@ export const Yt1: React.FC = () => {
         <AbsoluteFill style={CONTAINER_STYLE}>
           <div style={TEXT_STYLE}>
             <span style={{ opacity: 1 }}>MY</span>
-            <span style={{ opacity: frame >= laptopStart + 6 ? 1 : 0 }}>WINDOWS</span>
-            <span style={{ opacity: frame >= laptopStart + 12 ? 1 : 0 }}>DOES</span>
+            <span style={{ opacity: frame >= laptopStart + 8 ? 1 : 0 }}>WINDOWS</span>
+            <span style={{ opacity: frame >= laptopStart + 16 ? 1 : 0 }}>DOES</span>
           </div>
         </AbsoluteFill>
       )}
@@ -242,14 +247,14 @@ export const Yt1: React.FC = () => {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: frame >= thisPostJfifStart + 30 ? "cover" : "contain",
-              objectPosition: frame >= thisPostJfifStart + 30 ? "50% 100%" : "50% 50%",
+              objectFit: frame >= thisPostJfifStart + 54 ? "cover" : "contain",
+              objectPosition: frame >= thisPostJfifStart + 54 ? "50% 100%" : "50% 50%",
             }}
           />
         </AbsoluteFill>
       )}
       {/* 7. thispost.jfif (Overlay) */}
-      {frame >= thisPostJfifStart && frame < thisPostJfifStart + 30 && (
+      {frame >= thisPostJfifStart && frame < thisPostJfifStart + 54 && (
         <AbsoluteFill style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
           <img
             src={staticFile("thispost.jfif")}
