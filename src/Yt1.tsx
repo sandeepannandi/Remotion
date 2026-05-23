@@ -65,13 +65,16 @@ export const Yt1: React.FC = () => {
   const arrow2Start = snapStart + 20; // Increased from 10
   const detectedStart = arrow2Start + 20; // Increased from 10
   const funStart = detectedStart + 71; // Increased to match full 12.16s audio (365 frames)
-  const sourceStart = funStart + 40;
-  const delay400ms = Math.round(0.4 * fps);
+  const sourceStart = funStart + 76; // Increased by another 6 frames (200ms)
+  const arrowInitialDelay = Math.round(2.0 * fps); // Increased to 2s (1s original + 1s more)
+  const arrowStayDuration = Math.round(1.0 * fps); // Now 1s
   const arrowMoveDuration = 10;
-  const gigachadStart = sourceStart + delay400ms + arrowMoveDuration + delay400ms;
+  const newArrowDelay = Math.round(0.5 * fps); // 500ms delay
+  const gigachadExtraDelay = Math.round(0.8 * fps); // 800ms extra delay
+  const gigachadStart = sourceStart + arrowInitialDelay + arrowMoveDuration + arrowStayDuration + gigachadExtraDelay;
 
   // New Timing
-  const builtStart = gigachadStart + 28; // Slide-in (10) + Stay (18 = 600ms)
+  const builtStart = funStart + 250; // Third.m4a (8.02s ~ 241 frames) + 200ms (6 frames)
   const builtDuration = 163;
   const easyStart = builtStart + builtDuration;
   const easyDuration = Math.round(0.8 * fps);
@@ -184,7 +187,7 @@ export const Yt1: React.FC = () => {
   // Animations
   const arrowY = interpolate(
     frame - sourceStart,
-    [delay400ms, delay400ms + arrowMoveDuration],
+    [arrowInitialDelay, arrowInitialDelay + arrowMoveDuration],
     [CENTER_Y + 800, CENTER_Y + 100],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
@@ -216,6 +219,11 @@ export const Yt1: React.FC = () => {
       {/* Audio: second.m4a */}
       <Sequence from={someoneBuiltStart} durationInFrames={funStart - someoneBuiltStart}>
         <Audio src={staticFile("Second.m4a")} startFrom={15} />
+      </Sequence>
+
+      {/* Audio: third.m4a */}
+      <Sequence from={funStart} durationInFrames={builtStart - funStart}>
+        <Audio src={staticFile("Third.m4a")} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -440,6 +448,19 @@ export const Yt1: React.FC = () => {
           }}>
             <MoveUpRight size={1000} strokeWidth={3} />
           </div>
+
+          {/* New Arrow: Appears when main arrow finishes moving */}
+          {frame >= sourceStart + arrowInitialDelay + arrowMoveDuration + newArrowDelay && (
+            <div style={{
+              position: "absolute",
+              left: "48%",
+              top: "41%",
+              transform: "translate(-50%, -50%)",
+              color: "#F5F2E3",
+            }}>
+              <MoveDownLeft size={1000} strokeWidth={3} />
+            </div>
+          )}
 
           {/* gigachad.png: Slide in from right */}
           {frame >= gigachadStart && (
@@ -1061,4 +1082,3 @@ const FinalOverlay: React.FC<{
     </AbsoluteFill>
   );
 };
-
