@@ -75,9 +75,9 @@ export const Yt1: React.FC = () => {
 
   // New Timing
   const builtStart = funStart + 250; // Third.m4a (8.02s ~ 241 frames) + 200ms (6 frames)
-  const builtDuration = 163;
+  const builtDuration = 94; // Increased by 6 frames (200ms) to show rub.gif more
   const easyStart = builtStart + builtDuration;
-  const easyDuration = Math.round(0.8 * fps);
+  const easyDuration = Math.round(1.42 * fps); // Increased by 600ms (0.8s original + 0.6s more)
   const itWasNotStart = easyStart + easyDuration;
   const itWasNotDuration = 30; // 1s stay
   const noaccStart = itWasNotStart + itWasNotDuration;
@@ -87,9 +87,9 @@ export const Yt1: React.FC = () => {
   const thinkStart = howtoStart + howtoDuration;
   const thinkDuration = 52; // 1.5s at 30fps
   const knockStart = thinkStart + thinkDuration;
-  const knockDuration = 128; // ~4.26s at 30fps
+  const knockDuration = 194; // Extended by another 18 frames (600ms)
   const outroStart = knockStart + knockDuration;
-  const outroDuration = 60; // 2s at 30fps
+  const outroDuration = 90; // Extended to sync with Fifth.m4a (19.9s ~ 598 frames) + 200ms buffer
   const simpleStart = outroStart + outroDuration;
   const simpleDuration = 60; // 2s at 30fps
   const listStart = simpleStart + simpleDuration;
@@ -224,6 +224,16 @@ export const Yt1: React.FC = () => {
       {/* Audio: third.m4a */}
       <Sequence from={funStart} durationInFrames={builtStart - funStart}>
         <Audio src={staticFile("Third.m4a")} />
+      </Sequence>
+
+      {/* Audio: fourth.m4a */}
+      <Sequence from={builtStart} durationInFrames={noaccStart - builtStart}>
+        <Audio src={staticFile("Fourth.m4a")} />
+      </Sequence>
+
+      {/* Audio: Fifth.m4a - Continuous playback through the outro */}
+      <Sequence from={noaccStart} durationInFrames={outroStart + outroDuration - noaccStart}>
+        <Audio src={staticFile("Fifth.m4a")} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -487,7 +497,7 @@ export const Yt1: React.FC = () => {
         />
 
         {/* 15. windows.png Overlay & rub.gif */}
-        <Sequence from={24}> {/* 800ms after video starts */}
+        <Sequence from={14}> {/* 600ms after video starts (200ms earlier than before) */}
           <FinalOverlay 
             CENTER_X={CENTER_X} 
             CENTER_Y={CENTER_Y} 
@@ -558,6 +568,15 @@ export const Yt1: React.FC = () => {
           src={staticFile("knock.mp4")} 
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
+        {/* 21.1 laptop.png Overlay (Appears 3s after video starts) */}
+        <Sequence from={75}>
+          <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+            <img 
+              src={staticFile("laptop.png")} 
+              style={{ height: "4400px", width: "auto" }} 
+            />
+          </AbsoluteFill>
+        </Sequence>
       </Sequence>
 
       {/* 22. Outro Overlay */}
@@ -1045,7 +1064,7 @@ const FinalOverlay: React.FC<{
   GIF_X: number;
 }> = ({ CENTER_X, CENTER_Y, WINDOWS_FINAL_X, GIF_X }) => {
   const frame = useCurrentFrame();
-  const rubStart = 30; // 1s shift delay
+  const rubStart = 26; // Reduced for earlier appearance
 
   const windowsX = interpolate(
     frame - rubStart,
