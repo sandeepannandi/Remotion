@@ -89,23 +89,23 @@ export const Yt1: React.FC = () => {
   const knockStart = thinkStart + thinkDuration;
   const knockDuration = 194; // Extended by another 18 frames (600ms)
   const outroStart = knockStart + knockDuration;
-  const outroDuration = 90; // Extended to sync with Fifth.m4a (19.9s ~ 598 frames) + 200ms buffer
+  const outroDuration = 82; // Reduced by 3 frames (100ms)
   const simpleStart = outroStart + outroDuration;
   const simpleDuration = 60; // 2s at 30fps
   const listStart = simpleStart + simpleDuration;
-  const listDuration = 150; // 5s at 30fps
+  const listDuration = 118; // Adjusted to match Sixth.m4a (178 frames total)
 
   const wemakeStart = listStart + listDuration;
-  const wemakeDuration = 30; // 1s at 30fps
+  const wemakeDuration = 30; // Reduced to 1s at 30fps
 
   const pythonStart = wemakeStart + wemakeDuration;
-  const pythonDuration = 60; // 2s at 30fps
+  const pythonDuration = 57; // Increased by 27 frames (900ms) from 30
 
   const librariesStart = pythonStart + pythonDuration;
-  const librariesDuration = 190; // 2s + 1s extra at 30fps
+  const librariesDuration = 376; // Decreased by 27 frames to maintain Seven.m4a sync (total 463 frames)
 
   const mainloopStart = librariesStart + librariesDuration;
-  const mainloopDuration = 566; // 18.865s * 30fps
+  const mainloopDuration = 521; // Reduced by 45 frames (1.5s) to match Eight.m4a
 
   const elmoStart = mainloopStart + mainloopDuration;
   const elmoDuration = 60; // 2s at 30fps
@@ -234,6 +234,21 @@ export const Yt1: React.FC = () => {
       {/* Audio: Fifth.m4a - Continuous playback through the outro */}
       <Sequence from={noaccStart} durationInFrames={outroStart + outroDuration - noaccStart}>
         <Audio src={staticFile("Fifth.m4a")} />
+      </Sequence>
+
+      {/* Audio: Sixth.m4a */}
+      <Sequence from={simpleStart} durationInFrames={wemakeStart - simpleStart}>
+        <Audio src={staticFile("Sixth.m4a")} />
+      </Sequence>
+
+      {/* Audio: Seven.m4a */}
+      <Sequence from={wemakeStart} durationInFrames={mainloopStart - wemakeStart}>
+        <Audio src={staticFile("Seven.m4a")} />
+      </Sequence>
+
+      {/* Audio: Eight.m4a */}
+      <Sequence from={mainloopStart} durationInFrames={mainloopDuration}>
+        <Audio src={staticFile("Eight.m4a")} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -667,23 +682,23 @@ export const Yt1: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= librariesStart + 18 && (
+          {frame >= librariesStart + 3 && (
             <div style={{
               position: "absolute",
               left: (() => {
-                if (frame >= librariesStart + 118) return "28%";
-                if (frame >= librariesStart + 98) return "33%";
-                if (frame >= librariesStart + 78) return "28%";
-                if (frame >= librariesStart + 58) return "50%";
-                if (frame >= librariesStart + 38) return "28%";
+                if (frame >= librariesStart + 3 + 5 * 63) return "28%";
+                if (frame >= librariesStart + 3 + 4 * 63) return "33%";
+                if (frame >= librariesStart + 3 + 3 * 63) return "28%";
+                if (frame >= librariesStart + 3 + 2 * 63) return "50%";
+                if (frame >= librariesStart + 3 + 1 * 63) return "28%";
                 return "32%";
               })(),
               top: (() => {
-                if (frame >= librariesStart + 118) return "58%";
-                if (frame >= librariesStart + 98) return "50%";
-                if (frame >= librariesStart + 78) return "42%";
-                if (frame >= librariesStart + 58) return "34%";
-                if (frame >= librariesStart + 38) return "23%";
+                if (frame >= librariesStart + 3 + 5 * 63) return "58%";
+                if (frame >= librariesStart + 3 + 4 * 63) return "50%";
+                if (frame >= librariesStart + 3 + 3 * 63) return "42%";
+                if (frame >= librariesStart + 3 + 2 * 63) return "34%";
+                if (frame >= librariesStart + 3 + 1 * 63) return "23%";
                 return "15%";
               })(),
               display: "flex",
@@ -699,11 +714,11 @@ export const Yt1: React.FC = () => {
                 paddingTop: "60px" 
               }}>
                 {(() => {
-                  if (frame >= librariesStart + 118) return "builds the UI";
-                  if (frame >= librariesStart + 98) return "detects USB connections";
-                  if (frame >= librariesStart + 78) return "controls audio volume";
-                  if (frame >= librariesStart + 58) return "plays the sound";
-                  if (frame >= librariesStart + 38) return "CALCULATES AUDIO LOUDNESS";
+                  if (frame >= librariesStart + 3 + 5 * 63) return "builds the UI";
+                  if (frame >= librariesStart + 3 + 4 * 63) return "detects USB connections";
+                  if (frame >= librariesStart + 3 + 3 * 63) return "controls audio volume";
+                  if (frame >= librariesStart + 3 + 2 * 63) return "plays the sound";
+                  if (frame >= librariesStart + 3 + 1 * 63) return "CALCULATES AUDIO LOUDNESS";
                   return "LISTENS TO YOUR MIC";
                 })()}
               </div>
