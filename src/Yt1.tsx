@@ -963,7 +963,6 @@ export const Yt1: React.FC = () => {
       <Sequence from={usbStart} durationInFrames={usbDuration}>
         <Video 
           src={staticFile("usb.mp4")} 
-          startFrom={15}
           playbackRate={1.693}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
