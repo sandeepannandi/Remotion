@@ -108,16 +108,19 @@ export const Yt1: React.FC = () => {
   const mainloopDuration = 521; // Reduced by 45 frames (1.5s) to match Eight.m4a
 
   const elmoStart = mainloopStart + mainloopDuration;
-  const elmoDuration = 60; // 2s at 30fps
+  const elmoDuration = 49; // ~1.63s at 30fps (Increased by another 50ms/2 frames)
 
-  const whystopStart = elmoStart + elmoDuration;
-  const whystopDuration = 60; // 2s at 30fps
+  const iThoughtStart = elmoStart + elmoDuration;
+  const iThoughtDuration = 20; // ~0.66s at 30fps
+
+  const whystopStart = iThoughtStart + iThoughtDuration;
+  const whystopDuration = 64; // ~2.13s at 30fps (Increased by another 20ms)
 
   const fewMoreSoundsStart = whystopStart + whystopDuration;
   const fewMoreSoundsDuration = 30; // 1s at 30fps
 
   const moresoundsStart = fewMoreSoundsStart + fewMoreSoundsDuration;
-  const moresoundsDuration = 90; // 3s at 30fps (1s each for sui, yk, kiscolor)
+  const moresoundsDuration = 199; // 54 (sui) + 55 (yk) + 90 (kiscolor)
 
   const centeredMoresoundsStart = moresoundsStart + moresoundsDuration;
   const centeredMoresoundsDuration = 120; // 4s at 30fps
@@ -249,6 +252,11 @@ export const Yt1: React.FC = () => {
       {/* Audio: Eight.m4a */}
       <Sequence from={mainloopStart} durationInFrames={mainloopDuration}>
         <Audio src={staticFile("Eight.m4a")} />
+      </Sequence>
+
+      {/* Audio: Nine.m4a */}
+      <Sequence from={elmoStart} durationInFrames={moresoundsStart + moresoundsDuration - elmoStart}>
+        <Audio src={staticFile("Nine.m4a")} startFrom={15} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -746,6 +754,15 @@ export const Yt1: React.FC = () => {
           />
         </AbsoluteFill>
       </Sequence>
+      {/* 29.5 I THOUGHT (Word by word) */}
+      {frame >= iThoughtStart && frame < iThoughtStart + iThoughtDuration && (
+        <AbsoluteFill style={CONTAINER_STYLE}>
+          <div style={TEXT_STYLE}>
+            <span style={{ opacity: 1 }}>I</span>
+            <span style={{ opacity: frame >= iThoughtStart + 8 ? 1 : 0 }}>THOUGHT</span>
+          </div>
+        </AbsoluteFill>
+      )}
       {/* 30. whystop.jpg */}
       <Sequence from={whystopStart} durationInFrames={whystopDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -800,9 +817,9 @@ export const Yt1: React.FC = () => {
           {/* sui.webp, yk.jpg, or kiscolor.webp on the right */}
           <img
             src={staticFile(
-              frame - moresoundsStart < 30 
+              frame - moresoundsStart < 50 
                 ? "sui.webp" 
-                : frame - moresoundsStart < 60 
+                : frame - moresoundsStart < 100 
                   ? "yk.jpg" 
                   : "kiscolor.webp"
             )}
@@ -818,6 +835,10 @@ export const Yt1: React.FC = () => {
           />
         </AbsoluteFill>
       )}
+      {/* Audio: kiscolor.mp3 triggered when kiscolor image appears */}
+      <Sequence from={moresoundsStart + 100} durationInFrames={90}>
+        <Audio src={staticFile("kiscolor.mp3")} />
+      </Sequence>
       {/* 33. moresounds.png Centered + 3 Arrows */}
       {frame >= centeredMoresoundsStart && frame < centeredMoresoundsStart + centeredMoresoundsDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
