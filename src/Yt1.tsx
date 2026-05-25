@@ -123,37 +123,34 @@ export const Yt1: React.FC = () => {
   const moresoundsDuration = 199; // 54 (sui) + 55 (yk) + 90 (kiscolor)
 
   const centeredMoresoundsStart = moresoundsStart + moresoundsDuration;
-  const centeredMoresoundsDuration = 120; // 4s at 30fps
+  const centeredMoresoundsDuration = 85; // Ten.m4a (2.73s ~ 82 frames) + 100ms (3 frames)
 
   const susStart = centeredMoresoundsStart + centeredMoresoundsDuration;
   const susDuration = 334; // ~11.11s at 30fps
 
   const onemoreStart = susStart + susDuration;
-  const onemoreDuration = 30; // 1s at 30fps
+  const onemoreDuration = 32; // Increased by 80ms (2 frames)
 
   const usbmemeStart = onemoreStart + onemoreDuration;
-  const usbmemeDuration = 30; // 1s at 30fps
+  const usbmemeDuration = 51; // Increased by another 200ms (6 frames)
 
   const usbStart = usbmemeStart + usbmemeDuration;
-  const usbDuration = 706; // ~23.54s at 30fps
+  const usbDuration = 417; // Adjusted to match Eleven.m4a total duration (500 - 32 - 51)
 
   const uiStart = usbStart + usbDuration;
-  const uiDuration = 1145; // ~38.17s at 30fps
+  const uiDuration = 730; // Twelve.m4a duration (24.32s ~ 730 frames)
 
-  const resultStart = uiStart + uiDuration;
-  const resultDuration = (26 - 10) * 30; // 16s at 30fps
-
-  const githubStart = resultStart + resultDuration;
-  const githubDuration = 90; // 3s at 30fps
+  const githubStart = uiStart + uiDuration;
+  const githubDuration = 92; // Increased by another 80ms (2 frames)
 
   const uploadStart = githubStart + githubDuration;
-  const uploadDuration = 210; // 7s at 30fps
+  const uploadDuration = 115; // Reduced by 1 more frame
 
   const honestlyStart = uploadStart + uploadDuration;
-  const honestlyDuration = 30; // 1s at 30fps
+  const honestlyDuration = 23; // Increased by 1 frame to maintain sync
 
   const feelbadStart = honestlyStart + honestlyDuration;
-  const feelbadDuration = 60; // 2s at 30fps
+  const feelbadDuration = 53; 
 
   const thudStart = feelbadStart + feelbadDuration;
   const thudDuration = 14; // ~0.44s at 30fps
@@ -257,6 +254,31 @@ export const Yt1: React.FC = () => {
       {/* Audio: Nine.m4a */}
       <Sequence from={elmoStart} durationInFrames={moresoundsStart + moresoundsDuration - elmoStart}>
         <Audio src={staticFile("Nine.m4a")} startFrom={15} />
+      </Sequence>
+
+      {/* Audio: Ten.m4a */}
+      <Sequence from={centeredMoresoundsStart} durationInFrames={centeredMoresoundsDuration}>
+        <Audio src={staticFile("Ten.m4a")} />
+      </Sequence>
+
+      {/* Audio: susaudio.mp3 */}
+      <Sequence from={susStart} durationInFrames={susDuration}>
+        <Audio src={staticFile("susaudio.mp3")} />
+      </Sequence>
+
+      {/* Audio: Eleven.m4a */}
+      <Sequence from={onemoreStart} durationInFrames={usbStart + usbDuration - onemoreStart}>
+        <Audio src={staticFile("Eleven.m4a")} />
+      </Sequence>
+
+      {/* Audio: Twelve.m4a */}
+      <Sequence from={uiStart} durationInFrames={uiDuration}>
+        <Audio src={staticFile("Twelve.m4a")} />
+      </Sequence>
+
+      {/* Audio: Thirteen.m4a */}
+      <Sequence from={githubStart} durationInFrames={githubDuration + uploadDuration + honestlyDuration + feelbadDuration}>
+        <Audio src={staticFile("Thirteen.m4a")} />
       </Sequence>
 
       {/* 2. YEAH. */}
@@ -941,23 +963,24 @@ export const Yt1: React.FC = () => {
       <Sequence from={usbStart} durationInFrames={usbDuration}>
         <Video 
           src={staticFile("usb.mp4")} 
+          startFrom={15}
+          playbackRate={1.693}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
+        {/* WMIC Text Overlay inside usb.mp4 */}
+        <Sequence from={151} durationInFrames={15}>
+          <AbsoluteFill style={{ ...CONTAINER_STYLE, backgroundColor: "transparent", justifyContent: "flex-end", paddingBottom: "200px" }}>
+            <div style={{ ...TEXT_STYLE, fontSize: 600 }}>WMIC</div>
+          </AbsoluteFill>
+        </Sequence>
       </Sequence>
 
       {/* 37. ui.mp4 */}
       <Sequence from={uiStart} durationInFrames={uiDuration}>
         <Video 
           src={staticFile("ui.mp4")} 
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-      </Sequence>
-      
-      {/* 38. result.mp4 */}
-      <Sequence from={resultStart} durationInFrames={resultDuration}>
-        <Video 
-          src={staticFile("result.mp4")} 
-          startFrom={10 * 30}
+          startFrom={9}
+          playbackRate={1.557}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </Sequence>
@@ -973,16 +996,18 @@ export const Yt1: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {/* githubicon.png overlay after 1 sec */}
-          <Sequence from={30}>
+          {/* githubicon.png overlay */}
+          <Sequence from={32}>
             <AbsoluteFill style={{ ...CONTAINER_STYLE, backgroundColor: "transparent", flexDirection: "column", gap: "150px" }}>
               <img 
                 src={staticFile("githubicon.png")} 
                 style={{ height: "1200px", width: "auto", borderRadius: "20%" }} 
               />
-              <div style={{ ...TEXT_STYLE, color: "black", fontSize: 700 }}>
-                LINK IN DESCRIPTION
-              </div>
+              {frame - githubStart >= 56 && (
+                <div style={{ ...TEXT_STYLE, color: "black", fontSize: 700 }}>
+                  LINK IN DESCRIPTION
+                </div>
+              )}
             </AbsoluteFill>
           </Sequence>
         </AbsoluteFill>
@@ -993,6 +1018,7 @@ export const Yt1: React.FC = () => {
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           <Video 
             src={staticFile("upload.mp4")} 
+            playbackRate={1.2}
             style={{
               position: "absolute",
               left: "25%",
@@ -1055,6 +1081,7 @@ export const Yt1: React.FC = () => {
           <div style={TEXT_STYLE}>SUBSCRIBE</div>
         </AbsoluteFill>
       )}
+
     </AbsoluteFill>
   );
 };
