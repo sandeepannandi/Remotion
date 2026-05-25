@@ -144,7 +144,7 @@ export const Yt1: React.FC = () => {
   const githubDuration = 92; // Increased by another 80ms (2 frames)
 
   const uploadStart = githubStart + githubDuration;
-  const uploadDuration = 115; // Reduced by 1 more frame
+  const uploadDuration = 111; // Reduced by 2 more frames to make "honestly" appear 50ms earlier
 
   const honestlyStart = uploadStart + uploadDuration;
   const honestlyDuration = 23; // Increased by 1 frame to maintain sync
@@ -927,6 +927,7 @@ export const Yt1: React.FC = () => {
               width: "100%",
               height: "100%",
               objectFit: "fill",
+              filter: "sepia(0.3) brightness(1.1) contrast(1.1)", // Added subtle color filter
             }}
           />
         </AbsoluteFill>
