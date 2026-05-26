@@ -1,4 +1,4 @@
-import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence, Audio } from "remotion";
+import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence, Audio, Loop } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft, MoveUpLeft, MoveDownRight } from "lucide-react";
 import React from "react";
@@ -126,7 +126,7 @@ export const Yt1: React.FC = () => {
   const centeredMoresoundsDuration = 85; // Ten.m4a (2.73s ~ 82 frames) + 100ms (3 frames)
 
   const susStart = centeredMoresoundsStart + centeredMoresoundsDuration;
-  const susDuration = 334; // ~11.11s at 30fps
+  const susDuration = 300; // 10s at 30fps
 
   const onemoreStart = susStart + susDuration;
   const onemoreDuration = 32; // Increased by 80ms (2 frames)
@@ -263,7 +263,9 @@ export const Yt1: React.FC = () => {
 
       {/* Audio: susaudio.mp3 */}
       <Sequence from={susStart} durationInFrames={susDuration}>
-        <Audio src={staticFile("susaudio.mp3")} />
+        <Loop durationInFrames={88}>
+          <Audio src={staticFile("susaudio.mp3")} />
+        </Loop>
       </Sequence>
 
       {/* Audio: Eleven.m4a */}
