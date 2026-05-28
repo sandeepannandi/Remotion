@@ -8,7 +8,7 @@ import { Yt1 } from "./Yt1";
 
 import { preloadAssets } from "./preload";
 
-preloadAssets();
+// preloadAssets();
 
 export const RemotionRoot: React.FC = () => {
   return (
