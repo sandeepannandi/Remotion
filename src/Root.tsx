@@ -1,9 +1,14 @@
+import React from "react";
 import "./index.css";
 import { Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { OreVideo } from "./Ore/OreVideo";
 import { Yt1 } from "./Yt1";
+
+import { preloadAssets } from "./preload";
+
+preloadAssets();
 
 export const RemotionRoot: React.FC = () => {
   return (

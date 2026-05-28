@@ -1,7 +1,8 @@
-import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence, Audio, Loop } from "remotion";
+import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence, Audio, Loop, Img } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft, MoveUpLeft, MoveDownRight } from "lucide-react";
 import React from "react";
+import { Gif } from "@remotion/gif";
 
 const { fontFamily } = loadFont();
 
@@ -311,7 +312,7 @@ export const Yt1: React.FC = () => {
       {/* 5. letmeexplain.jpg */}
       {frame >= finalImageStart && frame < scrollStart && (
         <AbsoluteFill>
-          <img
+          <Img
             src={staticFile("letmeexplain.jpg")}
             style={{
               width: "100%",
@@ -333,7 +334,7 @@ export const Yt1: React.FC = () => {
       {/* 7. post.png (Background) */}
       {frame >= postStart && frame < someoneBuiltStart && (
         <AbsoluteFill style={{ ...CONTAINER_STYLE, backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("post.png")}
             style={{
               width: "100%",
@@ -347,7 +348,7 @@ export const Yt1: React.FC = () => {
       {/* 7. thispost.jfif (Overlay) */}
       {frame >= thisPostJfifStart && frame < thisPostJfifStart + 54 && (
         <AbsoluteFill style={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-          <img
+          <Img
             src={staticFile("thispost.jfif")}
             style={{
               width: "105%",
@@ -371,7 +372,7 @@ export const Yt1: React.FC = () => {
       {/* 9. slapmacwin.png */}
       {frame >= slapmacwinStart && frame < slapmacwinEnd && (
         <AbsoluteFill style={CONTAINER_STYLE}>
-          <img
+          <Img
             src={staticFile("slapmacwin.png")}
             style={{
               width: "100%",
@@ -385,7 +386,7 @@ export const Yt1: React.FC = () => {
       {/* 10. slapit.png */}
       {frame >= slapitStart && frame < slapitEnd && (
         <AbsoluteFill style={CONTAINER_STYLE}>
-          <img
+          <Img
             src={staticFile("slapit.png")}
             style={{
               width: "100%",
@@ -407,7 +408,7 @@ export const Yt1: React.FC = () => {
               top: CENTER_Y,
               transform: "translate(-50%, -50%)",
             }}>
-              <img src={staticFile("mac.png")} style={{ height: `${MAC_ACC_HEIGHT}px`, width: "auto" }} />
+              <Img src={staticFile("mac.png")} style={{ height: `${MAC_ACC_HEIGHT}px`, width: "auto" }} />
             </div>
           )}
 
@@ -432,7 +433,7 @@ export const Yt1: React.FC = () => {
               top: CENTER_Y,
               transform: "translate(-50%, -50%)",
             }}>
-              <img src={staticFile("accelerometer.png")} style={{ height: `${MAC_ACC_HEIGHT}px`, width: "auto" }} />
+              <Img src={staticFile("accelerometer.png")} style={{ height: `${MAC_ACC_HEIGHT}px`, width: "auto" }} />
             </div>
           )}
 
@@ -457,7 +458,7 @@ export const Yt1: React.FC = () => {
               top: CENTER_Y,
               transform: "translate(-50%, -50%)",
             }}>
-              <img src={staticFile("detected.png")} style={{ height: `${DETECTED_HEIGHT}px`, width: "auto" }} />
+              <Img src={staticFile("detected.png")} style={{ height: `${DETECTED_HEIGHT}px`, width: "auto" }} />
             </div>
           )}
         </AbsoluteFill>
@@ -466,7 +467,7 @@ export const Yt1: React.FC = () => {
       {/* 12. fun.png */}
       {frame >= funStart && frame < sourceStart && (
         <AbsoluteFill>
-          <img
+          <Img
             src={staticFile("fun.png")}
             style={{
               width: "112.6%",
@@ -487,7 +488,7 @@ export const Yt1: React.FC = () => {
             top: "54%",
             transform: "translate(-50%, -50%)",
           }}>
-            <img 
+            <Img 
               src={staticFile("source.png")} 
               style={{ height: "4000px", width: "auto" }} 
             />
@@ -527,7 +528,7 @@ export const Yt1: React.FC = () => {
               top: "33.1%",
               transform: "translate(-50%, -50%)",
             }}>
-              <img 
+              <Img 
                 src={staticFile("gigachad.png")} 
                 style={{ height: "5800px", width: "auto" }} 
               />
@@ -557,13 +558,11 @@ export const Yt1: React.FC = () => {
       {/* 16. easy.gif full screen */}
       {frame >= easyStart && frame < itWasNotStart && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Gif
             src={staticFile("easy.gif")}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+            width={7680}
+            height={4320}
+            fit="cover"
           />
         </AbsoluteFill>
       )}
@@ -598,13 +597,11 @@ export const Yt1: React.FC = () => {
       {/* 20. think.gif */}
       <Sequence from={thinkStart} durationInFrames={thinkDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Gif
             src={staticFile("think.gif")}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+            width={7680}
+            height={4320}
+            fit="cover"
           />
         </AbsoluteFill>
       </Sequence>
@@ -618,7 +615,7 @@ export const Yt1: React.FC = () => {
         {/* 21.1 laptop.png Overlay (Appears 3s after video starts) */}
         <Sequence from={75}>
           <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-            <img 
+            <Img 
               src={staticFile("laptop.png")} 
               style={{ height: "4400px", width: "auto" }} 
             />
@@ -634,13 +631,11 @@ export const Yt1: React.FC = () => {
       {/* 23. simple.gif */}
       <Sequence from={simpleStart} durationInFrames={simpleDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Gif
             src={staticFile("simple.gif")}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+            width={7680}
+            height={4320}
+            fit="cover"
           />
         </AbsoluteFill>
       </Sequence>
@@ -679,7 +674,7 @@ export const Yt1: React.FC = () => {
       {/* 25. wemake.jpg full screen */}
       {frame >= wemakeStart && frame < wemakeStart + wemakeDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("wecan.jpg")}
             style={{
               width: "100%",
@@ -693,7 +688,7 @@ export const Yt1: React.FC = () => {
       {/* 26. python.png on black screen */}
       {frame >= pythonStart && frame < pythonStart + pythonDuration && (
         <AbsoluteFill style={{ backgroundColor: "black", justifyContent: "center", alignItems: "center" }}>
-          <img
+          <Img
             src={staticFile("python.png")}
             style={{
               height: "2800px",
@@ -706,7 +701,7 @@ export const Yt1: React.FC = () => {
       {/* 27. libraries.png full screen */}
       {frame >= librariesStart && frame < librariesStart + librariesDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("libraries.png")}
             style={{
               width: "118%",
@@ -768,13 +763,11 @@ export const Yt1: React.FC = () => {
       {/* 29. elmo.gif */}
       <Sequence from={elmoStart} durationInFrames={elmoDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Gif
             src={staticFile("elmo.gif")}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+            width={7680}
+            height={4320}
+            fit="cover"
           />
         </AbsoluteFill>
       </Sequence>
@@ -790,7 +783,7 @@ export const Yt1: React.FC = () => {
       {/* 30. whystop.jpg */}
       <Sequence from={whystopStart} durationInFrames={whystopDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("whystop.jpg")}
             style={{
               width: "100%",
@@ -814,7 +807,7 @@ export const Yt1: React.FC = () => {
       {frame >= moresoundsStart && frame < moresoundsStart + moresoundsDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           {/* moresounds.png on the left */}
-          <img
+          <Img
             src={staticFile("moresounds.png")}
             style={{
               position: "absolute",
@@ -839,7 +832,7 @@ export const Yt1: React.FC = () => {
           </div>
 
           {/* sui.webp, yk.jpg, or kiscolor.webp on the right */}
-          <img
+          <Img
             src={staticFile(
               frame - moresoundsStart < 50 
                 ? "sui.webp" 
@@ -866,7 +859,7 @@ export const Yt1: React.FC = () => {
       {/* 33. moresounds.png Centered + 3 Arrows */}
       {frame >= centeredMoresoundsStart && frame < centeredMoresoundsStart + centeredMoresoundsDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("moresounds.png")}
             style={{
               position: "absolute",
@@ -923,12 +916,12 @@ export const Yt1: React.FC = () => {
       {/* 34. sus.gif */}
       {frame >= susStart && frame < susStart + susDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Gif
             src={staticFile("sus.gif")}
+            width={7680}
+            height={4320}
+            fit="fill"
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "fill",
               filter: "sepia(0.3) brightness(1.1) contrast(1.1)", // Added subtle color filter
             }}
           />
@@ -938,7 +931,7 @@ export const Yt1: React.FC = () => {
       {/* 35. onemore.jfif */}
       {frame >= onemoreStart && frame < onemoreStart + onemoreDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("onemore.jfif")}
             style={{
               width: "100%",
@@ -952,7 +945,7 @@ export const Yt1: React.FC = () => {
       {/* 35.5 usbmeme.png */}
       {frame >= usbmemeStart && frame < usbmemeStart + usbmemeDuration && (
         <AbsoluteFill style={{ backgroundColor: "black", justifyContent: "center", alignItems: "center" }}>
-          <img
+          <Img
             src={staticFile("usbmeme.png")}
             style={{
               height: "100%",
@@ -990,7 +983,7 @@ export const Yt1: React.FC = () => {
       {/* 39. github.png */}
       <Sequence from={githubStart} durationInFrames={githubDuration}>
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Img
             src={staticFile("github.png")}
             style={{
               width: "108%",
@@ -1001,7 +994,7 @@ export const Yt1: React.FC = () => {
           {/* githubicon.png overlay */}
           <Sequence from={32}>
             <AbsoluteFill style={{ ...CONTAINER_STYLE, backgroundColor: "transparent", flexDirection: "column", gap: "150px" }}>
-              <img 
+              <Img 
                 src={staticFile("githubicon.png")} 
                 style={{ height: "1200px", width: "auto", borderRadius: "20%" }} 
               />
@@ -1030,7 +1023,7 @@ export const Yt1: React.FC = () => {
               width: "auto",
             }}
           />
-          <img
+          <Img
             src={staticFile("moresounds.png")}
             style={{
               position: "absolute",
@@ -1055,13 +1048,11 @@ export const Yt1: React.FC = () => {
       {/* 41. feelbad.gif */}
       {frame >= feelbadStart && frame < feelbadStart + feelbadDuration && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <img
+          <Gif
             src={staticFile("feelbad.gif")}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-            }}
+            width={7680}
+            height={4320}
+            fit="contain"
           />
         </AbsoluteFill>
       )}
@@ -1105,7 +1096,7 @@ const OutroOverlay: React.FC<{
         top: CENTER_Y,
         transform: "translate(-50%, -50%)",
       }}>
-        <img src={staticFile("windows.png")} style={{ height: "2800px", width: "auto" }} />
+        <Img src={staticFile("windows.png")} style={{ height: "2800px", width: "auto" }} />
       </div>
 
       {frame >= micStart && (
@@ -1146,7 +1137,7 @@ const FinalOverlay: React.FC<{
         top: CENTER_Y,
         transform: "translate(-50%, -50%)",
       }}>
-        <img src={staticFile("windows.png")} style={{ height: "2800px", width: "auto" }} />
+        <Img src={staticFile("windows.png")} style={{ height: "2800px", width: "auto" }} />
       </div>
 
       {frame >= rubStart && (
@@ -1157,9 +1148,9 @@ const FinalOverlay: React.FC<{
           transform: "translate(-50%, -50%)",
           clipPath: "inset(0 50% 0 0)",
         }}>
-          <img 
+          <Gif 
             src={staticFile("rub.gif")} 
-            style={{ height: "3800px", width: "auto" }} 
+            height={3800}
           />
         </div>
       )}
