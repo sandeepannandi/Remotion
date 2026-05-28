@@ -1148,9 +1148,9 @@ const FinalOverlay: React.FC<{
           transform: "translate(-50%, -50%)",
           clipPath: "inset(0 50% 0 0)",
         }}>
-          <Gif 
+          <Img 
             src={staticFile("rub.gif")} 
-            height={3800}
+            style={{ height: "3600px", width: "auto" }} 
           />
         </div>
       )}
