@@ -1,6 +1,6 @@
 import { AbsoluteFill, Video, staticFile, useCurrentFrame, useVideoConfig, interpolate, Sequence, Audio, Loop, Img } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
-import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft, MoveUpLeft, MoveDownRight } from "lucide-react";
+import { MoveRight, MoveUpRight, MoveDownLeft, MoveLeft, MoveDownRight } from "lucide-react";
 import React from "react";
 import { Gif } from "@remotion/gif";
 

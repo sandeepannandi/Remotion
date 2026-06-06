@@ -6,13 +6,25 @@ import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { OreVideo } from "./Ore/OreVideo";
 import { Yt1 } from "./Yt1";
 
-import { preloadAssets } from "./preload";
+// import { preloadAssets } from "./preload";
 
 // preloadAssets();
+
+import { ProductLaunch, productLaunchSchema, defaultProps } from "./ProductLaunch";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="ProductLaunch"
+        component={ProductLaunch}
+        durationInFrames={348}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={productLaunchSchema}
+        defaultProps={defaultProps}
+      />
       <Composition
         id="Yt1"
         component={Yt1}
