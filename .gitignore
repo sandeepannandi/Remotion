@@ -3,6 +3,9 @@ dist
 package-lock.json
 .DS_Store
 .env
-
+public/noacc.mp4
+public/mainloop.mp4
+public/ui.mp4
+public/usb.mp4
 # Ignore the output video from Git but not videos you import into src/.
 out
