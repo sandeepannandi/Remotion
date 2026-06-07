@@ -18,12 +18,30 @@ export const productLaunchSchema = z.object({
 	secondaryColor: z.string(),
 	backgroundColor: z.string(),
 	textColor: z.string(),
-	title: z.string(),
-	subtitle: z.string(),
-	featureText1: z.string(),
-	featureText2: z.string(),
-	ctaText: z.string(),
-	logoUrl: z.string().optional(),
+	introText: z.object({
+		word1: z.string(),
+		word2: z.string(),
+		word3: z.string(),
+		word4: z.string(),
+		word5: z.string(),
+	}),
+	rocketScienceText: z.object({
+		words: z.array(z.string()),
+		complicatedText: z.string(),
+		intimidatingText: z.string(),
+	}),
+	rocketScienceImages: z.object({
+		topImages: z.array(z.string()),
+		bottomImages: z.array(z.string()),
+	}),
+	chareSceneText: z.object({
+		builtText: z.string(),
+		brandName: z.string(),
+	}),
+	softwareSceneText: z.object({
+		words: z.array(z.string()),
+	}),
+	outroText: z.string(),
 });
 
 type ProductLaunchProps = z.infer<typeof productLaunchSchema>;
@@ -33,14 +51,33 @@ export const defaultProps: ProductLaunchProps = {
 	secondaryColor: '#60a5fa',
 	backgroundColor: '#0f172a',
 	textColor: '#ffffff',
-	title: 'Managing electric car charging stations',
-	subtitle: "shouldn't be rocket science",
-	featureText1: 'Lightning Fast Performance',
-	featureText2: 'Beautifully Designed UI',
-	ctaText: 'Start Your Free Trial',
+	introText: {
+		word1: 'Managing',
+		word2: 'electric',
+		word3: 'car',
+		word4: 'charging',
+		word5: 'stations',
+	},
+	rocketScienceText: {
+		words: ["shouldn't", "be", "rocket", "science."],
+		complicatedText: 'complicated',
+		intimidatingText: 'intimidating',
+	},
+	rocketScienceImages: {
+		topImages: ["https://plus.unsplash.com/premium_photo-1715639312136-56a01f236440?w=600&q=80", "https://plus.unsplash.com/premium_photo-1715789261470-fb25ffbf70d3?w=600&q=80", "https://images.unsplash.com/photo-1704475336842-0ab3798abf0e?w=600&q=80", "https://images.unsplash.com/photo-1617886322009-e02db73a70ee?w=600&q=80"],
+		bottomImages: ["https://images.unsplash.com/photo-1607171028974-319ba56cb013?w=600&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1615829386703-e2bb66a7cb7d?w=600&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80"],
+	},
+	chareSceneText: {
+		builtText: 'so we built',
+		brandName: 'Chare',
+	},
+	softwareSceneText: {
+		words: ["its", "the", "charging", "management", "software"],
+	},
+	outroText: 'Join the future.',
 };
 
-const Intro: React.FC<{ textColor: string; exitStartFrame: number }> = ({ textColor, exitStartFrame }) => {
+const Intro: React.FC<{ props: ProductLaunchProps; exitStartFrame: number }> = ({ props, exitStartFrame }) => {
 	const frame = useCurrentFrame();
 	const { fps, width } = useVideoConfig();
 
@@ -65,28 +102,24 @@ const Intro: React.FC<{ textColor: string; exitStartFrame: number }> = ({ textCo
 	const otherTextOpacity = frame >= exitStartFrame ? 0 : 1;
 	
 	return (
-		<AbsoluteFill style={{ backgroundColor: '#2563eb', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-			<div style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap', justifyContent: 'center', color: textColor, fontFamily, fontSize: '85px', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1, textAlign: 'center' }}>
+		<AbsoluteFill style={{ backgroundColor: props.primaryColor, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+			<div style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap', justifyContent: 'center', color: props.textColor, fontFamily, fontSize: '85px', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1, textAlign: 'center' }}>
 				<div style={{ opacity: otherTextOpacity, display: 'flex' }}>
-					<div style={{ transform: `translateY(${managingY}px)`, opacity: managingOpacity, marginRight: '18px' }}>Managing</div>
-					<div style={{ opacity: electricBlink, marginRight: '18px' }}>electric</div>
-					<div style={{ opacity: carOpacity, marginRight: '18px' }}>car</div>
-					<div style={{ opacity: chargingOpacity, marginRight: '18px' }}>charging</div>
+					<div style={{ transform: `translateY(${managingY}px)`, opacity: managingOpacity, marginRight: '18px' }}>{props.introText.word1}</div>
+					<div style={{ opacity: electricBlink, marginRight: '18px' }}>{props.introText.word2}</div>
+					<div style={{ opacity: carOpacity, marginRight: '18px' }}>{props.introText.word3}</div>
+					<div style={{ opacity: chargingOpacity, marginRight: '18px' }}>{props.introText.word4}</div>
 				</div>
-				<div style={{ opacity: stationsOpacity, transform: `translateX(${slideRight}px)` }}>stations</div>
+				<div style={{ opacity: stationsOpacity, transform: `translateX(${slideRight}px)` }}>{props.introText.word5}</div>
 			</div>
 		</AbsoluteFill>
 	);
 };
 
-const RocketScience: React.FC<{ textColor: string }> = ({ textColor }) => {
+const RocketScience: React.FC<{ props: ProductLaunchProps }> = ({ props }) => {
 	const frame = useCurrentFrame();
 	const { height } = useVideoConfig();
-	const words = ["shouldn't", "be", "rocket", "science."];
 	
-	const carImagesTop = ["https://plus.unsplash.com/premium_photo-1715639312136-56a01f236440?w=600&q=80", "https://plus.unsplash.com/premium_photo-1715789261470-fb25ffbf70d3?w=600&q=80", "https://images.unsplash.com/photo-1704475336842-0ab3798abf0e?w=600&q=80", "https://images.unsplash.com/photo-1617886322009-e02db73a70ee?w=600&q=80"];
-	const carImagesBottom = ["https://images.unsplash.com/photo-1607171028974-319ba56cb013?w=600&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1615829386703-e2bb66a7cb7d?w=600&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80"];
-
 	const textCompleteFrame = 20;
 	const crunchDelay = 45; 
 	const snapStart = textCompleteFrame + crunchDelay;
@@ -102,60 +135,59 @@ const RocketScience: React.FC<{ textColor: string }> = ({ textColor }) => {
 	const bottomY = interpolate(frame, [snapStart, scatterStart, scatterStart + 10], [height - 370, height / 2 - 175, height + 800], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
 	return (
-		<AbsoluteFill style={{ backgroundColor: 'black', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+		<AbsoluteFill style={{ backgroundColor: props.backgroundColor, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
 			{frame < snapStart && (
-				<div style={{ display: 'flex', gap: '18px', fontSize: '85px', fontWeight: 900, color: textColor, fontFamily, letterSpacing: '-0.03em' }}>
-					{words.map((word, i) => <div key={i} style={{ opacity: interpolate(frame, [i * 5, i * 5 + 4], [0, 1], { extrapolateLeft: 'clamp' }) }}>{word}</div>)}
+				<div style={{ display: 'flex', gap: '18px', fontSize: '85px', fontWeight: 900, color: props.textColor, fontFamily, letterSpacing: '-0.03em' }}>
+					{props.rocketScienceText.words.map((word, i) => <div key={i} style={{ opacity: interpolate(frame, [i * 5, i * 5 + 4], [0, 1], { extrapolateLeft: 'clamp' }) }}>{word}</div>)}
 				</div>
 			)}
 			
 			{frame >= textShowStart && (
-				<div style={{ fontSize: '120px', fontWeight: 900, color: textColor, fontFamily, letterSpacing: '-0.05em', textAlign: 'center' }}>
-					{frame < intimidatingStart ? "complicated" : "intimidating"}
+				<div style={{ fontSize: '120px', fontWeight: 900, color: props.textColor, fontFamily, letterSpacing: '-0.05em', textAlign: 'center' }}>
+					{frame < intimidatingStart ? props.rocketScienceText.complicatedText : props.rocketScienceText.intimidatingText}
 				</div>
 			)}
 
 			<div style={{ position: 'absolute', top: topY, left: initialTopX, display: 'flex', gap: '20px', width: '300%' }}>
-				{[...carImagesTop, ...carImagesTop, ...carImagesTop].map((img, i) => <Img key={i} src={img} style={{ width: '450px', height: '350px', objectFit: 'cover', borderRadius: '32px' }} />)}
+				{[...props.rocketScienceImages.topImages, ...props.rocketScienceImages.topImages, ...props.rocketScienceImages.topImages].map((img, i) => <Img key={i} src={img} style={{ width: '450px', height: '350px', objectFit: 'cover', borderRadius: '32px' }} />)}
 			</div>
 			<div style={{ position: 'absolute', top: bottomY, right: initialBottomX, display: 'flex', gap: '20px', width: '300%' }}>
-				{[...carImagesBottom, ...carImagesBottom, ...carImagesBottom].map((img, i) => <Img key={i} src={img} style={{ width: '450px', height: '350px', objectFit: 'cover', borderRadius: '32px' }} />)}
+				{[...props.rocketScienceImages.bottomImages, ...props.rocketScienceImages.bottomImages, ...props.rocketScienceImages.bottomImages].map((img, i) => <Img key={i} src={img} style={{ width: '450px', height: '350px', objectFit: 'cover', borderRadius: '32px' }} />)}
 			</div>
 		</AbsoluteFill>
 	);
 };
 
-const ChareScene: React.FC<{ textColor: string }> = ({ textColor }) => {
+const ChareScene: React.FC<{ props: ProductLaunchProps }> = ({ props }) => {
 	const frame = useCurrentFrame();
 	
 	const showChare = frame >= 25;
 	const chareDuration = 36; // 1.2s total (original 600ms + extra 600ms)
 
 	return (
-		<AbsoluteFill style={{ backgroundColor: '#2563eb', justifyContent: 'center', alignItems: 'center' }}>
+		<AbsoluteFill style={{ backgroundColor: props.primaryColor, justifyContent: 'center', alignItems: 'center' }}>
 			{!showChare && (
-				<div style={{ fontSize: '140px', fontWeight: 900, color: textColor, fontFamily, letterSpacing: '-0.03em', textAlign: 'center' }}>
-					so we built
+				<div style={{ fontSize: '140px', fontWeight: 900, color: props.textColor, fontFamily, letterSpacing: '-0.03em', textAlign: 'center' }}>
+					{props.chareSceneText.builtText}
 				</div>
 			)}
 			{showChare && frame < 25 + chareDuration && (
-				<div style={{ fontSize: '200px', fontWeight: 900, color: textColor, fontFamily, letterSpacing: '-0.05em', textAlign: 'center' }}>
-					Chare
+				<div style={{ fontSize: '200px', fontWeight: 900, color: props.textColor, fontFamily, letterSpacing: '-0.05em', textAlign: 'center' }}>
+					{props.chareSceneText.brandName}
 				</div>
 			)}
 		</AbsoluteFill>
 	);
 };
 
-const SoftwareScene: React.FC<{ textColor: string }> = ({ textColor }) => {
+const SoftwareScene: React.FC<{ props: ProductLaunchProps }> = ({ props }) => {
 	const frame = useCurrentFrame();
-	const words = ["its", "the", "charging", "management", "software"];
 	const chargingFlicker = interpolate(frame, [15, 17, 19, 21, 23], [0, 1, 0.2, 1, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
 	return (
-		<AbsoluteFill style={{ backgroundColor: 'black', justifyContent: 'center', alignItems: 'center' }}>
-			<div style={{ display: 'flex', gap: '20px', fontSize: '80px', fontWeight: 900, color: textColor, fontFamily, letterSpacing: '-0.03em', flexWrap: 'wrap', justifyContent: 'center', padding: '0 40px' }}>
-				{words.map((word, i) => {
+		<AbsoluteFill style={{ backgroundColor: props.backgroundColor, justifyContent: 'center', alignItems: 'center' }}>
+			<div style={{ display: 'flex', gap: '20px', fontSize: '80px', fontWeight: 900, color: props.textColor, fontFamily, letterSpacing: '-0.03em', flexWrap: 'wrap', justifyContent: 'center', padding: '0 40px' }}>
+				{props.softwareSceneText.words.map((word, i) => {
 					const opacity = i === 2 ? chargingFlicker : interpolate(frame, [i * 6, i * 6 + 5], [0, 1], { extrapolateLeft: 'clamp' });
 					return <div key={i} style={{ opacity }}>{word}</div>;
 				})}
@@ -164,15 +196,15 @@ const SoftwareScene: React.FC<{ textColor: string }> = ({ textColor }) => {
 	);
 };
 
-const Outro: React.FC<{ textColor: string }> = ({ textColor }) => {
+const Outro: React.FC<{ props: ProductLaunchProps }> = ({ props }) => {
 	const frame = useCurrentFrame();
 	const { fps } = useVideoConfig();
 	const springAnim = spring({ frame, fps, config: { damping: 12, stiffness: 100 } });
 
 	return (
-		<AbsoluteFill style={{ backgroundColor: '#2563eb', justifyContent: 'center', alignItems: 'center' }}>
-			<div style={{ fontSize: '120px', fontWeight: 900, color: textColor, fontFamily, letterSpacing: '-0.03em', transform: `scale(${springAnim})` }}>
-				Join the future.
+		<AbsoluteFill style={{ backgroundColor: props.primaryColor, justifyContent: 'center', alignItems: 'center' }}>
+			<div style={{ fontSize: '120px', fontWeight: 900, color: props.textColor, fontFamily, letterSpacing: '-0.03em', transform: `scale(${springAnim})` }}>
+				{props.outroText}
 			</div>
 		</AbsoluteFill>
 	);
@@ -194,23 +226,23 @@ export const ProductLaunch: React.FC<ProductLaunchProps> = (props) => {
 	return (
 		<AbsoluteFill style={{ backgroundColor: props.backgroundColor }}>
 			<Sequence durationInFrames={rocketStart}>
-				<Intro textColor={props.textColor} exitStartFrame={introFrames} />
+				<Intro props={props} exitStartFrame={introFrames} />
 			</Sequence>
 
 			<Sequence from={rocketStart} durationInFrames={rocketScienceDuration}>
-				<RocketScience textColor={props.textColor} />
+				<RocketScience props={props} />
 			</Sequence>
 
 			<Sequence from={chareStart} durationInFrames={chareDuration}>
-				<ChareScene textColor={props.textColor} />
+				<ChareScene props={props} />
 			</Sequence>
 			
 			<Sequence from={softwareStart} durationInFrames={softwareDuration}>
-				<SoftwareScene textColor={props.textColor} />
+				<SoftwareScene props={props} />
 			</Sequence>
 
 			<Sequence from={outroStart} durationInFrames={outroDuration}>
-				<Outro textColor={props.textColor} />
+				<Outro props={props} />
 			</Sequence>
 		</AbsoluteFill>
 	);
