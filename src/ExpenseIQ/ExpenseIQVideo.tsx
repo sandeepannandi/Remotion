@@ -3,61 +3,48 @@ import {
     useCurrentFrame,
     useVideoConfig,
     interpolate,
-    staticFile,
-    Easing,
     spring,
+    staticFile,
 } from 'remotion';
+import React from 'react';
 
 const noiseUrl = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E`;
-
-const SITUATION_ASSETS = [
-    { src: "bills.jpg", label: "Bills" },
-    { src: "debt.jpg", label: "Debt" },
-    { src: "inflation.jpg", label: "Inflation" },
-    { src: "loan.jpg", label: "Loan" },
-    { src: "marketcrash.jpg", label: "Market Crash" },
-    { src: "mortage.jpg", label: "Mortgage" },
-];
 
 export const ExpenseIQVideo: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
     const bgColor = "#fff6e8ff";
-    const textColor = "#FF6A00";
+    const textColor = "#000000";
 
-    // Timing Constants
-    const introEnd = 20;
-    const palEnd = 46;
-    const wordDuration = 8;
+    const text = "What if your biggest financial enemy is invisible?";
+    const words = text.split(" ");
 
-    // Stage 1: "Introducing"
-    const introOpacity = interpolate(frame, [0, 6, 14, 20], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-    const introY = interpolate(frame, [14, 20], [0, -400], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const firstSceneEnd = 60;
+    const secondSceneEnd = 90;
+    const thirdSceneEnd = 120;
+    const fourthSceneEnd = 200;
 
-    // Stage 2: "ExpensePal" + Logo
-    const palOpacity = interpolate(frame, [20, 26, 40, 46], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-    const palY = interpolate(frame, [20, 26], [400, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-    const palX = interpolate(frame, [40, 46], [0, -600], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    const pexelsImages = [
+        "pexels-arturoaez225-14969604.jpg",
+        "pexels-introspectivedsgn-6110830.jpg",
+        "pexels-lange-x-2151365597-37989224.jpg",
+        "pexels-quang-vuong-724225078-29442930.jpg",
+        "pexels-thirdman-7653461.jpg",
+        "pexels-alexander-cavaluzzo-2150148636-31202247.jpg",
+        "pexels-mak_-jp-107017486-9585550.jpg"
+    ];
 
-    // Stage 3: The / Only 
-    const theStart = 46;
-    const onlyStart = 54;
-    
-    // Stage 4: "expense tracker" + Mockup
-    const trackerStart = 62;
-    const trackerEnd = 100;
-    const trackerOpacity = interpolate(frame, [trackerStart, trackerStart + 5, trackerEnd - 5, trackerEnd], [0, 1, 1, 0], { extrapolateLeft: 'clamp' });
-    const mockupX = interpolate(frame, [trackerStart, trackerStart + 10], [1000, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-    // Stage 5: Middle words
-    const sentencePart2Start = 100;
-    const sentencePart2Words = ["you'll", "ever", "need", "in", "any"];
-    
-    // Stage 6: "situation" + Card Stream
-    const situationStart = 140;
-    // Word "situation" fades in fast and out faster
-    const situationOpacity = interpolate(frame, [situationStart, situationStart + 5, situationStart + 15, situationStart + 20], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+    // Seeded random-like positions for consistency - 7 images now
+    const imageConfigs = [
+        { left: '10%', top: '-5%', rotate: -5 },
+        { left: '25%', top: '15%', rotate: 8 },
+        { left: '8%', top: '25%', rotate: -12 },
+        { left: '20%', top: '50%', rotate: 4 },
+        { left: '8%', top: '60%', rotate: -3 },
+        { left: '5%', top: '20%', rotate: -7 },
+        { left: '28%', top: '50%', rotate: 10 },
+    ];
 
     return (
         <AbsoluteFill
@@ -68,140 +55,178 @@ export const ExpenseIQVideo: React.FC = () => {
                 alignItems: "center",
                 fontFamily: "'Geist', sans-serif",
                 color: textColor,
-                overflow: 'hidden'
             }}
         >
-            {/* Stage 1: Introducing */}
-            {frame < introEnd && (
-                <div style={{ position: 'absolute', opacity: introOpacity, transform: `translateY(${introY}px)` }}>
-                    <h1 style={{ fontSize: "160px", fontWeight: 900, margin: 0 }}>Introducing</h1>
-                </div>
-            )}
-
-            {/* Stage 2: ExpensePal + Logo */}
-            {frame >= 20 && frame < palEnd && (
-                <div style={{ position: 'absolute', opacity: palOpacity, transform: `translateY(${palY}px) translateX(${palX}px)`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <img src={staticFile("eplogo.png")} style={{ width: "200px", height: "auto", marginBottom: "20px" }} />
-                    <h1 style={{ fontSize: "200px", fontWeight: 800, margin: 0 }}>ExpensePal</h1>
-                </div>
-            )}
-
-            {/* Stage 3: "the" and "only" */}
-            {frame >= theStart && frame < trackerStart && (
-                <div style={{ position: 'absolute' }}>
-                    {frame < onlyStart ? (
-                        <h1 style={{ fontSize: "180px", fontWeight: 900, opacity: interpolate(frame - theStart, [0, 3], [0, 1], {extrapolateRight: 'clamp'}) }}>the</h1>
-                    ) : (
-                        <h1 style={{ fontSize: "180px", fontWeight: 900, opacity: interpolate(frame - onlyStart, [0, 3], [0, 1], {extrapolateRight: 'clamp'}) }}>only</h1>
-                    )}
-                </div>
-            )}
-
-            {/* Stage 4: "expense tracker" + Mockup */}
-            {frame >= trackerStart && frame < trackerEnd && (
-                <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', opacity: trackerOpacity, width: '100%', justifyContent: 'space-between' }}>
-                    <h1 style={{ fontSize: "150px", fontWeight: 900, marginLeft: '200px' }}>Expense Tracker</h1>
-                    <img 
-                        src={staticFile("epmock.png")} 
-                        style={{ 
-                            width: "750px", 
-                            height: "auto", 
-                            transform: `translateX(${mockupX}px)`,
-                            marginRight: '0px'
-                        }} 
-                    />
-                </div>
-            )}
-
-            {/* Stage 5: Middle words */}
-            {frame >= sentencePart2Start && frame < situationStart && (
-                <div style={{ position: 'absolute' }}>
-                    {(() => {
-                        const wordIdx = Math.floor((frame - sentencePart2Start) / wordDuration);
-                        const relFrame = (frame - sentencePart2Start) % wordDuration;
-                        return (
-                            <h1 style={{ 
-                                fontSize: "180px", 
-                                fontWeight: 900, 
-                                opacity: interpolate(relFrame, [0, 3], [0, 1], {extrapolateRight: 'clamp'}) 
-                            }}>
-                                {sentencePart2Words[wordIdx]}
-                            </h1>
-                        );
-                    })()}
-                </div>
-            )}
-
-            {/* Stage 6: "situation" + Card Stream */}
-            {frame >= situationStart && (
-                <>
-                    {/* "situation" text fades in/out, cards go OVER it */}
-                    <div style={{ 
-                        position: 'absolute', 
-                        opacity: situationOpacity, 
-                        zIndex: 0 
-                    }}>
-                        <h1 style={{ fontSize: "180px", fontWeight: 900 }}>situation</h1>
-                    </div>
-
-                    {/* Image Cards Stream */}
-                    {SITUATION_ASSETS.map((asset, i) => {
-                        const cardStart = situationStart + 5 + (i * 28);
-                        if (frame < cardStart) return null;
-                        
-                        // Card moves from right to left linearly - slowed down to 180 frames for equal distance
-                        const x = interpolate(frame, [cardStart, cardStart + 125], [1920, -1200], {
-                            extrapolateRight: 'clamp'
-                        });
-
-                        // Entrance spring for scale and opacity
-                        const entrance = spring({
-                            frame: frame - cardStart,
+            {frame < firstSceneEnd && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    fontSize: '80px',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    padding: '0 100px',
+                    lineHeight: 1.2,
+                }}>
+                    {words.map((word, i) => {
+                        const delay = i * 4;
+                        const spr = spring({
+                            frame: frame - delay,
                             fps,
-                            config: { damping: 15, stiffness: 100 }
+                            config: { damping: 12, stiffness: 100 },
                         });
 
-                        const scale = interpolate(entrance, [0, 1], [0.8, 1]);
-                        const opacity = interpolate(entrance, [0, 1], [0, 1]);
-                        
+                        const opacity = interpolate(spr, [0, 1], [0, 1]);
+                        const translateY = interpolate(spr, [0, 1], [20, 0]);
+
                         return (
-                            <div
-                                key={i}
-                                style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: '50%',
-                                    transform: `translate(${x}px, -50%) rotate(4deg) scale(${scale})`,
-                                    opacity: opacity,
-                                    width: '600px', // Bigger size
-                                    height: '800px', // Bigger size
-                                    borderRadius: '60px', // Increased roundness
-                                    overflow: 'hidden',
-                                    boxShadow: '0 40px 80px rgba(0,0,0,0.2)',
-                                    border: '8px solid #FF6A00', // Orange border
-                                    zIndex: i + 1,
-                                    backgroundColor: '#FF6A00',
-                                }}
-                            >
-                                <img src={staticFile(asset.src)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                {/* Caption at bottom */}
-                                <div style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    width: '100%',
-                                    backgroundColor: 'rgba(255, 106, 0, 1)',
-                                    padding: '20px 0',
-                                    textAlign: 'center',
-                                    color: 'white',
-                                    fontSize: '40px',
-                                    fontWeight: 600,
-                                    fontFamily: "'Geist', sans-serif"
-                                }}>
-                                    {asset.label}
-                                </div>
-                            </div>
+                            <span key={i} style={{ opacity, transform: `translateY(${translateY}px)`, marginRight: '0.3em', display: 'inline-block' }}>
+                                {word}
+                            </span>
                         );
                     })}
+                </div>
+            )}
+
+            {frame >= firstSceneEnd && frame < secondSceneEnd && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    fontSize: '120px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    padding: '0 100px',
+                    lineHeight: 1.2,
+                }}>
+                    {"It's not your rent".split(" ").map((word, i) => {
+                        const delay = firstSceneEnd + (i * 4);
+                        const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
+                            extrapolateLeft: 'clamp',
+                            extrapolateRight: 'clamp',
+                        });
+
+                        return (
+                            <span key={i} style={{ opacity, marginRight: '0.3em', display: 'inline-block' }}>
+                                {word}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
+
+            {frame >= secondSceneEnd && frame < thirdSceneEnd && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    fontSize: '120px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    padding: '0 100px',
+                    lineHeight: 1.2,
+                }}>
+                    {"Not your EMIs".split(" ").map((word, i) => {
+                        const delay = secondSceneEnd + (i * 4);
+                        const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
+                            extrapolateLeft: 'clamp',
+                            extrapolateRight: 'clamp',
+                        });
+
+                        return (
+                            <span key={i} style={{ opacity, marginRight: '0.3em', display: 'inline-block' }}>
+                                {word}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
+
+            {frame >= thirdSceneEnd && (
+                <>
+                    {/* Shuffled images on the left side */}
+                    {pexelsImages.map((src, i) => {
+                        const delay = thirdSceneEnd + (i * 10);
+                        if (frame < delay) return null;
+
+                        const config = imageConfigs[i];
+                        return (
+                            <img
+                                key={src}
+                                src={staticFile(src)}
+                                style={{
+                                    position: 'absolute',
+                                    left: config.left,
+                                    top: config.top,
+                                    width: '450px',
+                                    height: 'auto',
+                                    transform: `rotate(${config.rotate}deg)`,
+                                    zIndex: i,
+                                }}
+                            />
+                        );
+                    })}
+
+                    {frame < fourthSceneEnd ? (
+                        <div style={{
+                            position: 'absolute',
+                            right: '-100px',
+                            width: '45%',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            fontSize: '100px',
+                            fontWeight: 800,
+                            textAlign: 'left',
+                            flexWrap: 'wrap',
+                            justifyContent: 'flex-start',
+                            lineHeight: 1.1,
+                        }}>
+                            {"It works 24 hours a day.".split(" ").map((word, i) => {
+                                const delay = thirdSceneEnd + (i * 4);
+                                const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
+                                    extrapolateLeft: 'clamp',
+                                    extrapolateRight: 'clamp',
+                                });
+
+                                return (
+                                    <span key={i} style={{ opacity, marginRight: '0.3em', display: 'inline-block' }}>
+                                        {word}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div style={{
+                            position: 'absolute',
+                            right: '-100px',
+                            width: '45%',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            fontSize: '100px',
+                            fontWeight: 800,
+                            textAlign: 'left',
+                            flexWrap: 'wrap',
+                            justifyContent: 'flex-start',
+                            lineHeight: 1.1,
+                        }}>
+                            {"Stealing your money while you sleep".split(" ").map((word, i) => {
+                                const delay = fourthSceneEnd + (i * 4);
+                                const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
+                                    extrapolateLeft: 'clamp',
+                                    extrapolateRight: 'clamp',
+                                });
+
+                                return (
+                                    <span key={i} style={{ opacity, marginRight: '0.3em', display: 'inline-block' }}>
+                                        {word}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    )}
                 </>
             )}
         </AbsoluteFill>
