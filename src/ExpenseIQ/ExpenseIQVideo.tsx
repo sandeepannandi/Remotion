@@ -25,9 +25,22 @@ export const ExpenseIQVideo: React.FC = () => {
     const firstSceneEnd = 60;
     const secondSceneEnd = 90;
     const thirdSceneEnd = 120;
-    const fourthSceneEnd = 200;
-    const fifthSceneStart = 280;
-    const fifthSceneDuration = 150; // 5 seconds at 30fps
+    const fourthSceneMid = 200;
+    const fourthSceneEnd = 280; // Extended from 200 to give second half equal time
+    const fifthSceneStart = fourthSceneEnd + 10;
+    const fifthWordInterval = 16;
+    const wordsArr = "It's called inflation".split(" ");
+    const allWordsDone = (wordsArr.length - 1) * fifthWordInterval;
+    const waveStart = allWordsDone + 15;
+    const waveStagger = 4;
+    const waveEnd = waveStart + ((wordsArr.length - 1) * waveStagger) + 6; // +6 for flicker duration
+    
+    const fifthSceneDuration = waveEnd;
+    const sixthSceneStart = fifthSceneStart + fifthSceneDuration;
+    const sixthSceneDuration = 75; // 2.5 seconds at 30fps
+    const seventhSceneStart = sixthSceneStart + sixthSceneDuration;
+    const seventhSceneDuration = 60;
+    const eighthSceneStart = seventhSceneStart + seventhSceneDuration;
 
     const pexelsImages = [
         "pexels-arturoaez225-14969604.jpg",
@@ -162,8 +175,8 @@ export const ExpenseIQVideo: React.FC = () => {
             {frame >= thirdSceneEnd && frame < fifthSceneStart && (
                 <>
                     {/* Shuffled images on the left side */}
-                    {(frame < fourthSceneEnd ? pexelsImages : stealingImages).map((src, i) => {
-                        const startFrame = frame < fourthSceneEnd ? thirdSceneEnd : fourthSceneEnd;
+                    {(frame < fourthSceneMid ? pexelsImages : stealingImages).map((src, i) => {
+                        const startFrame = frame < fourthSceneMid ? thirdSceneEnd : fourthSceneMid;
                         const delay = startFrame + (i * 10);
                         if (frame < delay) return null;
 
@@ -198,7 +211,7 @@ export const ExpenseIQVideo: React.FC = () => {
                         justifyContent: 'flex-start',
                         lineHeight: 1.1,
                     }}>
-                        {frame < fourthSceneEnd ? (
+                        {frame < fourthSceneMid ? (
                             "It works 24 hours a day.".split(" ").map((word, i) => {
                                 const delay = thirdSceneEnd + (i * 4);
                                 const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
@@ -214,7 +227,7 @@ export const ExpenseIQVideo: React.FC = () => {
                             })
                         ) : (
                             "Stealing your money while you sleep".split(" ").map((word, i) => {
-                                const delay = fourthSceneEnd + (i * 4);
+                                const delay = fourthSceneMid + (i * 4);
                                 const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
                                     extrapolateLeft: 'clamp',
                                     extrapolateRight: 'clamp',
@@ -231,7 +244,50 @@ export const ExpenseIQVideo: React.FC = () => {
                 </>
             )}
 
-            <Sequence from={fifthSceneStart} durationInFrames={fifthSceneDuration}>
+            {frame >= fifthSceneStart && frame < sixthSceneStart && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    fontSize: '120px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    padding: '0 100px',
+                    lineHeight: 1.2,
+                }}>
+                    {"It's called inflation".split(" ").map((word, i) => {
+                        const wordsArr = "It's called inflation".split(" ");
+                        const delay = fifthSceneStart + (i * fifthWordInterval);
+                        const hasAppeared = frame >= delay;
+                        
+                        // Calculate when the wave hits this word
+                        const allWordsDone = fifthSceneStart + ((wordsArr.length - 1) * fifthWordInterval);
+                        const waveStart = allWordsDone + 15; // Pause slightly after phrase is complete
+                        const waveStagger = 4; // Frames between each word's flicker
+                        const myWaveFrame = waveStart + (i * waveStagger);
+                        
+                        // Word is in 'wave flicker' mode for 6 frames (0.2s at 30fps)
+                        const isWaveFlickering = frame >= myWaveFrame && frame < myWaveFrame + 6;
+
+                        return (
+                            <span 
+                                key={i} 
+                                className={isWaveFlickering ? "flicker-pulse" : ""} 
+                                style={{ 
+                                    opacity: hasAppeared ? 1 : 0, 
+                                    marginRight: '0.3em', 
+                                    display: 'inline-block' 
+                                }}
+                            >
+                                {word}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
+
+            <Sequence from={sixthSceneStart} durationInFrames={sixthSceneDuration}>
                 <AbsoluteFill>
                     <Video 
                         src={staticFile("inflation.mp4")}
@@ -243,6 +299,57 @@ export const ExpenseIQVideo: React.FC = () => {
                     />
                 </AbsoluteFill>
             </Sequence>
+
+            {frame >= seventhSceneStart && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    fontSize: '120px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    padding: '0 100px',
+                    lineHeight: 1.1,
+                }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {"And you have".split(" ").map((word, i) => {
+                            const delay = i * 4;
+                            const spr = spring({
+                                frame: frame - (seventhSceneStart + delay),
+                                fps,
+                                config: { damping: 15, stiffness: 100 },
+                            });
+                            const scale = interpolate(spr, [0, 1], [3, 1]);
+                            const opacity = interpolate(spr, [0, 0.4], [0, 1]);
+                            return (
+                                <span key={i} style={{ transform: `scale(${scale})`, opacity, display: 'inline-block', marginRight: '0.3em' }}>
+                                    {word}
+                                </span>
+                            );
+                        })}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {"no idea how bad it is".split(" ").map((word, i) => {
+                            // Delay starts after first line words (3 words * 4 frames)
+                            const delay = (3 * 4) + (i * 4);
+                            const spr = spring({
+                                frame: frame - (seventhSceneStart + delay),
+                                fps,
+                                config: { damping: 15, stiffness: 100 },
+                            });
+                            const scale = interpolate(spr, [0, 1], [3, 1]);
+                            const opacity = interpolate(spr, [0, 0.4], [0, 1]);
+                            return (
+                                <span key={i} style={{ transform: `scale(${scale})`, opacity, display: 'inline-block', marginRight: '0.3em' }}>
+                                    {word}
+                                </span>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
         </AbsoluteFill>
     );
 };
