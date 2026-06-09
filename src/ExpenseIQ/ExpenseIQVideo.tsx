@@ -5,6 +5,8 @@ import {
     interpolate,
     spring,
     staticFile,
+    Video,
+    Sequence,
 } from 'remotion';
 import React from 'react';
 
@@ -24,6 +26,8 @@ export const ExpenseIQVideo: React.FC = () => {
     const secondSceneEnd = 90;
     const thirdSceneEnd = 120;
     const fourthSceneEnd = 200;
+    const fifthSceneStart = 280;
+    const fifthSceneDuration = 150; // 5 seconds at 30fps
 
     const pexelsImages = [
         "pexels-arturoaez225-14969604.jpg",
@@ -33,6 +37,16 @@ export const ExpenseIQVideo: React.FC = () => {
         "pexels-thirdman-7653461.jpg",
         "pexels-alexander-cavaluzzo-2150148636-31202247.jpg",
         "pexels-mak_-jp-107017486-9585550.jpg"
+    ];
+
+    const stealingImages = [
+        "pexels-liliana-drew-8554409.jpg",
+        "pexels-mart-production-7230217.jpg",
+        "pexels-ron-lach-8705783.jpg",
+        "pexels-tima-miroshnichenko-6266305.jpg",
+        "pexels-tima-miroshnichenko-6266668.jpg",
+        "pexels-tima-miroshnichenko-6266697.jpg",
+        "pexels-vika-glitter-392079-7916845.jpg"
     ];
 
     // Seeded random-like positions for consistency - 7 images now
@@ -145,11 +159,12 @@ export const ExpenseIQVideo: React.FC = () => {
                 </div>
             )}
 
-            {frame >= thirdSceneEnd && (
+            {frame >= thirdSceneEnd && frame < fifthSceneStart && (
                 <>
                     {/* Shuffled images on the left side */}
-                    {pexelsImages.map((src, i) => {
-                        const delay = thirdSceneEnd + (i * 10);
+                    {(frame < fourthSceneEnd ? pexelsImages : stealingImages).map((src, i) => {
+                        const startFrame = frame < fourthSceneEnd ? thirdSceneEnd : fourthSceneEnd;
+                        const delay = startFrame + (i * 10);
                         if (frame < delay) return null;
 
                         const config = imageConfigs[i];
@@ -170,21 +185,21 @@ export const ExpenseIQVideo: React.FC = () => {
                         );
                     })}
 
-                    {frame < fourthSceneEnd ? (
-                        <div style={{
-                            position: 'absolute',
-                            right: '-100px',
-                            width: '45%',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            fontSize: '100px',
-                            fontWeight: 800,
-                            textAlign: 'left',
-                            flexWrap: 'wrap',
-                            justifyContent: 'flex-start',
-                            lineHeight: 1.1,
-                        }}>
-                            {"It works 24 hours a day.".split(" ").map((word, i) => {
+                    <div style={{
+                        position: 'absolute',
+                        right: '-100px',
+                        width: '45%',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        fontSize: '100px',
+                        fontWeight: 800,
+                        textAlign: 'left',
+                        flexWrap: 'wrap',
+                        justifyContent: 'flex-start',
+                        lineHeight: 1.1,
+                    }}>
+                        {frame < fourthSceneEnd ? (
+                            "It works 24 hours a day.".split(" ").map((word, i) => {
                                 const delay = thirdSceneEnd + (i * 4);
                                 const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
                                     extrapolateLeft: 'clamp',
@@ -196,23 +211,9 @@ export const ExpenseIQVideo: React.FC = () => {
                                         {word}
                                     </span>
                                 );
-                            })}
-                        </div>
-                    ) : (
-                        <div style={{
-                            position: 'absolute',
-                            right: '-100px',
-                            width: '45%',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            fontSize: '100px',
-                            fontWeight: 800,
-                            textAlign: 'left',
-                            flexWrap: 'wrap',
-                            justifyContent: 'flex-start',
-                            lineHeight: 1.1,
-                        }}>
-                            {"Stealing your money while you sleep".split(" ").map((word, i) => {
+                            })
+                        ) : (
+                            "Stealing your money while you sleep".split(" ").map((word, i) => {
                                 const delay = fourthSceneEnd + (i * 4);
                                 const opacity = interpolate(frame, [delay, delay + 1], [0, 1], {
                                     extrapolateLeft: 'clamp',
@@ -224,11 +225,24 @@ export const ExpenseIQVideo: React.FC = () => {
                                         {word}
                                     </span>
                                 );
-                            })}
-                        </div>
-                    )}
+                            })
+                        )}
+                    </div>
                 </>
             )}
+
+            <Sequence from={fifthSceneStart} durationInFrames={fifthSceneDuration}>
+                <AbsoluteFill>
+                    <Video 
+                        src={staticFile("inflation.mp4")}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                        }}
+                    />
+                </AbsoluteFill>
+            </Sequence>
         </AbsoluteFill>
     );
 };
