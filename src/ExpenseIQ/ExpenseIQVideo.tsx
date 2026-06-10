@@ -41,6 +41,63 @@ export const ExpenseIQVideo: React.FC = () => {
     const seventhSceneStart = sixthSceneStart + sixthSceneDuration;
     const seventhSceneDuration = 60;
     const eighthSceneStart = seventhSceneStart + seventhSceneDuration;
+    const eighthSceneDuration = 120; // 4 seconds at 30fps
+
+    const PacMan: React.FC<{ 
+        style?: React.CSSProperties, 
+        direction?: 'right' | 'left' | 'up' | 'down',
+        color?: string,
+        size?: number
+    }> = ({ style, direction = 'right', color = '#FF8C00', size = 40 }) => {
+        const frame = useCurrentFrame();
+        const rotate = {
+            right: '0deg',
+            left: '180deg',
+            up: '270deg',
+            down: '90deg'
+        }[direction];
+
+        // Drive the mouth rotation using Remotion's frame for 100% reliability
+        // Math.sin creates a smooth open/close cycle
+        const mouthRotation = interpolate(
+            Math.sin(frame * 0.4), // Adjust speed here
+            [-1, 1],
+            [0, 35]
+        );
+
+        return (
+            <div style={{
+                width: size,
+                height: size,
+                position: 'absolute',
+                transform: `rotate(${rotate})`,
+                display: 'flex',
+                flexDirection: 'column',
+                ...style,
+            }}>
+                {/* Top Half */}
+                <div style={{
+                    width: '100%',
+                    height: '50%',
+                    backgroundColor: color,
+                    borderTopLeftRadius: size,
+                    borderTopRightRadius: size,
+                    transformOrigin: 'bottom center',
+                    transform: `rotate(-${mouthRotation}deg)`,
+                }} />
+                {/* Bottom Half */}
+                <div style={{
+                    width: '100%',
+                    height: '50%',
+                    backgroundColor: color,
+                    borderBottomLeftRadius: size,
+                    borderBottomRightRadius: size,
+                    transformOrigin: 'top center',
+                    transform: `rotate(${mouthRotation}deg)`,
+                }} />
+            </div>
+        );
+    };
 
     const pexelsImages = [
         "pexels-arturoaez225-14969604.jpg",
@@ -104,11 +161,38 @@ export const ExpenseIQVideo: React.FC = () => {
                             config: { damping: 12, stiffness: 100 },
                         });
 
-                        const opacity = interpolate(spr, [0, 1], [0, 1]);
+                        let opacity = interpolate(spr, [0, 1], [0, 1]);
                         const translateY = interpolate(spr, [0, 1], [20, 0]);
+                        let blur = 0;
+
+                        if (word.toLowerCase().includes("invisible")) {
+                            // Start blurring/fading after it has fully appeared
+                            // It appears at frame `delay + something`. Let's say it stays for 15 frames.
+                            const exitStart = delay + 20;
+                            const exitDuration = 20;
+                            
+                            const exitSpr = spring({
+                                frame: frame - exitStart,
+                                fps,
+                                config: { damping: 20, stiffness: 60 },
+                            });
+
+                            const exitOpacity = interpolate(exitSpr, [0, 1], [1, 0]);
+                            blur = interpolate(exitSpr, [0, 1], [0, 20]);
+                            opacity = opacity * exitOpacity;
+                        }
 
                         return (
-                            <span key={i} style={{ opacity, transform: `translateY(${translateY}px)`, marginRight: '0.3em', display: 'inline-block' }}>
+                            <span 
+                                key={i} 
+                                style={{ 
+                                    opacity, 
+                                    transform: `translateY(${translateY}px)`, 
+                                    filter: blur > 0 ? `blur(${blur}px)` : 'none',
+                                    marginRight: '0.3em', 
+                                    display: 'inline-block' 
+                                }}
+                            >
                                 {word}
                             </span>
                         );
@@ -300,7 +384,7 @@ export const ExpenseIQVideo: React.FC = () => {
                 </AbsoluteFill>
             </Sequence>
 
-            {frame >= seventhSceneStart && (
+            {frame >= seventhSceneStart && frame < eighthSceneStart && (
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -350,6 +434,135 @@ export const ExpenseIQVideo: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {frame >= eighthSceneStart && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    fontSize: '120px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    padding: '0 100px',
+                    lineHeight: 1.1,
+                }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {"Inflation eats your".split(" ").map((word, i) => {
+                            const delay = i * 4;
+                            const opacity = interpolate(frame, [eighthSceneStart + delay, eighthSceneStart + delay + 1], [0, 1], {
+                                extrapolateLeft: 'clamp',
+                                extrapolateRight: 'clamp',
+                            });
+
+                            return (
+                                <span key={i} style={{ opacity, marginRight: '0.3em', display: 'inline-block' }}>
+                                    {word}
+                                </span>
+                            );
+                        })}
+                        {/* The word "money" with eating animation */}
+                        {(() => {
+                            const word = "money";
+                            const delay = (3 * 4) + 4; // After "Inflation eats your"
+                            const opacity = interpolate(frame, [eighthSceneStart + delay, eighthSceneStart + delay + 1], [0, 1], {
+                                extrapolateLeft: 'clamp',
+                                extrapolateRight: 'clamp',
+                            });
+                            
+                            // Eating timing: Large Pac-Man appears at 100% right and moves to just past 0% left
+                            const eatStart = eighthSceneStart + delay + 25;
+                            const eatProgress = interpolate(frame, [eatStart, eatStart + 40], [0, 0.85], {
+                                extrapolateLeft: 'clamp',
+                                extrapolateRight: 'clamp',
+                            });
+
+                            return (
+                                <div style={{ position: 'relative', display: 'inline-block' }}>
+                                    <span style={{ 
+                                        opacity, 
+                                        display: 'inline-block',
+                                        clipPath: `inset(0 ${Math.min(eatProgress * 100, 100)}% 0 0)`, // Literally eats it away
+                                    }}>
+                                        {word}
+                                    </span>
+                                    {frame >= eatStart && (
+                                        <PacMan 
+                                            direction="left"
+                                            color="#FF8C00"
+                                            size={180}
+                                            style={{
+                                                left: `${(1 - eatProgress) * 100}%`,
+                                                top: '50%',
+                                                transform: `translate(-50%, -50%) rotate(180deg)`,
+                                                zIndex: 10,
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                            );
+                        })()}
+                    </div>
+
+                    {/* Exactly 4 background Pac-Men, one for each side */}
+                    {[
+                        { pos: { top: '100px', left: '100px' }, dir: 'right' },
+                        { pos: { top: '100px', right: '100px' }, dir: 'down' },
+                        { pos: { bottom: '100px', right: '100px' }, dir: 'left' },
+                        { pos: { bottom: '100px', left: '100px' }, dir: 'up' },
+                    ].map((config, idx) => {
+                        const sceneFrame = frame - eighthSceneStart;
+                        const move = interpolate(sceneFrame, [0, 100], [0, 500]);
+                        const dots = [1, 2, 3, 4, 5, 6, 7];
+
+                        return (
+                            <div key={idx} style={{ position: 'absolute', ...config.pos }}>
+                                {dots.map(d => {
+                                    const dotPos = d * 70;
+                                    const isEaten = move > dotPos;
+                                    if (isEaten) return null;
+                                    return (
+                                        <div key={d} style={{
+                                            position: 'absolute',
+                                            width: '35px',
+                                            height: '35px',
+                                            backgroundColor: '#FF8C00',
+                                            borderRadius: '50%',
+                                            left: config.dir === 'right' ? dotPos : config.dir === 'left' ? -dotPos : 0,
+                                            top: config.dir === 'up' ? -dotPos : config.dir === 'down' ? dotPos : 0,
+                                        }} />
+                                    );
+                                })}
+                                <PacMan 
+                                    direction={config.dir as any}
+                                    color="#FF8C00"
+                                    size={100}
+                                    style={{
+                                        left: config.dir === 'right' ? move : config.dir === 'left' ? -move : 0,
+                                        top: config.dir === 'up' ? -move : config.dir === 'down' ? move : 0,
+                                        transform: `translate(-50%, -50%) rotate(${
+                                            config.dir === 'right' ? 0 : 
+                                            config.dir === 'left' ? 180 : 
+                                            config.dir === 'up' ? 270 : 90
+                                        }deg)`,
+                                    }}
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+            <style>{`
+                @keyframes pacman-top-move {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(-35deg); }
+                }
+                @keyframes pacman-bottom-move {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(35deg); }
+                }
+            `}</style>
         </AbsoluteFill>
     );
 };
