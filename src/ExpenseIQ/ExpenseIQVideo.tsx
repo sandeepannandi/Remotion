@@ -41,7 +41,15 @@ export const ExpenseIQVideo: React.FC = () => {
     const seventhSceneStart = sixthSceneStart + sixthSceneDuration;
     const seventhSceneDuration = 60;
     const eighthSceneStart = seventhSceneStart + seventhSceneDuration;
-    const eighthSceneDuration = 120; // 4 seconds at 30fps
+    const eighthSceneDuration = 80; // Shortened to end as soon as eaten
+    const tenthSceneStart = eighthSceneStart + eighthSceneDuration;
+    const tenthSceneDuration = 30;
+    const eleventhSceneStart = tenthSceneStart + tenthSceneDuration;
+    const eleventhSceneDuration = 30;
+    const twelfthSceneStart = eleventhSceneStart + eleventhSceneDuration;
+    const twelfthSceneDuration = 40;
+    const ninthSceneStart = twelfthSceneStart + twelfthSceneDuration;
+    const ninthSceneDuration = 60; // 2 seconds
 
     const PacMan: React.FC<{ 
         style?: React.CSSProperties, 
@@ -435,7 +443,7 @@ export const ExpenseIQVideo: React.FC = () => {
                 </div>
             )}
 
-            {frame >= eighthSceneStart && (
+            {frame >= eighthSceneStart && frame < tenthSceneStart && (
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -471,8 +479,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                 extrapolateRight: 'clamp',
                             });
                             
-                            // Eating timing: Large Pac-Man appears at 100% right and moves to just past 0% left
-                            const eatStart = eighthSceneStart + delay + 25;
+                            // Eating timing: Large Pac-Man appears instantly with the word
+                            const eatStart = eighthSceneStart + delay;
                             const eatProgress = interpolate(frame, [eatStart, eatStart + 40], [0, 0.85], {
                                 extrapolateLeft: 'clamp',
                                 extrapolateRight: 'clamp',
@@ -549,6 +557,71 @@ export const ExpenseIQVideo: React.FC = () => {
                                     }}
                                 />
                             </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {frame >= tenthSceneStart && frame < eleventhSceneStart && (
+                <div style={{
+                    fontSize: '280px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    width: '100%',
+                    textTransform: 'uppercase',
+                }}>
+                    EVERY.
+                </div>
+            )}
+
+            {frame >= eleventhSceneStart && frame < twelfthSceneStart && (
+                <div style={{
+                    fontSize: '280px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    width: '100%',
+                    textTransform: 'uppercase',
+                }}>
+                    SINGLE.
+                </div>
+            )}
+
+            {frame >= twelfthSceneStart && frame < ninthSceneStart && (
+                <div style={{
+                    fontSize: '280px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    width: '100%',
+                    textTransform: 'uppercase',
+                }}>
+                    MONTH.
+                </div>
+            )}
+
+            {frame >= ninthSceneStart && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    fontSize: '120px',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    padding: '0 100px',
+                    lineHeight: 1.2,
+                }}>
+                    {"Meet ExpensePal".split(" ").map((word, i) => {
+                        const delay = i * 6;
+                        const opacity = interpolate(frame, [ninthSceneStart + delay, ninthSceneStart + delay + 1], [0, 1], {
+                            extrapolateLeft: 'clamp',
+                            extrapolateRight: 'clamp',
+                        });
+
+                        return (
+                            <span key={i} style={{ opacity, marginRight: '0.4em', display: 'inline-block' }}>
+                                {word}
+                            </span>
                         );
                     })}
                 </div>
