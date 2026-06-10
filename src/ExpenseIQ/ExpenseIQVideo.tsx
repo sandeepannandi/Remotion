@@ -88,8 +88,8 @@ export const ExpenseIQVideo: React.FC = () => {
                 <div style={{
                     display: 'flex',
                     flexDirection: 'row',
-                    fontSize: '80px',
-                    fontWeight: 700,
+                    fontSize: '100px',
+                    fontWeight: 800,
                     textAlign: 'center',
                     flexWrap: 'wrap',
                     justifyContent: 'center',
@@ -313,7 +313,7 @@ export const ExpenseIQVideo: React.FC = () => {
                     padding: '0 100px',
                     lineHeight: 1.1,
                 }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'baseline' }}>
                         {"And you have".split(" ").map((word, i) => {
                             const delay = i * 4;
                             const spr = spring({
@@ -321,7 +321,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                 fps,
                                 config: { damping: 15, stiffness: 100 },
                             });
-                            const scale = interpolate(spr, [0, 1], [3, 1]);
+                            const scale = word === "And" ? interpolate(spr, [0, 1], [3, 1]) : interpolate(spr, [0, 1], [1.2, 1]);
                             const opacity = interpolate(spr, [0, 0.4], [0, 1]);
                             return (
                                 <span key={i} style={{ transform: `scale(${scale})`, opacity, display: 'inline-block', marginRight: '0.3em' }}>
@@ -339,7 +339,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                 fps,
                                 config: { damping: 15, stiffness: 100 },
                             });
-                            const scale = interpolate(spr, [0, 1], [3, 1]);
+                            const scale = interpolate(spr, [0, 1], [1.2, 1]);
                             const opacity = interpolate(spr, [0, 0.4], [0, 1]);
                             return (
                                 <span key={i} style={{ transform: `scale(${scale})`, opacity, display: 'inline-block', marginRight: '0.3em' }}>
