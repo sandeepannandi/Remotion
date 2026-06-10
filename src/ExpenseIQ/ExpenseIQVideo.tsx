@@ -620,8 +620,8 @@ export const ExpenseIQVideo: React.FC = () => {
                         });
                         const logoScale = interpolate(logoSpr, [0, 1], [0, 1]);
                         
-                        // Start with a standard space (approx 30px) and expand to hold the logo
-                        const spacerWidth = interpolate(logoSpr, [0, 1], [30, 140]);
+                        // Start with a standard space (approx 30px) and expand to hold the larger logo
+                        const spacerWidth = interpolate(logoSpr, [0, 1], [30, 200]);
 
                         return (
                             <>
@@ -634,7 +634,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                 
                                 <div style={{
                                     width: spacerWidth,
-                                    height: '100px',
+                                    height: '150px',
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -643,8 +643,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                 }}>
                                     <div style={{ 
                                         transform: `scale(${logoScale})`, 
-                                        width: '100px', 
-                                        height: '100px',
+                                        width: '180px', 
+                                        height: '180px',
                                         display: 'flex',
                                         justifyContent: 'center',
                                         alignItems: 'center',
