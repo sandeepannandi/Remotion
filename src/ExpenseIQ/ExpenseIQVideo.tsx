@@ -50,6 +50,24 @@ export const ExpenseIQVideo: React.FC = () => {
     const twelfthSceneDuration = 15;
     const ninthSceneStart = twelfthSceneStart + twelfthSceneDuration;
     const ninthSceneDuration = 60; // 2 seconds
+    const thirteenthSceneStart = ninthSceneStart + ninthSceneDuration;
+    const thirteenthSceneDuration = 90; // 3 seconds of racing
+
+    const WindTrail: React.FC<{ 
+        style?: React.CSSProperties, 
+        height: number, 
+        opacity: number 
+    }> = ({ style, height, opacity }) => (
+        <div style={{
+            position: 'absolute',
+            width: '4px',
+            backgroundColor: '#FF8C00',
+            borderRadius: '2px',
+            opacity,
+            height,
+            ...style,
+        }} />
+    );
 
     const PacMan: React.FC<{ 
         style?: React.CSSProperties, 
@@ -598,7 +616,7 @@ export const ExpenseIQVideo: React.FC = () => {
                 </div>
             )}
 
-            {frame >= ninthSceneStart && (
+            {frame >= ninthSceneStart && frame < thirteenthSceneStart && (
                 <div style={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -643,8 +661,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                 }}>
                                     <div style={{ 
                                         transform: `scale(${logoScale})`, 
-                                        width: '180px', 
-                                        height: '180px',
+                                        width: '150px', 
+                                        height: '150px',
                                         display: 'flex',
                                         justifyContent: 'center',
                                         alignItems: 'center',
@@ -662,6 +680,100 @@ export const ExpenseIQVideo: React.FC = () => {
                                 }}>
                                     ExpensePal
                                 </span>
+                            </>
+                        );
+                    })()}
+                </div>
+            )}
+
+            {frame >= thirteenthSceneStart && (
+                <div style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                }}>
+                    {(() => {
+                        const relFrame = frame - thirteenthSceneStart;
+                        
+                        // Smooth, gentle side-to-side drift
+                        const driftX = interpolate(
+                            Math.sin(relFrame * 0.1),
+                            [-1, 1],
+                            [-50, 50]
+                        );
+
+                        // Continuous smooth upward movement
+                        const upwardMove = interpolate(
+                            relFrame,
+                            [0, 60],
+                            [0, -400]
+                        );
+
+                        // Smooth size increase
+                        const scaleGrowth = interpolate(
+                            relFrame,
+                            [0, 60],
+                            [1, 1.5]
+                        );
+                        
+                        // High-speed blast off at the end
+                        const speedOffStart = 60;
+                        const speedOffProgress = interpolate(
+                            relFrame,
+                            [speedOffStart, speedOffStart + 20],
+                            [0, 1],
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
+                        
+                        const translateX = driftX;
+                        const translateY = upwardMove - (speedOffProgress * 2000);
+                        const finalScale = scaleGrowth * (1 + speedOffProgress * 1.5);
+
+                        return (
+                            <>
+                                {/* Vertical wind trails */}
+                                {[...Array(12)].map((_, i) => {
+                                    const trailDelay = (i * 2);
+                                    const trailLife = (relFrame - trailDelay) % 20;
+                                    const trailOpacity = interpolate(trailLife, [0, 20], [0.6, 0]);
+                                    const trailHeight = interpolate(trailLife, [0, 20], [100, 600]);
+                                    const trailX = ((i * 150) % 1800) - 900;
+                                    const trailY = ((i * 100) % 1000) - 500;
+
+                                    return (
+                                        <WindTrail 
+                                            key={i}
+                                            opacity={trailOpacity}
+                                            height={trailHeight}
+                                            style={{
+                                                left: `calc(50% + ${trailX}px)`,
+                                                top: `calc(50% + ${trailY}px)`,
+                                                transform: 'translateY(-50%)',
+                                            }}
+                                        />
+                                    );
+                                })}
+
+                                <div style={{
+                                    transform: `translate(${translateX}px, ${translateY}px) scale(${finalScale})`,
+                                    width: '180px',
+                                    height: '180px',
+                                    zIndex: 100,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <img 
+                                        src={staticFile("eplogo.png")} 
+                                        style={{ width: '100%', height: 'auto' }} 
+                                    />
+                                    {/* Vertical trails attached to logo */}
+                                    <WindTrail opacity={0.4} height={300} style={{ bottom: '-150%', left: '30%' }} />
+                                    <WindTrail opacity={0.4} height={400} style={{ bottom: '-180%', left: '70%' }} />
+                                </div>
                             </>
                         );
                     })()}
