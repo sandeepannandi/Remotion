@@ -611,19 +611,60 @@ export const ExpenseIQVideo: React.FC = () => {
                     padding: '0 100px',
                     lineHeight: 1.2,
                 }}>
-                    {"Meet ExpensePal".split(" ").map((word, i) => {
-                        const delay = i * 6;
-                        const opacity = interpolate(frame, [ninthSceneStart + delay, ninthSceneStart + delay + 1], [0, 1], {
-                            extrapolateLeft: 'clamp',
-                            extrapolateRight: 'clamp',
+                    {(() => {
+                        const logoDelay = 15;
+                        const logoSpr = spring({
+                            frame: frame - (ninthSceneStart + logoDelay),
+                            fps,
+                            config: { damping: 12, stiffness: 100 },
                         });
+                        const logoScale = interpolate(logoSpr, [0, 1], [0, 1]);
+                        
+                        // Start with a standard space (approx 30px) and expand to hold the logo
+                        const spacerWidth = interpolate(logoSpr, [0, 1], [30, 140]);
 
                         return (
-                            <span key={i} style={{ opacity, marginRight: '0.4em', display: 'inline-block' }}>
-                                {word}
-                            </span>
+                            <>
+                                <span style={{ 
+                                    opacity: interpolate(frame, [ninthSceneStart, ninthSceneStart + 1], [0, 1], { extrapolateLeft: 'clamp' }),
+                                    display: 'inline-block' 
+                                }}>
+                                    Meet
+                                </span>
+                                
+                                <div style={{
+                                    width: spacerWidth,
+                                    height: '100px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    position: 'relative',
+                                    overflow: 'visible',
+                                }}>
+                                    <div style={{ 
+                                        transform: `scale(${logoScale})`, 
+                                        width: '100px', 
+                                        height: '100px',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        <img 
+                                            src={staticFile("eplogo.png")} 
+                                            style={{ width: '100%', height: 'auto' }} 
+                                        />
+                                    </div>
+                                </div>
+
+                                <span style={{ 
+                                    opacity: interpolate(frame, [ninthSceneStart + 6, ninthSceneStart + 7], [0, 1], { extrapolateLeft: 'clamp' }),
+                                    display: 'inline-block' 
+                                }}>
+                                    ExpensePal
+                                </span>
+                            </>
                         );
-                    })}
+                    })()}
                 </div>
             )}
             <style>{`
