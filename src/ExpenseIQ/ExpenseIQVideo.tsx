@@ -41,13 +41,13 @@ export const ExpenseIQVideo: React.FC = () => {
     const seventhSceneStart = sixthSceneStart + sixthSceneDuration;
     const seventhSceneDuration = 60;
     const eighthSceneStart = seventhSceneStart + seventhSceneDuration;
-    const eighthSceneDuration = 80; // Shortened to end as soon as eaten
+    const eighthSceneDuration = 60; // Shortened to end sooner
     const tenthSceneStart = eighthSceneStart + eighthSceneDuration;
-    const tenthSceneDuration = 30;
+    const tenthSceneDuration = 15;
     const eleventhSceneStart = tenthSceneStart + tenthSceneDuration;
-    const eleventhSceneDuration = 30;
+    const eleventhSceneDuration = 15;
     const twelfthSceneStart = eleventhSceneStart + eleventhSceneDuration;
-    const twelfthSceneDuration = 40;
+    const twelfthSceneDuration = 15;
     const ninthSceneStart = twelfthSceneStart + twelfthSceneDuration;
     const ninthSceneDuration = 60; // 2 seconds
 
