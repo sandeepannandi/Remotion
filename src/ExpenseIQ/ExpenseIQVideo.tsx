@@ -778,10 +778,10 @@ export const ExpenseIQVideo: React.FC = () => {
                         const textStart = 75;
 
                         // Image Animation Values
-                        // Rotate 360 degrees while appearing and moving (faster 3D rotation)
+                        // Rotate 360 degrees while in center (frames 0-40)
                         const imgRotateY = interpolate(
                             relFrame,
-                            [0, 40], // Faster (360 deg in 40 frames)
+                            [0, 40],
                             [0, 360],
                             { extrapolateRight: 'clamp' }
                         );
@@ -790,7 +790,13 @@ export const ExpenseIQVideo: React.FC = () => {
                         const imgOpacity = interpolate(imgEntranceSpr, [0, 0.5], [0, 1]);
                         
                         // X Position: Starts center (50%), moves to right (75%)
-                        const imgLeft = interpolate(imgMoveSpr, [0, 1], [50, 75], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+                        // Hold at 50% during rotation (0-40), then move
+                        const imgLeft = interpolate(
+                            relFrame,
+                            [0, 40, 70], // Hold until 40, move until 70
+                            [50, 50, 80], 
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
 
                         return (
                             <>
@@ -810,10 +816,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                     <Img 
                                         src={staticFile("mock1.png")} 
                                         style={{ 
-                                            height: '950px', // Increased size
+                                            height: '1000px', // Increased size
                                             width: 'auto', 
-                                            borderRadius: '50px', // Slightly more rounded
-                                            boxShadow: '0 40px 100px rgba(0,0,0,0.4)',
                                         }} 
                                     />
                                 </div>
@@ -821,7 +825,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                 {/* Text on the left */}
                                 <div style={{
                                     position: 'absolute',
-                                    left: '80px',
+                                    left: '120px',
                                     top: '160px',
                                     width: '50%',
                                     display: 'flex',
@@ -833,7 +837,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                         display: 'flex',
                                         flexDirection: 'row',
                                         flexWrap: 'wrap',
-                                        fontSize: '110px',
+                                        fontSize: '120px',
                                         fontWeight: 800,
                                         lineHeight: 1.05,
                                         textAlign: 'left',
@@ -874,7 +878,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                         return (
                                             <div style={{
                                                 fontSize: '50px',
-                                                fontWeight: 500,
+                                                fontWeight: 600,
                                                 marginTop: '40px',
                                                 color: '#000000',
                                                 opacity,
