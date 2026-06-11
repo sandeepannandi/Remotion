@@ -7,7 +7,9 @@ import {
     staticFile,
     Video,
     Sequence,
+    Series,
     Img,
+    Audio,
 } from 'remotion';
 import React from 'react';
 
@@ -163,6 +165,26 @@ export const ExpenseIQVideo: React.FC = () => {
                 color: textColor,
             }}
         >
+            <Series>
+                <Series.Sequence durationInFrames={233}>
+                    <Audio src={staticFile("afro1.mp3")} />
+                </Series.Sequence>
+                <Series.Sequence durationInFrames={233}>
+                    <Audio src={staticFile("afro2.mp3")} />
+                </Series.Sequence>
+                <Series.Sequence durationInFrames={233}>
+                    <Audio src={staticFile("afro3.mp3")} />
+                </Series.Sequence>
+                <Series.Sequence durationInFrames={233}>
+                    <Audio src={staticFile("afro4.mp3")} />
+                </Series.Sequence>
+                <Series.Sequence durationInFrames={233}>
+                    <Audio src={staticFile("afro5.mp3")} />
+                </Series.Sequence>
+                <Series.Sequence durationInFrames={233}>
+                    <Audio src={staticFile("afro6.mp3")} />
+                </Series.Sequence>
+            </Series>
             {/* Black Circle Expansion */}
             {frame >= circleStart && frame < thirdSceneEnd && (
                 <div style={{
@@ -388,46 +410,51 @@ export const ExpenseIQVideo: React.FC = () => {
             )}
 
             {frame >= fifthSceneStart && frame < sixthSceneStart && (
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    fontSize: '120px',
-                    fontWeight: 800,
-                    textAlign: 'center',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    padding: '0 100px',
-                    lineHeight: 1.2,
-                }}>
-                    {"It's called inflation".split(" ").map((word, i) => {
-                        const wordsArr = "It's called inflation".split(" ");
-                        const delay = fifthSceneStart + (i * fifthWordInterval);
-                        const hasAppeared = frame >= delay;
-                        
-                        // Calculate when the wave hits this word
-                        const allWordsDone = fifthSceneStart + ((wordsArr.length - 1) * fifthWordInterval);
-                        const waveStart = allWordsDone + 15; // Pause slightly after phrase is complete
-                        const waveStagger = 4; // Frames between each word's flicker
-                        const myWaveFrame = waveStart + (i * waveStagger);
-                        
-                        // Word is in 'wave flicker' mode for 6 frames (0.2s at 30fps)
-                        const isWaveFlickering = frame >= myWaveFrame && frame < myWaveFrame + 6;
+                <>
+                    <Sequence from={fifthSceneStart} durationInFrames={fifthSceneDuration}>
+                        <Audio src={staticFile("flick.mp3")} />
+                    </Sequence>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        fontSize: '120px',
+                        fontWeight: 800,
+                        textAlign: 'center',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        padding: '0 100px',
+                        lineHeight: 1.2,
+                    }}>
+                        {"It's called inflation".split(" ").map((word, i) => {
+                            const wordsArr = "It's called inflation".split(" ");
+                            const delay = fifthSceneStart + (i * fifthWordInterval);
+                            const hasAppeared = frame >= delay;
+                            
+                            // Calculate when the wave hits this word
+                            const allWordsDone = fifthSceneStart + ((wordsArr.length - 1) * fifthWordInterval);
+                            const waveStart = allWordsDone + 15; // Pause slightly after phrase is complete
+                            const waveStagger = 4; // Frames between each word's flicker
+                            const myWaveFrame = waveStart + (i * waveStagger);
+                            
+                            // Word is in 'wave flicker' mode for 6 frames (0.2s at 30fps)
+                            const isWaveFlickering = frame >= myWaveFrame && frame < myWaveFrame + 6;
 
-                        return (
-                            <span 
-                                key={i} 
-                                className={isWaveFlickering ? "flicker-pulse" : ""} 
-                                style={{ 
-                                    opacity: hasAppeared ? 1 : 0, 
-                                    marginRight: '0.3em', 
-                                    display: 'inline-block' 
-                                }}
-                            >
-                                {word}
-                            </span>
-                        );
-                    })}
-                </div>
+                            return (
+                                <span 
+                                    key={i} 
+                                    className={isWaveFlickering ? "flicker-pulse" : ""} 
+                                    style={{ 
+                                        opacity: hasAppeared ? 1 : 0, 
+                                        marginRight: '0.3em', 
+                                        display: 'inline-block' 
+                                    }}
+                                >
+                                    {word}
+                                </span>
+                            );
+                        })}
+                    </div>
+                </>
             )}
 
             <Sequence from={sixthSceneStart} durationInFrames={sixthSceneDuration}>
@@ -440,6 +467,7 @@ export const ExpenseIQVideo: React.FC = () => {
                             objectFit: 'cover',
                         }}
                     />
+                    <Audio src={staticFile("paper.mp3")} />
                 </AbsoluteFill>
             </Sequence>
 
