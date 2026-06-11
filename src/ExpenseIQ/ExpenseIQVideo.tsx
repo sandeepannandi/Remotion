@@ -7,6 +7,7 @@ import {
     staticFile,
     Video,
     Sequence,
+    Img,
 } from 'remotion';
 import React from 'react';
 
@@ -53,25 +54,8 @@ export const ExpenseIQVideo: React.FC = () => {
     const twelfthSceneStart = eleventhSceneStart + eleventhSceneDuration;
     const twelfthSceneDuration = 15;
     const ninthSceneStart = twelfthSceneStart + twelfthSceneDuration;
-    const ninthSceneDuration = 60; // 2 seconds
+    const ninthSceneDuration = 60; // Reduced to end exactly after exit animation
     const thirteenthSceneStart = ninthSceneStart + ninthSceneDuration;
-    const thirteenthSceneDuration = 90; // 3 seconds of racing
-
-    const WindTrail: React.FC<{ 
-        style?: React.CSSProperties, 
-        height: number, 
-        opacity: number 
-    }> = ({ style, height, opacity }) => (
-        <div style={{
-            position: 'absolute',
-            width: '4px',
-            backgroundColor: '#FF8C00',
-            borderRadius: '2px',
-            opacity,
-            height,
-            ...style,
-        }} />
-    );
 
     const PacMan: React.FC<{ 
         style?: React.CSSProperties, 
@@ -128,6 +112,7 @@ export const ExpenseIQVideo: React.FC = () => {
             </div>
         );
     };
+
 
     const pexelsImages = [
         "pexels-arturoaez225-14969604.jpg",
@@ -194,14 +179,14 @@ export const ExpenseIQVideo: React.FC = () => {
             )}
 
             {/* Noise Overlay */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `url("${noiseUrl}")`,
-                pointerEvents: 'none',
-                opacity: 1,
-                zIndex: 1000,
-            }} />
+            <AbsoluteFill
+                style={{
+                    backgroundImage: `url("${noiseUrl}")`,
+                    pointerEvents: 'none',
+                    opacity: 1,
+                    zIndex: 1000,
+                }}
+            />
 
             {frame < firstSceneEnd && (
                 <div style={{
@@ -331,7 +316,7 @@ export const ExpenseIQVideo: React.FC = () => {
 
                         const config = imageConfigs[i];
                         return (
-                            <img
+                            <Img
                                 key={src}
                                 src={staticFile(src)}
                                 style={{
@@ -669,21 +654,63 @@ export const ExpenseIQVideo: React.FC = () => {
                     lineHeight: 1.2,
                 }}>
                     {(() => {
+                        const relFrame = frame - ninthSceneStart;
                         const logoDelay = 15;
+                        
+                        // Entrance spring
                         const logoSpr = spring({
-                            frame: frame - (ninthSceneStart + logoDelay),
+                            frame: relFrame - logoDelay,
                             fps,
                             config: { damping: 12, stiffness: 100 },
                         });
-                        const logoScale = interpolate(logoSpr, [0, 1], [0, 1]);
+                        let logoScale = interpolate(logoSpr, [0, 1], [0, 1]);
                         
-                        // Start with a standard space (approx 30px) and expand to hold the larger logo
+                        // Click effect: intense expand then sudden shrink
+                        const clickStart = 45;
+                        const clickPeak = 55;
+                        const clickEnd = 60;
+                        if (relFrame >= clickStart) {
+                            const clickProgress = interpolate(
+                                relFrame,
+                                [clickStart, clickPeak, clickEnd],
+                                [1, 1.6, 1],
+                                { extrapolateRight: 'clamp' }
+                            );
+                            logoScale *= clickProgress;
+                        }
+
+                        // Exit animation for text - starts right at the peak of expansion
+                        const exitStart = 55;
+                        const exitDuration = 10; // Faster
+                        const exitProgress = interpolate(
+                            relFrame,
+                            [exitStart, exitStart + exitDuration],
+                            [0, 1],
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
+
+                        const meetTranslateX = -exitProgress * 2000; // Further
+                        const expensePalTranslateX = exitProgress * 2000; // Further
+                        const meetOpacity = interpolate(exitProgress, [0, 0.3], [1, 0]);
+                        const expensePalOpacity = interpolate(exitProgress, [0, 0.3], [1, 0]);
+
+                        // Logo disappearance
+                        const logoExitStart = 55;
+                        const logoOpacity = interpolate(
+                            relFrame,
+                            [logoExitStart, logoExitStart + 3], // Matches the 0.3 * exitDuration = 3 frames
+                            [1, 0],
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
+
+                        // Spacer width for logo
                         const spacerWidth = interpolate(logoSpr, [0, 1], [30, 200]);
 
                         return (
                             <>
                                 <span style={{ 
-                                    opacity: interpolate(frame, [ninthSceneStart, ninthSceneStart + 1], [0, 1], { extrapolateLeft: 'clamp' }),
+                                    opacity: meetOpacity * interpolate(relFrame, [0, 1], [0, 1], { extrapolateLeft: 'clamp' }),
+                                    transform: `translateX(${meetTranslateX}px)`,
                                     display: 'inline-block' 
                                 }}>
                                     Meet
@@ -697,6 +724,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                     alignItems: 'center',
                                     position: 'relative',
                                     overflow: 'visible',
+                                    opacity: logoOpacity,
                                 }}>
                                     <div style={{ 
                                         transform: `scale(${logoScale})`, 
@@ -714,7 +742,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                 </div>
 
                                 <span style={{ 
-                                    opacity: interpolate(frame, [ninthSceneStart + 6, ninthSceneStart + 7], [0, 1], { extrapolateLeft: 'clamp' }),
+                                    opacity: expensePalOpacity * interpolate(relFrame, [6, 7], [0, 1], { extrapolateLeft: 'clamp' }),
+                                    transform: `translateX(${expensePalTranslateX}px)`,
                                     display: 'inline-block' 
                                 }}>
                                     ExpensePal
@@ -724,99 +753,142 @@ export const ExpenseIQVideo: React.FC = () => {
                     })()}
                 </div>
             )}
-
+            
             {frame >= thirteenthSceneStart && (
-                <div style={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    overflow: 'hidden',
-                }}>
+                <AbsoluteFill style={{ padding: '80px', perspective: '1200px' }}>
                     {(() => {
                         const relFrame = frame - thirteenthSceneStart;
                         
-                        // Smooth, gentle side-to-side drift
-                        const driftX = interpolate(
-                            Math.sin(relFrame * 0.1),
-                            [-1, 1],
-                            [-50, 50]
-                        );
+                        // Phase 1: Image entrance + rotation (0-40)
+                        const imgEntranceSpr = spring({
+                            frame: relFrame,
+                            fps,
+                            config: { damping: 12, stiffness: 100 },
+                        });
+                        
+                        // Phase 2: Move to right (50-70)
+                        const imgMoveStart = 50;
+                        const imgMoveSpr = spring({
+                            frame: relFrame - imgMoveStart,
+                            fps,
+                            config: { damping: 20, stiffness: 80 },
+                        });
 
-                        // Continuous smooth upward movement
-                        const upwardMove = interpolate(
-                            relFrame,
-                            [0, 60],
-                            [0, -400]
-                        );
+                        // Phase 3: Text appearance (starts after image settles)
+                        const textStart = 75;
 
-                        // Smooth size increase
-                        const scaleGrowth = interpolate(
+                        // Image Animation Values
+                        // Rotate 360 degrees while appearing and moving (faster 3D rotation)
+                        const imgRotateY = interpolate(
                             relFrame,
-                            [0, 60],
-                            [1, 1.5]
+                            [0, 40], // Faster (360 deg in 40 frames)
+                            [0, 360],
+                            { extrapolateRight: 'clamp' }
                         );
                         
-                        // High-speed blast off at the end
-                        const speedOffStart = 60;
-                        const speedOffProgress = interpolate(
-                            relFrame,
-                            [speedOffStart, speedOffStart + 20],
-                            [0, 1],
-                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
-                        );
+                        const imgTranslateY = interpolate(imgEntranceSpr, [0, 1], [800, 0]);
+                        const imgOpacity = interpolate(imgEntranceSpr, [0, 0.5], [0, 1]);
                         
-                        const translateX = driftX;
-                        const translateY = upwardMove - (speedOffProgress * 2000);
-                        const finalScale = scaleGrowth * (1 + speedOffProgress * 1.5);
+                        // X Position: Starts center (50%), moves to right (75%)
+                        const imgLeft = interpolate(imgMoveSpr, [0, 1], [50, 75], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
                         return (
                             <>
-                                {/* Vertical wind trails */}
-                                {[...Array(12)].map((_, i) => {
-                                    const trailDelay = (i * 2);
-                                    const trailLife = (relFrame - trailDelay) % 20;
-                                    const trailOpacity = interpolate(trailLife, [0, 20], [0.6, 0]);
-                                    const trailHeight = interpolate(trailLife, [0, 20], [100, 600]);
-                                    const trailX = ((i * 150) % 1800) - 900;
-                                    const trailY = ((i * 100) % 1000) - 500;
-
-                                    return (
-                                        <WindTrail 
-                                            key={i}
-                                            opacity={trailOpacity}
-                                            height={trailHeight}
-                                            style={{
-                                                left: `calc(50% + ${trailX}px)`,
-                                                top: `calc(50% + ${trailY}px)`,
-                                                transform: 'translateY(-50%)',
-                                            }}
-                                        />
-                                    );
-                                })}
-
+                                {/* App screenshot */}
                                 <div style={{
-                                    transform: `translate(${translateX}px, ${translateY}px) scale(${finalScale})`,
-                                    width: '180px',
-                                    height: '180px',
-                                    zIndex: 100,
+                                    position: 'absolute',
+                                    left: `${imgLeft}%`,
+                                    top: '50%',
+                                    transform: `translate(-50%, -50%) translateY(${imgTranslateY}px) rotateY(${imgRotateY}deg)`,
+                                    width: '45%', // Slightly larger
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
+                                    opacity: imgOpacity,
+                                    zIndex: 2,
                                 }}>
-                                    <img 
-                                        src={staticFile("eplogo.png")} 
-                                        style={{ width: '100%', height: 'auto' }} 
+                                    <Img 
+                                        src={staticFile("mock1.png")} 
+                                        style={{ 
+                                            height: '950px', // Increased size
+                                            width: 'auto', 
+                                            borderRadius: '50px', // Slightly more rounded
+                                            boxShadow: '0 40px 100px rgba(0,0,0,0.4)',
+                                        }} 
                                     />
-                                    {/* Vertical trails attached to logo */}
-                                    <WindTrail opacity={0.4} height={300} style={{ bottom: '-150%', left: '30%' }} />
-                                    <WindTrail opacity={0.4} height={400} style={{ bottom: '-180%', left: '70%' }} />
+                                </div>
+
+                                {/* Text on the left */}
+                                <div style={{
+                                    position: 'absolute',
+                                    left: '80px',
+                                    top: '160px',
+                                    width: '50%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    zIndex: 1,
+                                }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        flexWrap: 'wrap',
+                                        fontSize: '110px',
+                                        fontWeight: 800,
+                                        lineHeight: 1.05,
+                                        textAlign: 'left',
+                                        color: '#000000',
+                                    }}>
+                                        {"Ask your AI finance expert anything.".split(" ").map((word, i) => {
+                                            const delay = textStart + (i * 4);
+                                            const spr = spring({
+                                                frame: frame - (thirteenthSceneStart + delay),
+                                                fps,
+                                                config: { damping: 12, stiffness: 100 },
+                                            });
+                                            const translateY = interpolate(spr, [0, 1], [50, 0]);
+                                            const opacity = interpolate(spr, [0, 1], [0, 1]);
+                                            return (
+                                                <span key={i} style={{ 
+                                                    display: 'inline-block', 
+                                                    marginRight: '0.3em',
+                                                    transform: `translateY(${translateY}px)`,
+                                                    opacity,
+                                                }}>
+                                                    {word}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    {/* Subtitle */}
+                                    {(() => {
+                                        const subtitleDelay = textStart + 40;
+                                        const spr = spring({
+                                            frame: frame - (thirteenthSceneStart + subtitleDelay),
+                                            fps,
+                                            config: { damping: 15, stiffness: 100 },
+                                        });
+                                        const opacity = interpolate(spr, [0, 1], [0, 0.7]);
+                                        const translateY = interpolate(spr, [0, 1], [20, 0]);
+                                        return (
+                                            <div style={{
+                                                fontSize: '50px',
+                                                fontWeight: 500,
+                                                marginTop: '40px',
+                                                color: '#000000',
+                                                opacity,
+                                                transform: `translateY(${translateY}px)`,
+                                            }}>
+                                                Real answers based on your spending
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </>
                         );
                     })()}
-                </div>
+                </AbsoluteFill>
             )}
             <style>{`
                 @keyframes pacman-top-move {
