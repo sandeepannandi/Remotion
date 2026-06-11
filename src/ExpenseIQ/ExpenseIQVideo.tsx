@@ -16,8 +16,8 @@ export const ExpenseIQVideo: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
-    const bgColor = "#fff6e8ff";
-    const textColor = "#000000";
+    const circleStart = 50;
+    const circleEnd = 60;
 
     const text = "What if your biggest financial enemy is invisible?";
     const words = text.split(" ");
@@ -25,6 +25,10 @@ export const ExpenseIQVideo: React.FC = () => {
     const firstSceneEnd = 60;
     const secondSceneEnd = 90;
     const thirdSceneEnd = 120;
+
+    const isBlackBgActive = frame >= circleEnd && frame < thirdSceneEnd;
+    const bgColor = isBlackBgActive ? "#000000" : "#fff6e8ff";
+    const textColor = (frame >= 60 && frame < thirdSceneEnd) ? "#ffffff" : "#000000";
     const fourthSceneMid = 200;
     const fourthSceneEnd = 280; // Extended from 200 to give second half equal time
     const fifthSceneStart = fourthSceneEnd + 10;
@@ -160,13 +164,45 @@ export const ExpenseIQVideo: React.FC = () => {
         <AbsoluteFill
             style={{
                 backgroundColor: bgColor,
-                backgroundImage: `url("${noiseUrl}")`,
                 justifyContent: "center",
                 alignItems: "center",
                 fontFamily: "'Geist', sans-serif",
                 color: textColor,
             }}
         >
+            {/* Black Circle Expansion */}
+            {frame >= circleStart && frame < thirdSceneEnd && (
+                <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '61%',
+                    width: 0,
+                    height: 0,
+                    zIndex: 1,
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: interpolate(frame, [circleStart, circleEnd], [0, 4500], { extrapolateRight: 'clamp' }),
+                        height: interpolate(frame, [circleStart, circleEnd], [0, 4500], { extrapolateRight: 'clamp' }),
+                        backgroundColor: '#000000',
+                        borderRadius: '50%',
+                    }} />
+                </div>
+            )}
+
+            {/* Noise Overlay */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url("${noiseUrl}")`,
+                pointerEvents: 'none',
+                opacity: 1,
+                zIndex: 1000,
+            }} />
+
             {frame < firstSceneEnd && (
                 <div style={{
                     display: 'flex',
@@ -193,9 +229,8 @@ export const ExpenseIQVideo: React.FC = () => {
 
                         if (word.toLowerCase().includes("invisible")) {
                             // Start blurring/fading after it has fully appeared
-                            // It appears at frame `delay + something`. Let's say it stays for 15 frames.
-                            const exitStart = delay + 20;
-                            const exitDuration = 20;
+                            const exitStart = 45;
+                            const exitDuration = 15;
                             
                             const exitSpr = spring({
                                 frame: frame - exitStart,
@@ -237,6 +272,8 @@ export const ExpenseIQVideo: React.FC = () => {
                     justifyContent: 'center',
                     padding: '0 100px',
                     lineHeight: 1.2,
+                    color: "white",
+                    zIndex: 2,
                 }}>
                     {"It's not your rent".split(" ").map((word, i) => {
                         const delay = firstSceneEnd + (i * 4);
@@ -265,6 +302,8 @@ export const ExpenseIQVideo: React.FC = () => {
                     justifyContent: 'center',
                     padding: '0 100px',
                     lineHeight: 1.2,
+                    color: "white",
+                    zIndex: 2,
                 }}>
                     {"Not your EMIs".split(" ").map((word, i) => {
                         const delay = secondSceneEnd + (i * 4);
