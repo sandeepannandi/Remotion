@@ -790,10 +790,10 @@ export const ExpenseIQVideo: React.FC = () => {
                         const imgOpacity = interpolate(imgEntranceSpr, [0, 0.5], [0, 1]);
                         
                         // X Position: Starts center (50%), moves to right (75%)
-                        // Hold at 50% during rotation (0-40), then move
+                        // Hold at 50% during rotation (0-40), then move faster (40-60)
                         const imgLeft = interpolate(
                             relFrame,
-                            [0, 40, 70], // Hold until 40, move until 70
+                            [0, 40, 60], // Hold until 40, move until 60 (faster)
                             [50, 50, 80], 
                             { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                         );
