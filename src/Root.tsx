@@ -11,10 +11,21 @@ import { Yt1 } from "./Yt1";
 // preloadAssets();
 
 import { ProductLaunch, productLaunchSchema, defaultProps } from "./ProductLaunch";
+import { AppLaunch, appLaunchSchema, defaultProps as appLaunchDefaultProps } from "./AppLaunch";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="AppLaunch"
+        component={AppLaunch}
+        durationInFrames={1230}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={appLaunchSchema}
+        defaultProps={appLaunchDefaultProps}
+      />
       <Composition
         id="ProductLaunch"
         component={ProductLaunch}
