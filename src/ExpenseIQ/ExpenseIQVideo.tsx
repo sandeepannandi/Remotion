@@ -161,7 +161,7 @@ export const ExpenseIQVideo: React.FC = () => {
                 backgroundColor: bgColor,
                 justifyContent: "center",
                 alignItems: "center",
-                fontFamily: "'Geist', sans-serif",
+                fontFamily: "Archivo, sans-serif",
                 color: textColor,
             }}
         >
