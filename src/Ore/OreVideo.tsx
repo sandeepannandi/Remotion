@@ -31,40 +31,35 @@ const textStyle: React.CSSProperties = {
 
 export const OreVideo: React.FC = () => {
     const frame = useCurrentFrame();
-    const { fps, height } = useVideoConfig();
+    const { fps } = useVideoConfig();
 
-    // Fast Timings
-    const scene1Duration = 0.8 * fps; // Shortened to 0.8s
-    const transitionDuration = 0.3 * fps; // Snappy 0.3s transition
+    // Timings
+    const scene1Duration = 0.5 * fps; // Reduced to 0.5s
+    const transitionDuration = 0.2 * fps; // Fast fade out
     const scene2Start = scene1Duration + transitionDuration;
     
-    // Scene 2 Timings (Fast flips)
-    const phraseDuration = 0.8 * fps;
-    const flipDuration = 0.3 * fps;
+    // Scene 2 Timings (Vertical flips)
+    const phraseDuration = 0.9 * fps; // Increased by 100ms (0.8s -> 0.9s)
+    const flipDuration = 0.4 * fps; 
     
     const logoEnd = scene2Start + phraseDuration;
     const colorsStart = logoEnd;
     const colorsEnd = colorsStart + phraseDuration;
     const visionStart = colorsEnd;
 
-    // Scene 1 animation (up and vanish)
-    const scene1ExitProgress = spring({
+    // Scene 1 animation (Fast Fade Out)
+    const scene1ExitSpr = spring({
         frame: frame - scene1Duration,
         fps,
         config: { damping: 20, stiffness: 200 },
         durationInFrames: transitionDuration,
     });
 
-    const scene1Opacity = interpolate(scene1ExitProgress, [0, 0.5], [1, 0], {
-        extrapolateRight: "clamp",
-    });
-    const scene1Y = interpolate(scene1ExitProgress, [0, 1], [0, -height / 4], {
-        extrapolateRight: "clamp",
-    });
+    const scene1Opacity = interpolate(scene1ExitSpr, [0, 1], [1, 0], { extrapolateRight: "clamp" });
 
-    // Flip Logic for Scene 2
+    // Vertical Flip Logic for Scene 2
     let currentPhrase = "";
-    let rotationY = 0;
+    let rotationX = 0;
     let scene2Opacity = 0;
 
     if (frame >= scene2Start) {
@@ -72,13 +67,15 @@ export const OreVideo: React.FC = () => {
         
         if (frame < logoEnd) {
             currentPhrase = "A logo.";
-            rotationY = 0;
+            rotationX = 0;
         } else if (frame < colorsEnd) {
+            // Flip from A Logo to Colors
+            rotationX = interpolate(frame, [colorsStart, colorsStart + flipDuration], [0, 180], { extrapolateRight: "clamp" });
             currentPhrase = frame < colorsStart + (flipDuration / 2) ? "A logo." : "Colors.";
-            rotationY = interpolate(frame, [colorsStart, colorsStart + flipDuration], [0, 180], { extrapolateRight: "clamp" });
         } else {
+            // Flip from Colors to A Vision
+            rotationX = interpolate(frame, [visionStart, visionStart + flipDuration], [180, 360], { extrapolateRight: "clamp" });
             currentPhrase = frame < visionStart + (flipDuration / 2) ? "Colors." : "A vision.";
-            rotationY = interpolate(frame, [visionStart, visionStart + flipDuration], [180, 360], { extrapolateRight: "clamp" });
         }
     }
 
@@ -100,7 +97,6 @@ export const OreVideo: React.FC = () => {
                     style={{
                         ...textStyle,
                         opacity: scene1Opacity,
-                        transform: `translateY(${scene1Y}px)`,
                         fontSize: "160px",
                         fontWeight: 800,
                     }}
@@ -109,19 +105,19 @@ export const OreVideo: React.FC = () => {
                 </div>
             )}
 
-            {/* Scene 2 - Flips */}
+            {/* Scene 2 - Vertical Flips */}
             {frame >= scene2Start && (
                 <div
                     style={{
                         opacity: scene2Opacity,
-                        transform: `rotateY(${rotationY}deg)`,
-                        fontSize: "150px",
+                        transform: `rotateX(${rotationX}deg)`,
+                        fontSize: "160px",
                         fontWeight: 800,
                         textAlign: "center",
                     }}
                 >
                     <div style={{
-                        transform: (Math.floor((rotationY + 90) / 180) % 2 === 1) ? 'scaleX(-1)' : 'none'
+                        transform: (Math.floor((rotationX + 90) / 180) % 2 === 1) ? 'scaleY(-1)' : 'none'
                     }}>
                         {currentPhrase}
                     </div>
