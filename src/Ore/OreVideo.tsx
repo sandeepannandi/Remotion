@@ -33,9 +33,19 @@ export const OreVideo: React.FC = () => {
     const frame = useCurrentFrame();
     const { fps, height } = useVideoConfig();
 
-    const scene1Duration = 1.5 * fps;
-    const transitionDuration = 0.5 * fps;
+    // Fast Timings
+    const scene1Duration = 0.8 * fps; // Shortened to 0.8s
+    const transitionDuration = 0.3 * fps; // Snappy 0.3s transition
     const scene2Start = scene1Duration + transitionDuration;
+    
+    // Scene 2 Timings (Fast flips)
+    const phraseDuration = 0.8 * fps;
+    const flipDuration = 0.3 * fps;
+    
+    const logoEnd = scene2Start + phraseDuration;
+    const colorsStart = logoEnd;
+    const colorsEnd = colorsStart + phraseDuration;
+    const visionStart = colorsEnd;
 
     // Scene 1 animation (up and vanish)
     const scene1ExitProgress = spring({
@@ -52,11 +62,28 @@ export const OreVideo: React.FC = () => {
         extrapolateRight: "clamp",
     });
 
-    // Scene 2 phrases
-    const phrases = ["A logo.", "Colors.", "A vision."];
+    // Flip Logic for Scene 2
+    let currentPhrase = "";
+    let rotationY = 0;
+    let scene2Opacity = 0;
+
+    if (frame >= scene2Start) {
+        scene2Opacity = interpolate(frame, [scene2Start, scene2Start + 5], [0, 1], { extrapolateRight: "clamp" });
+        
+        if (frame < logoEnd) {
+            currentPhrase = "A logo.";
+            rotationY = 0;
+        } else if (frame < colorsEnd) {
+            currentPhrase = frame < colorsStart + (flipDuration / 2) ? "A logo." : "Colors.";
+            rotationY = interpolate(frame, [colorsStart, colorsStart + flipDuration], [0, 180], { extrapolateRight: "clamp" });
+        } else {
+            currentPhrase = frame < visionStart + (flipDuration / 2) ? "Colors." : "A vision.";
+            rotationY = interpolate(frame, [visionStart, visionStart + flipDuration], [180, 360], { extrapolateRight: "clamp" });
+        }
+    }
 
     return (
-        <AbsoluteFill style={containerStyle}>
+        <AbsoluteFill style={{ ...containerStyle, perspective: "1200px" }}>
             {/* Noise Overlay */}
             <AbsoluteFill
                 style={{
@@ -68,7 +95,7 @@ export const OreVideo: React.FC = () => {
             />
 
             {/* Scene 1 */}
-            {frame < scene2Start + 10 && (
+            {frame < scene2Start + 5 && (
                 <div
                     style={{
                         ...textStyle,
@@ -82,46 +109,22 @@ export const OreVideo: React.FC = () => {
                 </div>
             )}
 
-            {/* Scene 2 */}
+            {/* Scene 2 - Flips */}
             {frame >= scene2Start && (
                 <div
                     style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                        justifyContent: "center",
-                        width: "100%",
-                        height: "100%",
-                        paddingLeft: "200px",
-                        gap: "20px",
+                        opacity: scene2Opacity,
+                        transform: `rotateY(${rotationY}deg)`,
+                        fontSize: "150px",
+                        fontWeight: 800,
+                        textAlign: "center",
                     }}
                 >
-                    {phrases.map((phrase, i) => {
-                        const delay = scene2Start + (i * 20);
-                        const spr = spring({
-                            frame: frame - delay,
-                            fps,
-                            config: { damping: 15, stiffness: 100 },
-                        });
-
-                        const opacity = interpolate(spr, [0, 1], [0, 1]);
-                        const translateX = interpolate(spr, [0, 1], [-300, 0]);
-
-                        return (
-                            <div
-                                key={i}
-                                style={{
-                                    opacity,
-                                    transform: `translateX(${translateX}px)`,
-                                    fontSize: "140px",
-                                    fontWeight: 900,
-                                    textTransform: "uppercase",
-                                }}
-                            >
-                                {phrase}
-                            </div>
-                        );
-                    })}
+                    <div style={{
+                        transform: (Math.floor((rotationY + 90) / 180) % 2 === 1) ? 'scaleX(-1)' : 'none'
+                    }}>
+                        {currentPhrase}
+                    </div>
                 </div>
             )}
         </AbsoluteFill>
