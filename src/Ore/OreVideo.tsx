@@ -52,6 +52,31 @@ export const OreVideo: React.FC = () => {
     const scene3Start = visionEnd + 0.2 * fps;
     const s3Text = "But every time you need an asset";
     const s3Words = s3Text.split(" ");
+    const scene3Duration = 1.3 * fps;
+    const scene3End = scene3Start + scene3Duration;
+
+    // Scene 4 Timings
+    const scene4Start = scene3End;
+    const s4Text = "you're starting from scratch";
+    const s4Words = s4Text.split(" ");
+    const wordDuration = 0.5 * fps;
+    const scene4Duration = (s4Words.length * 6 + 30); // Calculation for when s4 ends
+    const scene4End = scene4Start + (1.5 * fps);
+
+    // Zooming Scenes Timings
+    const zoomDuration = 0.8 * fps;
+    const overlap = 0.2 * fps;
+    const againStart = scene4End;
+    const againEnd = againStart + zoomDuration;
+    
+    const hiringStart = againEnd - overlap;
+    const hiringEnd = hiringStart + zoomDuration;
+    
+    const waitingStart = hiringEnd - overlap;
+    const waitingEnd = waitingStart + zoomDuration;
+    
+    const payingStart = waitingEnd - overlap;
+    const payingEnd = payingStart + zoomDuration;
 
     // Scene 1 animation (Fast Fade Out)
     const scene1ExitSpr = spring({
@@ -136,7 +161,7 @@ export const OreVideo: React.FC = () => {
             )}
 
             {/* Scene 3 - Word by Word */}
-            {frame >= scene3Start && (
+            {frame >= scene3Start && frame < scene4Start && (
                 <div style={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -145,6 +170,7 @@ export const OreVideo: React.FC = () => {
                     fontSize: "120px",
                     fontWeight: 800,
                     maxWidth: '1500px',
+                    opacity: frame > scene3End - 10 ? interpolate(frame, [scene3End - 10, scene3End], [1, 0]) : 1,
                 }}>
                     {s3Words.map((word, i) => {
                         const delay = i * 4;
@@ -172,6 +198,89 @@ export const OreVideo: React.FC = () => {
                     })}
                 </div>
             )}
+
+            {/* Scene 4 - Word by Word in a line */}
+            {frame >= scene4Start && frame < againStart && (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    fontSize: "160px",
+                    fontWeight: 800,
+                    maxWidth: '1600px',
+                    opacity: frame > scene4End - 10 ? interpolate(frame, [scene4End - 10, scene4End], [1, 0]) : 1,
+                }}>
+                    {s4Words.map((word, i) => {
+                        const delay = i * 6;
+                        const spr = spring({
+                            frame: frame - (scene4Start + delay),
+                            fps,
+                            config: { damping: 15, stiffness: 100 },
+                        });
+                        const opacity = interpolate(spr, [0, 1], [0, 1]);
+                        const translateY = interpolate(spr, [0, 1], [30, 0]);
+
+                        return (
+                            <span 
+                                key={i} 
+                                style={{ 
+                                    opacity, 
+                                    transform: `translateY(${translateY}px)`,
+                                    marginRight: '0.3em',
+                                    display: 'inline-block'
+                                }}
+                            >
+                                {word}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Zooming Scenes */}
+            {[
+                { text: "Again", start: againStart, end: againEnd },
+                { text: "Hiring designers", start: hiringStart, end: hiringEnd },
+                { text: "Waiting days", start: waitingStart, end: waitingEnd },
+                { text: "Paying hundreds", start: payingStart, end: payingEnd },
+            ].map((scene, i) => {
+                if (frame >= scene.start && frame < scene.end) {
+                    // Zoom Out: starts large and gets smaller
+                    // Overlapping makes it feel like we are zooming out past the text
+                    const scale = interpolate(
+                        frame,
+                        [scene.start, scene.end],
+                        [1.5, 0.5],
+                        { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                    );
+                    
+                    const opacity = interpolate(
+                        frame, 
+                        [scene.start, scene.start + 5, scene.end - 5, scene.end], 
+                        [0, 1, 1, 0]
+                    );
+                    
+                    return (
+                        <div
+                            key={i}
+                            style={{
+                                position: 'absolute',
+                                width: '100%',
+                                textAlign: 'center',
+                                fontSize: "160px",
+                                fontWeight: 900,
+                                transform: `scale(${scale})`,
+                                opacity,
+                                zIndex: 100 - i // Ensure newer text can be behind/around older if they overlap
+                            }}
+                        >
+                            {scene.text}
+                        </div>
+                    );
+                }
+                return null;
+            })}
         </AbsoluteFill>
     );
 };
