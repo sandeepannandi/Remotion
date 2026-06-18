@@ -3,6 +3,7 @@ import "./index.css";
 import { Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
+import { ExpenseIQReel1 } from "./ExpenseIQ/ExpenseIQReel1";
 import { OreVideo } from "./Ore/OreVideo";
 import { Yt1 } from "./Yt1";
 
@@ -63,6 +64,14 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1920}
         height={1080}
+      />
+      <Composition
+        id="expenseiqreel1"
+        component={ExpenseIQReel1}
+        durationInFrames={300}
+        fps={30}
+        width={2160}
+        height={3840}
       />
 
       <Composition
