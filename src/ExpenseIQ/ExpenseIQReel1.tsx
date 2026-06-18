@@ -81,6 +81,8 @@ const LinkInBioScene: React.FC = () => {
     const show2 = frame >= 15;
     const show3 = frame >= 30;
 
+    const whiteFade = interpolate(frame, [0, 15], [1, 0], { extrapolateRight: 'clamp' });
+
     const textStyle: React.CSSProperties = {
         fontFamily: 'Playfair Display, serif',
         fontWeight: 400,
@@ -97,6 +99,9 @@ const LinkInBioScene: React.FC = () => {
             <div style={{ ...textStyle, opacity: show1 ? 1 : 0 }}>DOWNLOAD</div>
             <div style={{ ...textStyle, opacity: show2 ? 1 : 0 }}>LINK</div>
             <div style={{ ...textStyle, opacity: show3 ? 1 : 0 }}>IN BIO</div>
+
+            {/* White Fade Overlay */}
+            <AbsoluteFill style={{ backgroundColor: 'white', opacity: whiteFade, pointerEvents: 'none' }} />
         </AbsoluteFill>
     );
 };
@@ -244,7 +249,8 @@ export const ExpenseIQReel1: React.FC = () => {
     const scene5FramesPerWord = 9;
 
     const scene6Duration = 25; // 0.5 seconds at 30fps
-    const finalSceneDuration = 102; // 126 - 24 (800ms)
+    const finalSceneDuration = 78; // 102 - 24 (another 800ms)
+    const extraSceneDuration = 35; 
     const linkInBioDuration = 60;
 
     return (
@@ -281,15 +287,15 @@ export const ExpenseIQReel1: React.FC = () => {
                 <FinalScene />
                 <Audio src={staticFile("honorable.mp3")} startFrom={13.7 * 30} />
             </Sequence>
-            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration * 2 + finalSceneDuration} durationInFrames={30}>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration * 2 + finalSceneDuration} durationInFrames={extraSceneDuration}>
                 <Scene src="scene2.png" />
                 <Audio src={staticFile("honorable.mp3")} startFrom={(13.7 + finalSceneDuration/30) * 30} />
             </Sequence>
-            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration * 2 + finalSceneDuration + 30} durationInFrames={30}>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration * 2 + finalSceneDuration + extraSceneDuration} durationInFrames={extraSceneDuration}>
                 <Scene src="scene3.png" />
-                <Audio src={staticFile("honorable.mp3")} startFrom={(13.7 + finalSceneDuration/30 + 1) * 30} />
+                <Audio src={staticFile("honorable.mp3")} startFrom={(13.7 + finalSceneDuration/30 + extraSceneDuration/30) * 30} />
             </Sequence>
-            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration * 2 + finalSceneDuration + 60} durationInFrames={linkInBioDuration}>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration * 2 + finalSceneDuration + extraSceneDuration * 2} durationInFrames={linkInBioDuration}>
                 <LinkInBioScene />
             </Sequence>
         </AbsoluteFill>
