@@ -1,4 +1,4 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, staticFile, Img, Sequence, Audio } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, interpolate, staticFile, Img, Sequence, Audio } from 'remotion';
 import React from 'react';
 
 const text = "This is my message to all expense trackers.";
@@ -6,7 +6,6 @@ const words = text.split(" ");
 
 const Scene: React.FC<{ src: string, showText?: boolean, noZoom?: boolean }> = ({ src, showText, noZoom }) => {
     const frame = useCurrentFrame();
-    const { durationInFrames } = useVideoConfig();
     
     // Zoom only if not disabled
     const zoomScale = noZoom ? 1.0 : interpolate(
@@ -79,12 +78,10 @@ const Scene: React.FC<{ src: string, showText?: boolean, noZoom?: boolean }> = (
     );
 };
 
-const Scene3: React.FC<{ src: string }> = ({ src }) => {
+const Scene3: React.FC<{ src: string, text: string, framesPerWord?: number }> = ({ src, text, framesPerWord = 12 }) => {
     const frame = useCurrentFrame();
-    const text = "MY NAME IS EXPENSEPAL";
     const words = text.split(" ");
-    const framesPerWord = 12; // Adjusted for better readability
-    
+
     const wordIndex = Math.floor(frame / framesPerWord);
     const currentWord = words[Math.min(wordIndex, words.length - 1)];
 
@@ -110,7 +107,7 @@ const Scene3: React.FC<{ src: string }> = ({ src }) => {
                     }}
                 />
             </AbsoluteFill>
-            
+
             <div style={{
                 position: 'absolute',
                 top: '15%',
@@ -145,6 +142,10 @@ export const ExpenseIQReel1: React.FC = () => {
     // 1 second = 30 frames
     const scene4Duration = 30;
 
+    const scene5Text = "AND I'M GONNA RETIRE ALL EXPENSE TRACKERS BY BECOMING THE BEST IN THE WORLD.";
+    const scene5Duration = 138; // Matches best.mp3 duration (4.57s * 30fps)
+    const scene5FramesPerWord = 9;
+
     return (
         <AbsoluteFill>
             <Sequence durationInFrames={scene1Duration}>
@@ -156,13 +157,17 @@ export const ExpenseIQReel1: React.FC = () => {
                 <Audio src={staticFile("honorable.mp3")} startFrom={2.2 * 30} endAt={3.2 * 30} />
             </Sequence>
             <Sequence from={scene1Duration + scene2Duration} durationInFrames={scene3Duration}>
-                <Scene3 src="scene1.png" />
+                <Scene3 src="scene1.png" text="MY NAME IS EXPENSEPAL" />
                 <Audio src={staticFile("myname.mp3")} startFrom={0} endAt={scene3Duration} />
             </Sequence>
             <Sequence from={scene1Duration + scene2Duration + scene3Duration} durationInFrames={scene4Duration}>
                 <Scene src="scene3.png" />
                 <Audio src={staticFile("honorable.mp3")} startFrom={2.2 * 30} endAt={3.2 * 30} />
             </Sequence>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration} durationInFrames={scene5Duration}>
+                <Scene3 src="scene4.png" text={scene5Text} framesPerWord={scene5FramesPerWord} />
+                <Audio src={staticFile("best.mp3")} />
+            </Sequence>
         </AbsoluteFill>
     );
-    };
+};
