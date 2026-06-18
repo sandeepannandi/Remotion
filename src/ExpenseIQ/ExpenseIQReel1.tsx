@@ -1,7 +1,7 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, staticFile, Img, Sequence } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, staticFile, Img, Sequence, Audio } from 'remotion';
 import React from 'react';
 
-const text = "This is a message to all expense trackers.";
+const text = "This is my message to all expense trackers.";
 const words = text.split(" ");
 
 const Scene: React.FC<{ src: string, showText?: boolean, noZoom?: boolean }> = ({ src, showText, noZoom }) => {
@@ -54,7 +54,7 @@ const Scene: React.FC<{ src: string, showText?: boolean, noZoom?: boolean }> = (
                     transform: 'translateX(-50%)',
                 }}>
                     {words.map((word, i) => {
-                        const delay = i * 5;
+                        const delay = i * 6; // 80ms interval at 30fps
                         const opacity = frame >= delay ? 1 : 0;
                         
                         return (
@@ -79,21 +79,90 @@ const Scene: React.FC<{ src: string, showText?: boolean, noZoom?: boolean }> = (
     );
 };
 
+const Scene3: React.FC<{ src: string }> = ({ src }) => {
+    const frame = useCurrentFrame();
+    const text = "MY NAME IS EXPENSEPAL";
+    const words = text.split(" ");
+    const framesPerWord = 12; // Adjusted for better readability
+    
+    const wordIndex = Math.floor(frame / framesPerWord);
+    const currentWord = words[Math.min(wordIndex, words.length - 1)];
+
+    const zoomScale = interpolate(
+        frame,
+        [0, 150],
+        [1.2, 1.0],
+        {
+            extrapolateRight: 'clamp',
+        }
+    );
+
+    return (
+        <AbsoluteFill style={{ backgroundColor: 'black' }}>
+            <AbsoluteFill>
+                <Img 
+                    src={staticFile(src)} 
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transform: `scale(${zoomScale})`,
+                    }}
+                />
+            </AbsoluteFill>
+            
+            <div style={{
+                position: 'absolute',
+                top: '15%',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                fontFamily: 'Playfair Display, serif',
+                fontWeight: 400,
+                fontSize: '320px',
+                color: 'red',
+                textAlign: 'center',
+                zIndex: 2,
+                transform: 'translateY(-50%)',
+                textShadow: '0 0 60px rgba(255, 0, 0, 0.4)',
+                textTransform: 'uppercase',
+            }}>
+                {currentWord}
+            </div>
+        </AbsoluteFill>
+    );
+};
+
 export const ExpenseIQReel1: React.FC = () => {
     // 8 words * 5 frames = 35 is when the last word appears. 
     // We'll give it until frame 60 (2 seconds) so it's readable before cutting.
-    const scene1Duration = 60; 
-    // 500ms = 15 frames at 30fps
-    const scene2Duration = 15;
+    const scene1Duration = 85; 
+    // 1.5 seconds = 45 frames at 30fps
+    const scene2Duration = 30;
+    // 4 words * 12 frames = 48 frames, plus a little buffer
+    const scene3Duration = 60;
+    // 1 second = 30 frames
+    const scene4Duration = 30;
 
     return (
         <AbsoluteFill>
             <Sequence durationInFrames={scene1Duration}>
                 <Scene src="scene1.png" showText />
+                <Audio src={staticFile("message.mp3")} startFrom={0} endAt={scene1Duration} />
             </Sequence>
             <Sequence from={scene1Duration} durationInFrames={scene2Duration}>
-                <Scene src="scen2.png" noZoom />
+                <Scene src="scen2.png" />
+                <Audio src={staticFile("honorable.mp3")} startFrom={2.2 * 30} endAt={3.2 * 30} />
+            </Sequence>
+            <Sequence from={scene1Duration + scene2Duration} durationInFrames={scene3Duration}>
+                <Scene3 src="scene1.png" />
+                <Audio src={staticFile("myname.mp3")} startFrom={0} endAt={scene3Duration} />
+            </Sequence>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration} durationInFrames={scene4Duration}>
+                <Scene src="scene3.png" />
+                <Audio src={staticFile("honorable.mp3")} startFrom={2.2 * 30} endAt={3.2 * 30} />
             </Sequence>
         </AbsoluteFill>
     );
-};
+    };
