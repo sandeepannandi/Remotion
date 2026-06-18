@@ -68,7 +68,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="expenseiqreel1"
         component={ExpenseIQReel1}
-        durationInFrames={400}
+        durationInFrames={465}
         fps={30}
         width={2160}
         height={3840}

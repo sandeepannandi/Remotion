@@ -146,6 +146,8 @@ export const ExpenseIQReel1: React.FC = () => {
     const scene5Duration = 138; // Matches best.mp3 duration (4.57s * 30fps)
     const scene5FramesPerWord = 9;
 
+    const scene6Duration = 25; // 0.5 seconds at 30fps
+
     return (
         <AbsoluteFill>
             <Sequence durationInFrames={scene1Duration}>
@@ -167,6 +169,14 @@ export const ExpenseIQReel1: React.FC = () => {
             <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration} durationInFrames={scene5Duration}>
                 <Scene3 src="scene4.png" text={scene5Text} framesPerWord={scene5FramesPerWord} />
                 <Audio src={staticFile("best.mp3")} />
+            </Sequence>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration} durationInFrames={scene6Duration}>
+                <Scene src="h1.png" />
+                <Audio src={staticFile("honorable.mp3")} startFrom={11.9 * 30} endAt={12.8 * 30} />
+            </Sequence>
+            <Sequence from={scene1Duration + scene2Duration + scene3Duration + scene4Duration + scene5Duration + scene6Duration} durationInFrames={scene6Duration}>
+                <Scene src="h2.png" />
+                <Audio src={staticFile("honorable.mp3")} startFrom={12.76 * 30} endAt={14.8 * 30} />
             </Sequence>
         </AbsoluteFill>
     );
