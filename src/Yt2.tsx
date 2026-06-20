@@ -195,7 +195,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 7: idea.png centered on black screen */}
-      {frame >= 450 && frame < 465 && (
+      {frame >= 450 && frame < 468 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -214,8 +214,8 @@ export const Yt2: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* Scene 8: cup.webp on left, predict.png on right */}
-      {frame >= 465 && (
+      {/* Scene 8: cup.webp on left, then predict.png on right after 500ms */}
+      {frame >= 468 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -225,26 +225,28 @@ export const Yt2: React.FC = () => {
             src={staticFile("cup.webp")}
             style={{
               position: "absolute",
-              left: "25%",
+              left: "20%",
               top: "50%",
               transform: "translate(-50%, -50%)",
-              width: "35%",
+              width: "30%",
               height: "auto",
               objectFit: "contain",
             }}
           />
-          <Img
-            src={staticFile("predict.png")}
-            style={{
-              position: "absolute",
-              left: "75%",
-              top: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "35%",
-              height: "auto",
-              objectFit: "contain",
-            }}
-          />
+          {frame >= 483 && (
+            <Img
+              src={staticFile("predict.png")}
+              style={{
+                position: "absolute",
+                left: "68%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "50%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
         </AbsoluteFill>
       )}
     </AbsoluteFill>
