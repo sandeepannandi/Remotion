@@ -9,6 +9,7 @@
     "@remotion/cli": "4.0.420",
     "@remotion/gif": "4.0.420",
     "@remotion/google-fonts": "4.0.420",
+    "@remotion/media": "4.0.420",
     "@remotion/preload": "4.0.420",
     "@remotion/tailwind-v4": "4.0.420",
     "@remotion/zod-types": "4.0.420",
