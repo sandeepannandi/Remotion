@@ -4,8 +4,8 @@ import { Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { ExpenseIQReel1 } from "./ExpenseIQ/ExpenseIQReel1";
-import { OreVideo } from "./Ore/OreVideo";
 import { Yt1 } from "./Yt1";
+import { Yt2 } from "./Yt2";
 
 // import { preloadAssets } from "./preload";
 
@@ -75,12 +75,12 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="Ore"
-        component={OreVideo}
-        durationInFrames={450}
+        id="Yt2"
+        component={Yt2}
+        durationInFrames={780}
         fps={30}
-        width={1920}
-        height={1080}
+        width={3840}
+        height={2160}
       />
     </>
   );
