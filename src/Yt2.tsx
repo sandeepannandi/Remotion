@@ -306,6 +306,100 @@ export const Yt2: React.FC = () => {
           )}
         </AbsoluteFill>
       )}
+
+      {/* Scene 11: data.mp4 playing 800ms after excalidraw appears */}
+      <Sequence from={677}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("data.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 12: full.mp4 playing after data.mp4 ends */}
+      <Sequence from={860}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("full.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 13: itseasy.png showing instantly after full.mp4 ends */}
+      {frame >= 1140 && frame < 1200 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("itseasy.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 14: scraping.mp4 playing after itseasy.png */}
+      <Sequence from={1200}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("scraping.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 15: kagmeme.png showing instantly after scraping.mp4 ends */}
+      {frame >= 1308 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("kagmeme.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
