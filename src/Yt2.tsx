@@ -382,7 +382,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 15: kagmeme.png showing instantly after scraping.mp4 ends */}
-      {frame >= 1308 && (
+      {frame >= 1308 && frame < 1353 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -398,6 +398,62 @@ export const Yt2: React.FC = () => {
               objectFit: "cover",
             }}
           />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 16: dataset.mp4 playing after kagmeme */}
+      <Sequence from={1353}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("dataset.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 17: elo1.png on left, then elo2.webp on right after 600ms */}
+      {frame >= 1643 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("elo1.png")}
+            style={{
+              position: "absolute",
+              left: "34%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "56%",
+              height: "auto",
+              objectFit: "contain",
+              opacity: interpolate(frame, [1643, 1653], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          />
+          {frame >= 1661 && (
+            <Img
+              src={staticFile("elo2.webp")}
+              style={{
+                position: "absolute",
+                left: "80%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "28%",
+                height: "auto",
+                objectFit: "contain",
+                opacity: interpolate(frame, [1661, 1671], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              }}
+            />
+          )}
         </AbsoluteFill>
       )}
     </AbsoluteFill>
