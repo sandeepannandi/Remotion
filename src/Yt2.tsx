@@ -215,7 +215,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 8: cup.webp on left, then predict.png on right after 500ms */}
-      {frame >= 468 && (
+      {frame >= 468 && frame < 528 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -242,6 +242,63 @@ export const Yt2: React.FC = () => {
                 top: "50%",
                 transform: "translate(-50%, -50%)",
                 width: "50%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 9: ide.mp4 after 1.5 seconds */}
+      <Sequence from={528} durationInFrames={110}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Video
+            src={staticFile("ide.mp4")}
+            endAt={110}
+            style={{
+              width: "100%",
+              height: "95%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 10: thinkmemoji.png on left, then excalidraw.png on right after 500ms */}
+      {frame >= 638 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("thinkmemoji.png")}
+            style={{
+              position: "absolute",
+              left: "25%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "36%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 653 && (
+            <Img
+              src={staticFile("excalidraw.png")}
+              style={{
+                position: "absolute",
+                left: "75%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "32%",
                 height: "auto",
                 objectFit: "contain",
               }}
