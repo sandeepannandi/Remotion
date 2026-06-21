@@ -1,8 +1,10 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame, AnimatedImage, interpolate, Video, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
+import { loadFont as loadJetBrainsMono } from "@remotion/google-fonts/JetBrainsMono";
 import React from "react";
 
 const { fontFamily } = loadFont();
+const { fontFamily: monoFont } = loadJetBrainsMono();
 
 const TEXT_STYLE: React.CSSProperties = {
   fontFamily,
@@ -496,7 +498,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 19: ownelo.jpg on white bg with OWN ELO SYSTEM text word by word */}
-      {frame >= 1827 && (
+      {frame >= 1827 && frame < 1900 && (
         <AbsoluteFill
           style={{
             backgroundColor: "white",
@@ -533,9 +535,90 @@ export const Yt2: React.FC = () => {
           >
             <div style={{ display: "flex", gap: "50px" }}>
               <span style={{ opacity: 1 }}>OWN</span>
-              <span style={{ opacity: frame >= 1835 ? 1 : 0 }}>ELO</span>
-              <span style={{ opacity: frame >= 1843 ? 1 : 0 }}>SYSTEM</span>
+              <span style={{ opacity: frame >= 1831 ? 1 : 0 }}>ELO</span>
+              <span style={{ opacity: frame >= 1835 ? 1 : 0 }}>SYSTEM</span>
 
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 20: db.png centered below on black bg, text fades in 400ms later */}
+      {frame >= 1900 && frame < 2000 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("db.png")}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "60%",
+              transform: "translate(-50%, -50%)",
+              width: "46%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "12%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily,
+              color: "white",
+              fontSize: 250,
+              textAlign: "center",
+              letterSpacing: "0.02em",
+              whiteSpace: "nowrap",
+              opacity: interpolate(frame, [1912, 1922], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          >
+            Data from 1872 to 2026
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 21: table.png on left, stats on right in JetBrains Mono */}
+      {frame >= 2000 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("table.png")}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "68%",
+              transform: "translate(-50%, -50%)",
+              width: "60%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "20%",
+              transform: "translate(-50%, -50%)",
+              fontFamily: monoFont,
+              fontWeight: "bold",
+              color: "white",
+              fontSize: 115,
+              lineHeight: 1.8,
+              textAlign: "center",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <div>win rate, last 5 games form, goals scored</div>
+            <div>ELO difference, pre-match expectation, 
+            <div style={{paddingLeft: "100px"}}>goals conceded</div>
             </div>
           </div>
         </AbsoluteFill>
