@@ -419,8 +419,8 @@ export const Yt2: React.FC = () => {
         </AbsoluteFill>
       </Sequence>
 
-      {/* Scene 17: elo1.png on left, then elo2.webp on right after 600ms */}
-      {frame >= 1643 && (
+      {/* Scene 17: elo1.png on left, then elo2.webp on right after 800ms */}
+      {frame >= 1643 && frame < 1733 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -439,7 +439,7 @@ export const Yt2: React.FC = () => {
               opacity: interpolate(frame, [1643, 1653], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}
           />
-          {frame >= 1661 && (
+          {frame >= 1667 && (
             <Img
               src={staticFile("elo2.webp")}
               style={{
@@ -450,10 +450,94 @@ export const Yt2: React.FC = () => {
                 width: "28%",
                 height: "auto",
                 objectFit: "contain",
-                opacity: interpolate(frame, [1661, 1671], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                opacity: interpolate(frame, [1667, 1677], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
               }}
             />
           )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 18: poster.webp on left, then cup.webp on right after 800ms */}
+      {frame >= 1733 && frame < 1827 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("poster.webp")}
+            style={{
+              position: "absolute",
+              left: "34%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "36%",
+              height: "auto",
+              objectFit: "contain",
+              opacity: interpolate(frame, [1733, 1743], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          />
+          {frame >= 1757 && (
+            <Img
+              src={staticFile("cup.webp")}
+              style={{
+                position: "absolute",
+                left: "80%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "38%",
+                height: "auto",
+                objectFit: "contain",
+                opacity: interpolate(frame, [1757, 1767], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 19: ownelo.jpg on white bg with OWN ELO SYSTEM text word by word */}
+      {frame >= 1827 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "white",
+          }}
+        >
+          <Img
+            src={staticFile("ownelo.jpg")}
+            style={{
+              position: "absolute",
+              left: "0",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "56%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "14%",
+              left: "14%",
+              fontFamily,
+              color: "black",
+              fontSize: 350,
+              textAlign: "left",
+              textTransform: "uppercase",
+              letterSpacing: "0.02em",
+              lineHeight: 1.2,
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+            }}
+          >
+            <div style={{ display: "flex", gap: "50px" }}>
+              <span style={{ opacity: 1 }}>OWN</span>
+              <span style={{ opacity: frame >= 1835 ? 1 : 0 }}>ELO</span>
+              <span style={{ opacity: frame >= 1843 ? 1 : 0 }}>SYSTEM</span>
+
+            </div>
+          </div>
         </AbsoluteFill>
       )}
     </AbsoluteFill>
