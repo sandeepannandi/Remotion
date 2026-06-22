@@ -643,7 +643,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 23: nleague, arabl, goldcup side by side fading in at 500ms intervals */}
-      <Sequence from={2398}>
+      <Sequence from={2398} durationInFrames={98}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -706,7 +706,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 24: asiancup centered, play.png below, upvote flashing over them */}
-      <Sequence from={2496}>
+      <Sequence from={2496} durationInFrames={48}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -752,6 +752,193 @@ export const Yt2: React.FC = () => {
           )}
         </AbsoluteFill>
       </Sequence>
+
+      {/* Scene 25: runml.png centered on black screen for 2 seconds */}
+      {frame >= 2544 && frame < 2604 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("runml.png")}
+            style={{
+              width: "45%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 26: models.mp4 playing after runml.png (same pattern as crashout.mp4) */}
+      <Sequence from={2604} durationInFrames={195}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("models.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 27: random.mp4 playing after models.mp4 ends */}
+      <Sequence from={2799} durationInFrames={201}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("random.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 28: 68% and accuracy over black screen */}
+      {frame >= 3000 && frame < 3090 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <span
+              style={{
+                fontFamily,
+                color: "#F5F2E3",
+                fontSize: 1000,
+                textAlign: "center",
+                textTransform: "uppercase",
+                letterSpacing: "0.02em",
+                lineHeight: 1,
+              }}
+            >
+              68%
+            </span>
+            <span
+              style={{
+                fontFamily,
+                color: "#F5F2E3",
+                fontSize: 350,
+                textAlign: "center",
+                textTransform: "uppercase",
+                letterSpacing: "0.02em",
+                lineHeight: 1,
+              }}
+            >
+              accuracy
+            </span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 29: accurate.mp4 playing after accuracy text */}
+      <Sequence from={3090} durationInFrames={264}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("accurate.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 30: claude.mp4 full screen after accurate.mp4 ends */}
+      <Sequence from={3354} durationInFrames={432}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <Video
+              src={staticFile("claude.mp4")}
+              volume={0}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 31: whowins.png centered, '100 simulations' text below after 600ms */}
+      {frame >= 3444 && frame < 3534 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("whowins.png")}
+            style={{
+              width: "40%",
+              position: "relative",
+              bottom:"8%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3462 && (
+            <span
+              style={{
+                position: "absolute",
+                bottom: "6%",
+                fontFamily,
+                color: "#F5F2E3",
+                fontSize: 250,
+                textAlign: "center",
+                textTransform: "uppercase",
+                letterSpacing: "0.02em",
+                lineHeight: 1,
+              }}
+            >
+              10,000 simulations
+            </span>
+          )}
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
