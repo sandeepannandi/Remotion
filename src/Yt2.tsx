@@ -583,7 +583,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 21: table.png on left, stats on right in JetBrains Mono */}
-      {frame >= 2000 && (
+      {frame >= 2000 && frame < 2120 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -623,6 +623,135 @@ export const Yt2: React.FC = () => {
           </div>
         </AbsoluteFill>
       )}
+
+      {/* Scene 22: showing.mp4 playing after Scene 21 (same pattern as crashout.mp4) */}
+      <Sequence from={2120}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Video
+            src={staticFile("showing.mp4")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 23: nleague, arabl, goldcup side by side fading in at 500ms intervals */}
+      <Sequence from={2398}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("nleague.png")}
+            style={{
+              position: "absolute",
+              left: "16.67%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "40%",
+              height: "auto",
+              objectFit: "contain",
+              opacity: interpolate(frame, [2398, 2403], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          />
+          <Img
+            src={staticFile("arabl.png")}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "60%",
+              height: "auto",
+              objectFit: "contain",
+              opacity: interpolate(frame, [2413, 2418], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          />
+          <Img
+            src={staticFile("goldcup.png")}
+            style={{
+              position: "absolute",
+              left: "83.33%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "22%",
+              height: "auto",
+              objectFit: "contain",
+              opacity: interpolate(frame, [2428, 2433], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          />
+          {frame >= 2451 && frame < 2496 && (
+            <Img
+              src={staticFile("downvote.png")}
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "auto",
+                height: "80%",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 24: asiancup centered, play.png below, upvote flashing over them */}
+      <Sequence from={2496}>
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("asiancup.png")}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "46%",
+              transform: "translate(-50%, -50%)",
+              width: "40%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <Img
+            src={staticFile("play.png")}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "76%",
+              transform: "translate(-50%, -50%)",
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 2514 && frame < 2544 && (
+            <Img
+              src={staticFile("upvote.png")}
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "auto",
+                height: "60%",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      </Sequence>
     </AbsoluteFill>
   );
 };
