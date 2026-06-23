@@ -939,6 +939,403 @@ export const Yt2: React.FC = () => {
           )}
         </AbsoluteFill>
       )}
+
+      {/* Scene 32: groupa.png centered on black screen, then tick.png on center right after 600ms */}
+      {frame >= 3534 && frame < 3582 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupa.png")}
+            style={{
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3552 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "35%",
+                transform: "translateY(-50%)",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 33: groupb.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3582 && frame < 3630 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupb.png")}
+            style={{
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3600 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                bottom: "4%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 34: groupc.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3630 && frame < 3678 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupc.png")}
+            style={{
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3648 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "25%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 35: groupd.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3678 && frame < 3726 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupd.png")}
+            style={{
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3696 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 36: groupe.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3726 && frame < 3774 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupe.png")}
+            style={{
+              width: "65%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3744 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 37: groupf.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3774 && frame < 3822 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupf.png")}
+            style={{
+              width: "63%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3792 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 38: groupg.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3822 && frame < 3870 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupg.png")}
+            style={{
+              width: "63%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3840 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 39: grouph.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3870 && frame < 3918 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("grouph.png")}
+            style={{
+              width: "65%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3888 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "24%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 40: groupi.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3918 && frame < 3966 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupi.png")}
+            style={{
+              width: "63%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3936 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 41: groupj.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 3966 && frame < 4014 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupj.png")}
+            style={{
+              width: "63%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 3984 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 42: groupk.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 4014 && frame < 4062 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupk.png")}
+            style={{
+              width: "60%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 4032 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "25%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 43: groupl.png centered on black screen, then tick.png on bottom right after 600ms */}
+      {frame >= 4062 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("groupl.png")}
+            style={{
+              width: "65%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 4080 && (
+            <Img
+              src={staticFile("tick.png")}
+              style={{
+                position: "absolute",
+                right: "20%",
+                top: "23%",
+                width: "12%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
