@@ -31,7 +31,7 @@ export const preloadAssets = () => {
   preloadImage(staticFile("github.png"));
   preloadImage(staticFile("githubicon.png"));
 
-  // Gifs - Preload as both Image and Gif as per user guidance
+  // Yt1 Gifs - Preload as both Image and Gif as per user guidance
   preloadImage(staticFile("easy.gif"));
   preloadGif(staticFile("easy.gif"));
   preloadImage(staticFile("think.gif"));
@@ -46,4 +46,12 @@ export const preloadAssets = () => {
   preloadGif(staticFile("feelbad.gif"));
   preloadImage(staticFile("rub.gif"));
   preloadGif(staticFile("rub.gif"));
+
+  // Yt2 Gifs
+  preloadImage(staticFile("cateating.gif"));
+  preloadGif(staticFile("cateating.gif"));
+  preloadImage(staticFile("cry.gif"));
+  preloadGif(staticFile("cry.gif"));
+  preloadImage(staticFile("smirk.gif"));
+  preloadGif(staticFile("smirk.gif"));
 };

@@ -1,6 +1,7 @@
 import { AbsoluteFill, Img, staticFile, useCurrentFrame, AnimatedImage, interpolate, Video, Sequence } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { loadFont as loadJetBrainsMono } from "@remotion/google-fonts/JetBrainsMono";
+import { MoveUpLeft } from "lucide-react";
 import React from "react";
 
 const { fontFamily } = loadFont();
@@ -1305,7 +1306,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 43: groupl.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4062 && (
+      {frame >= 4062 && frame < 4110 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1334,6 +1335,242 @@ export const Yt2: React.FC = () => {
               }}
             />
           )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 44: smirk.gif on black background after all groups end, fades in */}
+      {frame >= 4110 && frame < 4170 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AnimatedImage
+            src={staticFile("smirk.gif")}
+            width={1800}
+            height={1800}
+            fit="cover"
+            style={{
+              opacity: interpolate(frame, [4110, 4130], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }),
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 45: according to text, word by word like SINCE 1974 */}
+      {frame >= 4170 && frame < 4220 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <div style={TEXT_STYLE}>
+            <span style={{ opacity: 1 }}>ACCORDING</span>
+            <span style={{ opacity: frame >= 4178 ? 1 : 0 }}>TO</span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 46: rf.png centered on black screen */}
+      {frame >= 4220 && frame < 4260 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("rf.png")}
+            style={{
+              width: "60%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 47a: winners.png on left with spain.png on right */}
+      {frame >= 4260 && frame < 4290 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("winners.png")}
+            style={{
+              position: "absolute",
+              left: "30%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "50%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <Img
+            src={staticFile("spain.png")}
+            style={{
+              position: "absolute",
+              left: "77%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "40%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 47b: 2010.png centered for 1 sec */}
+      {frame >= 4290 && frame < 4320 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("2010.png")}
+            style={{
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 47c: winners.png on left with argentina.png on right */}
+      {frame >= 4320 && frame < 4350 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("winners.png")}
+            style={{
+              position: "absolute",
+              left: "30%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "50%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <Img
+            src={staticFile("argentina.png")}
+            style={{
+              position: "absolute",
+              left: "77%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "40%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 47d: winners.png on left with france.png on right */}
+      {frame >= 4350 && frame < 4380 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("winners.png")}
+            style={{
+              position: "absolute",
+              left: "30%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "50%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <Img
+            src={staticFile("france.png")}
+            style={{
+              position: "absolute",
+              left: "77%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "40%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 48: portugal.png centered */}
+      {frame >= 4380 && frame < 4410 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("portugal.png")}
+            style={{
+              width: "70%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 49: winners.png centered with north-west arrow pointing to center-left */}
+      {frame >= 4410 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("winners.png")}
+            style={{
+              position: "absolute",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "80%",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: "30%",
+              top: "52%",
+              color: "#F5F2E3",
+            }}
+          >
+            <MoveUpLeft size={600} strokeWidth={3} />
+          </div>
         </AbsoluteFill>
       )}
     </AbsoluteFill>

@@ -7,9 +7,9 @@ import { ExpenseIQReel1 } from "./ExpenseIQ/ExpenseIQReel1";
 import { Yt1 } from "./Yt1";
 import { Yt2 } from "./Yt2";
 
-// import { preloadAssets } from "./preload";
+import { preloadAssets } from "./preload";
 
-// preloadAssets();
+preloadAssets();
 
 import { ProductLaunch, productLaunchSchema, defaultProps } from "./ProductLaunch";
 import { AppLaunch, appLaunchSchema, defaultProps as appLaunchDefaultProps } from "./AppLaunch";
@@ -77,7 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt2"
         component={Yt2}
-        durationInFrames={4140}
+        durationInFrames={4560}
         fps={30}
         width={3840}
         height={2160}
