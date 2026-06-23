@@ -1605,6 +1605,202 @@ export const Yt2: React.FC = () => {
           )}
         </AbsoluteFill>
       )}
+
+      {/* Scene 51: Top 5 to win text on top, flags in a grid one by one */}
+      {frame >= 4650 && frame < 4830 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          {/* Top 5 to win text */}
+          <div
+            style={{
+              position: "absolute",
+              top: "8%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily,
+              color: "#F5F2E3",
+              fontSize: 320,
+              textAlign: "center",
+              textTransform: "uppercase",
+              letterSpacing: "0.02em",
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            TOP 5 TO WIN
+          </div>
+
+          {/* Top row: spain (left), argentina (center), france (right) */}
+          {frame >= 4690 && (
+            <Img
+              src={staticFile("spain.png")}
+              style={{
+                position: "absolute",
+                left: "20%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= 4710 && (
+            <Img
+              src={staticFile("argentina.png")}
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= 4730 && (
+            <Img
+              src={staticFile("france.png")}
+              style={{
+                position: "absolute",
+                left: "80%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+
+          {/* Bottom row: brazil (left), portugal (right) */}
+          {frame >= 4750 && (
+            <Img
+              src={staticFile("brazil.png")}
+              style={{
+                position: "absolute",
+                left: "33%",
+                top: "78%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= 4770 && (
+            <Img
+              src={staticFile("portugal.png")}
+              style={{
+                position: "absolute",
+                left: "67%",
+                top: "78%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 52: Disappointing teams text on top, flags in a row one by one */}
+      {frame >= 4830 && frame < 4960 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          {/* DISSAPOINTING TEAMS text */}
+          <div
+            style={{
+              position: "absolute",
+              top: "15%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily,
+              color: "#F5F2E3",
+              fontSize: 320,
+              textAlign: "center",
+              textTransform: "uppercase",
+              letterSpacing: "0.02em",
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            DISSAPOINTING TEAMS
+          </div>
+
+          {/* Flags in a row: columbia (left), netherlands (center), japan (right) */}
+          {frame >= 4860 && (
+            <Img
+              src={staticFile("columbia.png")}
+              style={{
+                position: "absolute",
+                left: "20%",
+                top: "60%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= 4880 && (
+            <Img
+              src={staticFile("netherlands.png")}
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "60%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= 4900 && (
+            <Img
+              src={staticFile("japan.png")}
+              style={{
+                position: "absolute",
+                left: "80%",
+                top: "60%",
+                transform: "translate(-50%, -50%)",
+                width: "25%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 53: heatmap.png centered on black bg */}
+      {frame >= 4960 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("heatmap.png")}
+            style={{
+              width: "90%",
+              height: "90%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
