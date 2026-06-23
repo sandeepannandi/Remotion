@@ -1542,7 +1542,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 49: winners.png centered with north-west arrow pointing to center-left */}
-      {frame >= 4410 && (
+      {frame >= 4410 && frame < 4500 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1571,6 +1571,38 @@ export const Yt2: React.FC = () => {
           >
             <MoveUpLeft size={600} strokeWidth={3} />
           </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 50: ronaldo.png full screen for 5 sec, wccup.png on left after 1 sec */}
+      {frame >= 4500 && frame < 4650 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("ronaldo.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 4530 && (
+            <Img
+              src={staticFile("wccup.png")}
+              style={{
+                position: "absolute",
+                left: "20%",
+                top: "45%",
+                transform: "translate(-50%, -50%)",
+                width: "15%",
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
         </AbsoluteFill>
       )}
     </AbsoluteFill>
