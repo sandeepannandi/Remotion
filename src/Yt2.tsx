@@ -1783,7 +1783,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 53: heatmap.png centered on black bg */}
-      {frame >= 4960 && (
+      {frame >= 4960 && frame < 5080 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1797,6 +1797,44 @@ export const Yt2: React.FC = () => {
               width: "90%",
               height: "90%",
               objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 54: AND THAT'S IT. word by word */}
+      {frame >= 5080 && frame < 5160 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <div style={TEXT_STYLE}>
+            <span style={{ opacity: 1 }}>AND</span>
+            <span style={{ opacity: frame >= 5088 ? 1 : 0 }}>THAT&apos;S</span>
+            <span style={{ opacity: frame >= 5096 ? 1 : 0 }}>IT.</span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 55: licap.png on black screen */}
+      {frame >= 5160 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("licap.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
             }}
           />
         </AbsoluteFill>

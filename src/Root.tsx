@@ -77,7 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt2"
         component={Yt2}
-        durationInFrames={5060}
+        durationInFrames={5280}
         fps={30}
         width={3840}
         height={2160}
