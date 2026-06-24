@@ -1821,7 +1821,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 55: licap.png on black screen */}
-      {frame >= 5160 && (
+      {frame >= 5160 && frame < 5280 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1835,6 +1835,87 @@ export const Yt2: React.FC = () => {
               width: "100%",
               height: "100%",
               objectFit: "cover",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 56: fifagit.png with LINK IN BIO text */}
+      {frame >= 5280 && frame < 5340 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+          }}
+        >
+          <Img
+            src={staticFile("fifagit.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= 5304 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontFamily,
+                color: "black",
+                fontSize: 500,
+                textAlign: "center",
+                textTransform: "uppercase",
+                letterSpacing: "0.02em",
+                lineHeight: 1,
+                display: "flex",
+                gap: "50px",
+              }}
+            >
+              <span style={{ opacity: 1 }}>LINK</span>
+              <span style={{ opacity: frame >= 5312 ? 1 : 0 }}>IN</span>
+              <span style={{ opacity: frame >= 5320 ? 1 : 0 }}>BIO</span>
+            </div>
+          )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 57: sleep.png on black screen */}
+      {frame >= 5340 && frame < 5360 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("sleep.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 58: seeu.png on black screen */}
+      {frame >= 5360 && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Img
+            src={staticFile("seeu.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
             }}
           />
         </AbsoluteFill>
