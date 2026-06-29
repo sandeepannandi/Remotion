@@ -668,7 +668,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 23: nleague, arabl, goldcup side by side fading in at 500ms intervals */}
-      <Sequence from={2807} durationInFrames={116}>
+      <Sequence from={2806} durationInFrames={116}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
