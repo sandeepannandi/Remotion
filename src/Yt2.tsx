@@ -375,8 +375,13 @@ export const Yt2: React.FC = () => {
         </AbsoluteFill>
       )}
 
+      {/* Play fifa3.wav after fifa2.wav ends */}
+      <Sequence from={1434}>
+        <Audio src={staticFile("fifa3.wav")} />
+      </Sequence>
+
       {/* Scene 14: scraping.mp4 playing after itseasy.png */}
-      <Sequence from={1500}>
+      <Sequence from={1428}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -394,7 +399,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 15: kagmeme.png showing instantly after scraping.mp4 ends */}
-      {frame >= 1608 && frame < 1653 && (
+      {frame >= 1602 && frame < 1653 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -507,8 +512,8 @@ export const Yt2: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* Scene 19: ownelo.jpg on white bg with OWN ELO SYSTEM text word by word */}
-      {frame >= 2127 && frame < 2200 && (
+      {/* Scene 19: ownelo.jpg on white bg with OWN ELO SYSTEM text word by word (200ms earlier) */}
+      {frame >= 2113 && frame < 2186 && (
         <AbsoluteFill
           style={{
             backgroundColor: "white",
@@ -545,8 +550,8 @@ export const Yt2: React.FC = () => {
           >
             <div style={{ display: "flex", gap: "50px" }}>
               <span style={{ opacity: 1 }}>OWN</span>
-              <span style={{ opacity: frame >= 2131 ? 1 : 0 }}>ELO</span>
-              <span style={{ opacity: frame >= 2135 ? 1 : 0 }}>SYSTEM</span>
+              <span style={{ opacity: frame >= 2117 ? 1 : 0 }}>ELO</span>
+              <span style={{ opacity: frame >= 2121 ? 1 : 0 }}>SYSTEM</span>
 
             </div>
           </div>
