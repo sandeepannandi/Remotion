@@ -713,7 +713,7 @@ export const Yt2: React.FC = () => {
               opacity: interpolate(frame, [2855, 2860], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}
           />
-          {frame >= 2878 && frame < 2923 && (
+          {frame >= 2878 && frame < 2924 && (
             <Img
               src={staticFile("downvote.png")}
               style={{
