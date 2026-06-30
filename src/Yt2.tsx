@@ -713,7 +713,7 @@ export const Yt2: React.FC = () => {
               opacity: interpolate(frame, [2855, 2860], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}
           />
-          {frame >= 2878 && frame < 2924 && (
+          {frame >= 2878 && frame < 2923 && (
             <Img
               src={staticFile("downvote.png")}
               style={{
@@ -731,7 +731,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 24: asiancup centered, play.png below, upvote flashing over them */}
-      <Sequence from={2923} durationInFrames={78}>
+      <Sequence from={2922} durationInFrames={78}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
