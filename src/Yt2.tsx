@@ -668,7 +668,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 23: nleague, arabl, goldcup side by side fading in at 500ms intervals */}
-      <Sequence from={2821} durationInFrames={134}>
+      <Sequence from={2821} durationInFrames={140}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -713,7 +713,7 @@ export const Yt2: React.FC = () => {
               opacity: interpolate(frame, [2870, 2875], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}
           />
-          {frame >= 2911 && frame < 2956 && (
+          {frame >= 2911 && frame < 2961 && (
             <Img
               src={staticFile("downvote.png")}
               style={{
@@ -731,7 +731,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 24: asiancup centered, play.png below, upvote flashing over them */}
-      <Sequence from={2955} durationInFrames={222}>
+      <Sequence from={2961} durationInFrames={204}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -761,7 +761,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 3028 && frame < 3178 && (
+          {frame >= 3043 && frame < 3178 && (
             <Img
               src={staticFile("upvote.png")}
               style={{
@@ -779,7 +779,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 25: runml.png centered on black screen for 2 seconds */}
-      {frame >= 3177 && frame < 3238 && (
+      {frame >= 3153 && frame < 3260 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -799,7 +799,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 26: models.mp4 playing after runml.png (same pattern as crashout.mp4) */}
-      <Sequence from={3208} durationInFrames={195}>
+      <Sequence from={3260} durationInFrames={195}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -817,7 +817,7 @@ export const Yt2: React.FC = () => {
       </Sequence>
 
       {/* Scene 27: random.mp4 playing after models.mp4 ends */}
-      <Sequence from={3433} durationInFrames={201}>
+      <Sequence from={3433} durationInFrames={335}>
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -825,6 +825,7 @@ export const Yt2: React.FC = () => {
         >
           <Video
             src={staticFile("random.mp4")}
+            playbackRate={0.6}
             style={{
               width: "100%",
               height: "100%",
