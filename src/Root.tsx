@@ -9,7 +9,7 @@ import { Yt2 } from "./Yt2";
 
 import { preloadAssets } from "./preload";
 
-preloadAssets();
+//preloadAssets();
 
 import { ProductLaunch, productLaunchSchema, defaultProps } from "./ProductLaunch";
 import { AppLaunch, appLaunchSchema, defaultProps as appLaunchDefaultProps } from "./AppLaunch";
