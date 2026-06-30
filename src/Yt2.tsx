@@ -984,7 +984,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 32: groupa.png centered on black screen, then tick.png on center right after 600ms */}
-      {frame >= 4323 && frame < 4371 && (
+      {frame >= 4323 && frame < 4372 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1018,7 +1018,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 33: groupb.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4371 && frame < 4419 && (
+      {frame >= 4372 && frame < 4421 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1034,7 +1034,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4389 && (
+          {frame >= 4390 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1051,7 +1051,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 34: groupc.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4419 && frame < 4467 && (
+      {frame >= 4421 && frame < 4470 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1067,7 +1067,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4437 && (
+          {frame >= 4439 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1084,7 +1084,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 35: groupd.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4467 && frame < 4515 && (
+      {frame >= 4470 && frame < 4519 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1100,7 +1100,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4485 && (
+          {frame >= 4488 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1117,7 +1117,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 36: groupe.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4515 && frame < 4563 && (
+      {frame >= 4519 && frame < 4568 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1133,7 +1133,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4533 && (
+          {frame >= 4537 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1150,7 +1150,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 37: groupf.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4563 && frame < 4611 && (
+      {frame >= 4568 && frame < 4617 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1166,7 +1166,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4581 && (
+          {frame >= 4586 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1183,7 +1183,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 38: groupg.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4611 && frame < 4659 && (
+      {frame >= 4617 && frame < 4666 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1199,7 +1199,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4629 && (
+          {frame >= 4635 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1216,7 +1216,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 39: grouph.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4659 && frame < 4707 && (
+      {frame >= 4666 && frame < 4715 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1232,7 +1232,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4677 && (
+          {frame >= 4684 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1249,7 +1249,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 40: groupi.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4707 && frame < 4755 && (
+      {frame >= 4715 && frame < 4764 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1265,7 +1265,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4725 && (
+          {frame >= 4733 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1282,7 +1282,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 41: groupj.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4755 && frame < 4803 && (
+      {frame >= 4764 && frame < 4813 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1298,7 +1298,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4773 && (
+          {frame >= 4782 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1315,7 +1315,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 42: groupk.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4803 && frame < 4851 && (
+      {frame >= 4813 && frame < 4862 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1331,7 +1331,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4821 && (
+          {frame >= 4831 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1348,7 +1348,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 43: groupl.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4851 && frame < 4899 && (
+      {frame >= 4862 && frame < 4910 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1364,7 +1364,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4869 && (
+          {frame >= 4880 && (
             <Img
               src={staticFile("tick.png")}
               style={{
@@ -1381,7 +1381,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 44: smirk.gif on black background after all groups end, fades in */}
-      {frame >= 4899 && frame < 4959 && (
+      {frame >= 4910 && frame < 4970 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1395,7 +1395,7 @@ export const Yt2: React.FC = () => {
             height={1800}
             fit="cover"
             style={{
-              opacity: interpolate(frame, [4899, 4919], [0, 1], {
+              opacity: interpolate(frame, [4910, 4930], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               }),
@@ -1405,7 +1405,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 45: according to text, word by word like SINCE 1974 */}
-      {frame >= 4959 && frame < 5009 && (
+      {frame >= 4970 && frame < 5020 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1416,13 +1416,13 @@ export const Yt2: React.FC = () => {
         >
           <div style={TEXT_STYLE}>
             <span style={{ opacity: 1 }}>ACCORDING</span>
-            <span style={{ opacity: frame >= 4967 ? 1 : 0 }}>TO</span>
+            <span style={{ opacity: frame >= 4978 ? 1 : 0 }}>TO</span>
           </div>
         </AbsoluteFill>
       )}
 
       {/* Scene 46: rf.png centered on black screen */}
-      {frame >= 5009 && frame < 5049 && (
+      {frame >= 5020 && frame < 5060 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1442,7 +1442,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 47a: winners.png on left with spain.png on right */}
-      {frame >= 5049 && frame < 5079 && (
+      {frame >= 5060 && frame < 5090 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1476,7 +1476,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 47b: 2010.png centered for 1 sec */}
-      {frame >= 5079 && frame < 5109 && (
+      {frame >= 5090 && frame < 5120 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1496,7 +1496,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 47c: winners.png on left with argentina.png on right */}
-      {frame >= 5109 && frame < 5139 && (
+      {frame >= 5120 && frame < 5150 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1530,7 +1530,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 47d: winners.png on left with france.png on right */}
-      {frame >= 5139 && frame < 5169 && (
+      {frame >= 5150 && frame < 5180 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1564,7 +1564,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 48: portugal.png centered */}
-      {frame >= 5169 && frame < 5199 && (
+      {frame >= 5180 && frame < 5210 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1584,7 +1584,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 49: winners.png centered with north-west arrow pointing to center-left */}
-      {frame >= 5199 && frame < 5289 && (
+      {frame >= 5210 && frame < 5300 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1617,7 +1617,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 50: ronaldo.png full screen for 5 sec, wccup.png on left after 1 sec */}
-      {frame >= 5289 && frame < 5439 && (
+      {frame >= 5300 && frame < 5450 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1631,7 +1631,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 5319 && (
+          {frame >= 5330 && (
             <Img
               src={staticFile("wccup.png")}
               style={{
@@ -1649,7 +1649,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 51: Top 5 to win text on top, flags in a grid one by one */}
-      {frame >= 5439 && frame < 5619 && (
+      {frame >= 5450 && frame < 5630 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1676,7 +1676,7 @@ export const Yt2: React.FC = () => {
           </div>
 
           {/* Top row: spain (left), argentina (center), france (right) */}
-          {frame >= 5479 && (
+          {frame >= 5490 && (
             <Img
               src={staticFile("spain.png")}
               style={{
@@ -1690,7 +1690,7 @@ export const Yt2: React.FC = () => {
               }}
             />
           )}
-          {frame >= 5499 && (
+          {frame >= 5510 && (
             <Img
               src={staticFile("argentina.png")}
               style={{
@@ -1704,7 +1704,7 @@ export const Yt2: React.FC = () => {
               }}
             />
           )}
-          {frame >= 5519 && (
+          {frame >= 5530 && (
             <Img
               src={staticFile("france.png")}
               style={{
@@ -1720,7 +1720,7 @@ export const Yt2: React.FC = () => {
           )}
 
           {/* Bottom row: brazil (left), portugal (right) */}
-          {frame >= 5539 && (
+          {frame >= 5550 && (
             <Img
               src={staticFile("brazil.png")}
               style={{
@@ -1734,7 +1734,7 @@ export const Yt2: React.FC = () => {
               }}
             />
           )}
-          {frame >= 5559 && (
+          {frame >= 5570 && (
             <Img
               src={staticFile("portugal.png")}
               style={{
@@ -1752,7 +1752,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 52: Disappointing teams text on top, flags in a row one by one */}
-      {frame >= 5604 && frame < 5734 && (
+      {frame >= 5615 && frame < 5745 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1779,7 +1779,7 @@ export const Yt2: React.FC = () => {
           </div>
 
           {/* Flags in a row: columbia (left), netherlands (center), japan (right) */}
-          {frame >= 5634 && (
+          {frame >= 5645 && (
             <Img
               src={staticFile("columbia.png")}
               style={{
@@ -1793,7 +1793,7 @@ export const Yt2: React.FC = () => {
               }}
             />
           )}
-          {frame >= 5654 && (
+          {frame >= 5665 && (
             <Img
               src={staticFile("netherlands.png")}
               style={{
@@ -1807,7 +1807,7 @@ export const Yt2: React.FC = () => {
               }}
             />
           )}
-          {frame >= 5674 && (
+          {frame >= 5685 && (
             <Img
               src={staticFile("japan.png")}
               style={{
@@ -1825,7 +1825,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 53: heatmap.png centered on black bg */}
-      {frame >= 5734 && frame < 5854 && (
+      {frame >= 5745 && frame < 5865 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1845,7 +1845,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 54: AND THAT'S IT. word by word */}
-      {frame >= 5854 && frame < 5934 && (
+      {frame >= 5865 && frame < 5945 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1856,14 +1856,14 @@ export const Yt2: React.FC = () => {
         >
           <div style={TEXT_STYLE}>
             <span style={{ opacity: 1 }}>AND</span>
-            <span style={{ opacity: frame >= 5862 ? 1 : 0 }}>THAT&apos;S</span>
-            <span style={{ opacity: frame >= 5870 ? 1 : 0 }}>IT.</span>
+            <span style={{ opacity: frame >= 5873 ? 1 : 0 }}>THAT&apos;S</span>
+            <span style={{ opacity: frame >= 5881 ? 1 : 0 }}>IT.</span>
           </div>
         </AbsoluteFill>
       )}
 
       {/* Scene 55: licap.png on black screen */}
-      {frame >= 5934 && frame < 6054 && (
+      {frame >= 5945 && frame < 6065 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1883,7 +1883,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 56: fifagit.png with LINK IN BIO text */}
-      {frame >= 6054 && frame < 6114 && (
+      {frame >= 6065 && frame < 6125 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1897,7 +1897,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 6078 && (
+          {frame >= 6089 && (
             <div
               style={{
                 position: "absolute",
@@ -1916,15 +1916,15 @@ export const Yt2: React.FC = () => {
               }}
             >
               <span style={{ opacity: 1 }}>LINK</span>
-              <span style={{ opacity: frame >= 6086 ? 1 : 0 }}>IN</span>
-              <span style={{ opacity: frame >= 6094 ? 1 : 0 }}>BIO</span>
+              <span style={{ opacity: frame >= 6097 ? 1 : 0 }}>IN</span>
+              <span style={{ opacity: frame >= 6105 ? 1 : 0 }}>BIO</span>
             </div>
           )}
         </AbsoluteFill>
       )}
 
       {/* Scene 57: sleep.png on black screen */}
-      {frame >= 6114 && frame < 6134 && (
+      {frame >= 6125 && frame < 6145 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1944,7 +1944,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 58: seeu.png on black screen */}
-      {frame >= 6134 && (
+      {frame >= 6145 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
