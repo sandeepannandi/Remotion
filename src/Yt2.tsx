@@ -579,6 +579,12 @@ export const Yt2: React.FC = () => {
         <Audio src={staticFile("fifa5.m4a")} />
       </Sequence>
 
+      {/* Play fifa6.m4a after fifa5.m4a ends */}
+      <Sequence from={4323}>
+        <Audio src={staticFile("fifa6.m4a")} 
+        startFrom={20}/>
+      </Sequence>
+
       {/* Scene 20: db.png centered below on black bg, text fades in 400ms later */}
       {frame >= 2190 && frame < 2324 && (
         <AbsoluteFill
