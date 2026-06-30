@@ -1348,7 +1348,7 @@ export const Yt2: React.FC = () => {
       )}
 
       {/* Scene 43: groupl.png centered on black screen, then tick.png on bottom right after 600ms */}
-      {frame >= 4862 && frame < 4910 && (
+      {frame >= 4862 && frame < 4913 && (
         <AbsoluteFill
           style={{
             backgroundColor: "black",
@@ -1364,7 +1364,7 @@ export const Yt2: React.FC = () => {
               objectFit: "contain",
             }}
           />
-          {frame >= 4880 && (
+          {frame >= 4882 && (
             <Img
               src={staticFile("tick.png")}
               style={{
