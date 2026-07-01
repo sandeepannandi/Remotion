@@ -6,6 +6,7 @@ import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { ExpenseIQReel1 } from "./ExpenseIQ/ExpenseIQReel1";
 import { Yt1 } from "./Yt1";
 import { Yt2 } from "./Yt2";
+import { Yt3 } from "./Yt3";
 
 import { preloadAssets } from "./preload";
 
@@ -78,6 +79,14 @@ export const RemotionRoot: React.FC = () => {
         id="Yt2"
         component={Yt2}
         durationInFrames={6590}
+        fps={30}
+        width={3840}
+        height={2160}
+      />
+      <Composition
+        id="Yt3"
+        component={Yt3}
+        durationInFrames={30}
         fps={30}
         width={3840}
         height={2160}
