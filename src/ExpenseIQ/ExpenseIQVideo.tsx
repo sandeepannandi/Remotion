@@ -23,13 +23,13 @@ export const ExpenseIQVideo: React.FC = () => {
     const ninthSceneStart = 0;
     const ninthSceneDuration = 60;
     const thirteenthSceneStart = ninthSceneStart + ninthSceneDuration;
-    const thirteenthSceneDuration = 280;
+    const thirteenthSceneDuration = 203;
     const fourteenthSceneStart = thirteenthSceneStart + thirteenthSceneDuration;
-    const fourteenthSceneDuration = 108;
+    const fourteenthSceneDuration = 79;
     const fifteenthSceneStart = fourteenthSceneStart + fourteenthSceneDuration;
     const fifteenthSceneDuration = 90;
     const sixteenthSceneStart = fifteenthSceneStart + fifteenthSceneDuration;
-    const sixteenthSceneDuration = 200;
+    const sixteenthSceneDuration = 125;
 
     return (
         <AbsoluteFill
@@ -75,9 +75,9 @@ export const ExpenseIQVideo: React.FC = () => {
             {frame >= ninthSceneStart && frame < thirteenthSceneStart && (
                 <div style={{
                     display: 'flex',
-                    flexDirection: 'row',
-                    fontSize: '120px',
-                    fontWeight: 800,
+                    flexDirection: 'column',
+                    fontSize: '150px',
+                    fontWeight: 700,
                     textAlign: 'center',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -121,8 +121,8 @@ export const ExpenseIQVideo: React.FC = () => {
                             { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                         );
 
-                        const meetTranslateX = -exitProgress * 2000; // Further
-                        const expensePalTranslateX = exitProgress * 2000; // Further
+                        const meetTranslateY = -exitProgress * 2000; // Goes up
+                        const expensePalTranslateY = exitProgress * 2000; // Goes down
                         const meetOpacity = interpolate(exitProgress, [0, 0.3], [1, 0]);
                         const expensePalOpacity = interpolate(exitProgress, [0, 0.3], [1, 0]);
 
@@ -135,22 +135,26 @@ export const ExpenseIQVideo: React.FC = () => {
                             { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                         );
 
-                        // Spacer width for logo
-                        const spacerWidth = interpolate(logoSpr, [0, 1], [30, 200]);
+                        // Push effect: logo container height grows from 0 to 180px, pushing texts apart
+                        const pushGap = interpolate(logoSpr, [0, 1], [0, 180]);
+
+                        // Text entrance: appear first, then logo pushes them apart
+                        const meetEntrance = interpolate(relFrame, [0, 1], [0, 1], { extrapolateLeft: 'clamp' });
+                        const palEntrance = interpolate(relFrame, [6, 7], [0, 1], { extrapolateLeft: 'clamp' });
 
                         return (
                             <>
                                 <span style={{ 
-                                    opacity: meetOpacity * interpolate(relFrame, [0, 1], [0, 1], { extrapolateLeft: 'clamp' }),
-                                    transform: `translateX(${meetTranslateX}px)`,
+                                    opacity: meetOpacity * meetEntrance,
+                                    transform: `translateY(${meetTranslateY}px)`,
                                     display: 'inline-block' 
                                 }}>
-                                    Meet
+                                    Introducing
                                 </span>
                                 
                                 <div style={{
-                                    width: spacerWidth,
-                                    height: '150px',
+                                    width: '150px',
+                                    height: pushGap,
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -174,8 +178,8 @@ export const ExpenseIQVideo: React.FC = () => {
                                 </div>
 
                                 <span style={{ 
-                                    opacity: expensePalOpacity * interpolate(relFrame, [6, 7], [0, 1], { extrapolateLeft: 'clamp' }),
-                                    transform: `translateX(${expensePalTranslateX}px)`,
+                                    opacity: expensePalOpacity * palEntrance,
+                                    transform: `translateY(${expensePalTranslateY}px)`,
                                     display: 'inline-block' 
                                 }}>
                                     ExpensePal
@@ -191,81 +195,103 @@ export const ExpenseIQVideo: React.FC = () => {
                     {(() => {
                         const relFrame = frame - thirteenthSceneStart;
                         
-                        // Phase 1: Image entrance + rotation (0-40)
-                        const imgEntranceSpr = spring({
-                            frame: relFrame,
-                            fps,
-                            config: { damping: 12, stiffness: 100 },
-                        });
-                        
-                        // Phase 3: Text appearance (starts after image settles)
-                        const textStart = 75;
-
-                        // Phase 4: Transition to analytics (starts after text is finished)
-                        const transitionStart = 150;
-                        const transitionEnd = 175;
-                        const swapFrame = 162; // Frame to swap image
-
-                        // Image Animation Values
-                        // Initial rotation (0-40)
-                        const initialRotateY = interpolate(
+                        // Image entrance from bottom (smooth, no spring)
+                        const imgEntranceDuration = 15;
+                        const imgEntranceProgress = interpolate(
                             relFrame,
-                            [0, 40],
-                            [0, 360],
-                            { extrapolateRight: 'clamp' }
-                        );
-                        
-                        // Transition flip rotation (150-175)
-                        const transitionRotateY = interpolate(
-                            relFrame,
-                            [transitionStart, transitionEnd],
-                            [0, 360],
+                            [0, imgEntranceDuration],
+                            [0, 1],
                             { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                         );
+                        
+                        // Phase 3: Text appears 500ms (15 frames) after image is fully on frame
+                        const textStart = imgEntranceDuration + 15;
 
-                        const imgRotateY = initialRotateY + transitionRotateY;
+                        // Phase 4: Transition starts 300ms (9 frames) after subtitle settles
+                        const transitionStart = 104;
+                        const swapFrame = transitionStart + 5; // Swap midway through mock1 exit
+                        const analyticsEntranceDuration = 15;
                         
-                        const imgTranslateY = interpolate(imgEntranceSpr, [0, 1], [800, 0]);
-                        const imgOpacity = interpolate(imgEntranceSpr, [0, 0.5], [0, 1]);
+                        // mock1 entrance (0 to entrance end)
+                        const mock1EntranceY = interpolate(imgEntranceProgress, [0, 1], [1500, 0]);
+                        const mock1EntranceOpacity = interpolate(imgEntranceProgress, [0, 0.5], [0, 1]);
                         
-                        // X Position: Starts center (50%), moves to extreme left (20%)
-                        // Then swap to analytics at swapFrame
-                        const imgLeft = interpolate(
+                        // mock1 exit (transitionStart to swapFrame)
+                        const mock1ExitProgress = interpolate(
                             relFrame,
-                            [0, 40, 60, transitionStart, transitionEnd],
-                            [50, 50, 80, 80, 20],
+                            [transitionStart, swapFrame],
+                            [0, 1],
                             { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                         );
+                        const mock1ExitY = interpolate(mock1ExitProgress, [0, 1], [0, 1500]);
+                        const mock1ExitOpacity = interpolate(mock1ExitProgress, [0, 0.5], [1, 0]);
+                        
+                        // Analytics entrance (swapFrame to end)
+                        const analyticsEntranceProgress = interpolate(
+                            relFrame,
+                            [swapFrame, swapFrame + analyticsEntranceDuration],
+                            [0, 1],
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
+                        const analyticsEntranceY = interpolate(analyticsEntranceProgress, [0, 1], [1500, 0]);
+                        const analyticsEntranceOpacity = interpolate(analyticsEntranceProgress, [0, 0.3], [0, 1]);
 
+                        // Left text fades out starting at transition
                         const textOpacity = interpolate(relFrame, [transitionStart, transitionStart + 10], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-                        const textDisplayDelay = transitionEnd + 10;
-                        const newTextOpacity = interpolate(relFrame, [textDisplayDelay, textDisplayDelay + 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+                        
+                        // New text appears 500ms (15 frames) after transition starts
+                        const newTextDelay = transitionStart + 15;
+                        const newTextOpacity = interpolate(relFrame, [newTextDelay, newTextDelay + 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
                         return (
                             <>
-                                {/* App screenshot */}
-                                <div style={{
-                                    position: 'absolute',
-                                    left: `${imgLeft}%`,
-                                    top: '50%',
-                                    transform: `translate(-50%, -50%) translateY(${imgTranslateY}px) rotateY(${imgRotateY}deg)`,
-                                    width: '45%', // Slightly larger
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    opacity: imgOpacity,
-                                    zIndex: 2,
-                                }}>
-                                    <Img 
-                                        src={relFrame >= swapFrame ? staticFile("analytics.png") : staticFile("mock1.png")}
-                                        style={{ 
-                                            height: '1000px', // Increased size
-                                            width: 'auto', 
-                                            // Mirror the image when it's rotated between 90 and 270 degrees during the transition
-                                            transform: (transitionRotateY > 90 && transitionRotateY < 270) ? 'scaleX(-1)' : 'none'
-                                        }} 
-                                    />
-                                </div>
+                                {/* mock1 image - on the right, exits by going down */}
+                                {relFrame < swapFrame && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '80%',
+                                        top: '50%',
+                                        transform: `translate(-50%, -50%) translateY(${relFrame < transitionStart ? mock1EntranceY : mock1ExitY}px)`,
+                                        width: '45%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        opacity: relFrame < transitionStart ? mock1EntranceOpacity : mock1ExitOpacity,
+                                        zIndex: 2,
+                                    }}>
+                                        <Img 
+                                            src={staticFile("mock1.png")}
+                                            style={{ 
+                                                height: '1000px',
+                                                width: 'auto',
+                                            }} 
+                                        />
+                                    </div>
+                                )}
+
+                                {/* analytics image - appears from bottom on the left */}
+                                {relFrame >= swapFrame && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '20%',
+                                        top: '50%',
+                                        transform: `translate(-50%, -50%) translateY(${analyticsEntranceY}px)`,
+                                        width: '45%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        opacity: analyticsEntranceOpacity,
+                                        zIndex: 2,
+                                    }}>
+                                        <Img 
+                                            src={staticFile("analytics.png")}
+                                            style={{ 
+                                                height: '1000px',
+                                                width: 'auto',
+                                            }} 
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Text on the left */}
                                 <div style={{
@@ -284,7 +310,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                         flexDirection: 'row',
                                         flexWrap: 'wrap',
                                         fontSize: '120px',
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                         lineHeight: 1.05,
                                         textAlign: 'left',
                                         color: '#000000',
@@ -353,12 +379,12 @@ export const ExpenseIQVideo: React.FC = () => {
                                         flexDirection: 'row',
                                         flexWrap: 'wrap',
                                         fontSize: '100px',
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                         lineHeight: 1.1,
                                         color: '#000000',
                                     }}>
                                         {"See your personal inflation score & stability index.".split(" ").map((word, i) => {
-                                            const delay = textDisplayDelay + (i * 4);
+                                            const delay = newTextDelay + (i * 4);
                                             const spr = spring({
                                                 frame: relFrame - delay,
                                                 fps,
@@ -381,7 +407,7 @@ export const ExpenseIQVideo: React.FC = () => {
                                     {(() => {
                                         const mainText = "See your personal inflation score & stability index.".split(" ");
                                         const mainTextDuration = mainText.length * 4;
-                                        const subtitleDelay = textDisplayDelay + mainTextDuration + 10;
+                                        const subtitleDelay = newTextDelay + mainTextDuration + 10;
                                         const spr = spring({
                                             frame: relFrame - subtitleDelay,
                                             fps,
@@ -410,103 +436,85 @@ export const ExpenseIQVideo: React.FC = () => {
             )}
 
             {frame >= fourteenthSceneStart && frame < fifteenthSceneStart && (
-                <AbsoluteFill style={{ padding: '80px', perspective: '1200px' }}>
+                <AbsoluteFill style={{ padding: '80px' }}>
                     {(() => {
                         const relFrame = frame - fourteenthSceneStart;
                         
-                        // Text Timing
-                        const textStart = 5;
+                        // Images appear immediately (scene starts 300ms after previous subtitle)
+                        const imageStart = 0;
+                        const imageDuration = 15;
+                        
+                        // Text appears 500ms (15 frames) after images start
+                        const textStart = imageStart + 15;
                         const title = "Scan receipts & SMS instantly";
                         const subtitle = "Zero manual entry. Ever.";
-                        
-                        // Image Flip Timing
-                        // 1st Flip: Analytics -> Receipt
-                        const flip1Start = 0;
-                        const flip1Half = 10;
-                        const flip1End = 20;
-                        
-                        // 2nd Flip: Receipt -> SMS
-                        const flip2Start = 40;
-                        const flip2Half = 50;
-                        const flip2End = 60;
-                        
-                        // 3rd Flip: SMS -> Quickadd
-                        const flip3Start = 80;
-                        const flip3Half = 90;
-                        const flip3End = 100;
-
-                        // Interpolate Rotation
-                        let currentRotation = 0;
-                        let currentImg = "analytics.png";
-
-                        if (relFrame < flip1End) {
-                            currentRotation = interpolate(relFrame, [flip1Start, flip1End], [0, 180]);
-                            currentImg = relFrame < flip1Half ? "analytics.png" : "receipt.png";
-                        } else if (relFrame < flip2Start) {
-                            currentRotation = 180;
-                            currentImg = "receipt.png";
-                        } else if (relFrame < flip2End) {
-                            currentRotation = interpolate(relFrame, [flip2Start, flip2End], [180, 360]);
-                            currentImg = relFrame < flip2Half ? "receipt.png" : "sms.png";
-                        } else if (relFrame < flip3Start) {
-                            currentRotation = 360;
-                            currentImg = "sms.png";
-                        } else if (relFrame < flip3End) {
-                            currentRotation = interpolate(relFrame, [flip3Start, flip3End], [360, 540]);
-                            currentImg = relFrame < flip3Half ? "sms.png" : "quickadd.png";
-                        } else {
-                            currentRotation = 540;
-                            currentImg = "quickadd.png";
-                        }
-
-                        // Text Animation logic
                         const words = title.split(" ");
                         const subtitleDelay = textStart + (words.length * 4) + 8;
+                        
+                        // Common entrance for all three images
+                        const entranceProgress = interpolate(
+                            relFrame,
+                            [imageStart, imageStart + imageDuration],
+                            [0, 1],
+                            { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                        );
+                        const imgTranslateY = interpolate(entranceProgress, [0, 1], [1500, 0]);
+                        const imgOpacity = interpolate(entranceProgress, [0, 0.3], [0, 1]);
+
+                        // Text fade in
+                        const textOpacity = interpolate(relFrame, [textStart, textStart + 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+
+                        const images = [
+                            { src: "receipt.png", left: 22 },
+                            { src: "sms.png", left: 50 },
+                            { src: "quickadd.png", left: 78 },
+                        ];
 
                         return (
                             <>
-                                {/* App screenshot with 3D Flip */}
-                                <div style={{
-                                    position: 'absolute',
-                                    left: '20%',
-                                    top: '50%',
-                                    transform: `translate(-50%, -50%) rotateY(${currentRotation}deg)`,
-                                    width: '45%',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    zIndex: 2,
-                                }}>
-                                    <Img 
-                                        src={staticFile(currentImg)}
-                                        style={{ 
-                                            height: '1000px',
-                                            width: 'auto',
-                                            // Handle mirrored image during flip
-                                            transform: (Math.floor((currentRotation + 90) / 180) % 2 === 1) ? 'scaleX(-1)' : 'none'
-                                        }} 
-                                    />
-                                </div>
+                                {images.map((img, i) => (
+                                    <div key={i} style={{
+                                        position: 'absolute',
+                                        left: `${img.left}%`,
+                                        top: '38%',
+                                        transform: `translate(-50%, -50%) translateY(${imgTranslateY}px)`,
+                                        width: '30%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        opacity: imgOpacity,
+                                        zIndex: 2,
+                                    }}>
+                                        <Img 
+                                            src={staticFile(img.src)}
+                                            style={{ height: '650px', width: 'auto' }} 
+                                        />
+                                    </div>
+                                ))}
 
-                                {/* Text on the right */}
+                                {/* Centered Text */}
                                 <div style={{
                                     position: 'absolute',
-                                    right: '120px',
-                                    top: '200px',
-                                    width: '50%',
+                                    left: '50%',
+                                    top: '84%',
+                                    transform: 'translate(-50%, -50%)',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    alignItems: 'flex-start',
+                                    alignItems: 'center',
                                     zIndex: 1,
+                                    width: '80%',
+                                    opacity: textOpacity,
                                 }}>
                                     <div style={{
                                         display: 'flex',
                                         flexDirection: 'row',
                                         flexWrap: 'wrap',
                                         fontSize: '100px',
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                         lineHeight: 1.1,
                                         color: '#000000',
+                                        justifyContent: 'center',
+                                        textAlign: 'center',
                                     }}>
                                         {words.map((word, i) => {
                                             const delay = textStart + (i * 4);
@@ -567,10 +575,7 @@ export const ExpenseIQVideo: React.FC = () => {
                         const imgLeft = 20;
                         const imgTop = 50;
                         const imgScale = 1;
-                        const imgOpacity = interpolate(relFrame, [0, 3], [1, 0], {
-                            extrapolateLeft: 'clamp',
-                            extrapolateRight: 'clamp',
-                        });
+                        const imgOpacity = 0;
 
                         // Text Timing
                         const textStart = 15;
@@ -593,15 +598,13 @@ export const ExpenseIQVideo: React.FC = () => {
                                     alignItems: 'center',
                                     zIndex: 2,
                                     opacity: imgOpacity,
-                                }}>
-                                    <Img 
-                                        src={staticFile("quickadd.png")}
-                                        style={{ 
-                                            height: '1000px',
-                                            width: 'auto',
-                                            transform: 'scaleX(-1)', // Matches the final flip state from Scene 14
-                                        }} 
-                                    />
+                                }}>                                        <Img 
+                                            src={staticFile("quickadd.png")}
+                                            style={{ 
+                                                height: '1000px',
+                                                width: 'auto',
+                                            }} 
+                                        />
                                 </div>
 
                                 {/* Leaderboard images on sides */}
@@ -673,14 +676,14 @@ export const ExpenseIQVideo: React.FC = () => {
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     zIndex: 1,
-                                    width: '40%', // Controlled width for center
+                                    width: '45%', // Controlled width for center
                                 }}>
                                     <div style={{
                                         display: 'flex',
                                         flexDirection: 'row',
                                         flexWrap: 'wrap',
                                         fontSize: '100px',
-                                        fontWeight: 800,
+                                        fontWeight: 600,
                                         lineHeight: 1.1,
                                         color: '#000000',
                                         justifyContent: 'center',
@@ -834,16 +837,17 @@ export const ExpenseIQVideo: React.FC = () => {
                                         return (
                                             <div style={{ 
                                                 display: 'flex', 
-                                                alignItems: 'center', 
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-start',
                                                 marginBottom: '20px',
                                                 opacity,
                                                 transform: `translateY(${translateY}px)`
                                             }}>
                                                 <img 
                                                     src={staticFile("eplogo.png")} 
-                                                    style={{ width: '140px', height: '140px', marginRight: '30px' }} 
+                                                    style={{ width: '100px', height: '100px', marginBottom: '12px' }} 
                                                 />
-                                                <div style={{ fontSize: '120px', fontWeight: 700, color: textColor, letterSpacing: '-2px' }}>
+                                                <div style={{ fontSize: '100px', fontWeight: 700, color: textColor, letterSpacing: '-2px' }}>
                                                     ExpensePal
                                                 </div>
                                             </div>
