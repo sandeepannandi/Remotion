@@ -35,6 +35,9 @@ export const ExpenseIQVideo: React.FC = () => {
         <AbsoluteFill
             style={{
                 backgroundColor: bgColor,
+                backgroundImage: `url(${staticFile("bg.png")})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 justifyContent: "center",
                 alignItems: "center",
                 fontFamily: "Archivo, sans-serif",
@@ -743,7 +746,7 @@ export const ExpenseIQVideo: React.FC = () => {
             )}
 
             {frame >= sixteenthSceneStart && frame < sixteenthSceneStart + sixteenthSceneDuration && (
-                <AbsoluteFill style={{ padding: '100px', backgroundColor: '#fff6e8ff' }}>
+                <AbsoluteFill style={{ padding: '100px' }}>
                     {(() => {
                         const relFrame = frame - sixteenthSceneStart;
                         
