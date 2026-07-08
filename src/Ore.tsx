@@ -1,4 +1,4 @@
-import { AbsoluteFill, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig, Audio } from "remotion";
 import { Video } from "@remotion/media";
 import React from "react";
 
@@ -44,6 +44,45 @@ const imagePositions = imageFiles.map((_, i) => ({
 
 const scene2Words = ["Create", "on", "brand", "images", "&", "videos"];
 
+const LaunchVideo: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps, width } = useVideoConfig();
+
+  // Fast slide-in from the right — spring settles in ~5 frames so the motion is visible
+  const slideSpr = spring({
+    frame,
+    fps,
+    config: { damping: 20, stiffness: 300 },
+  });
+  const translateX = interpolate(slideSpr, [0, 1], [width, 0]);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        transform: `translateX(${translateX}px)`,
+      }}
+    >
+      <Video
+        src={staticFile("launch.mp4")}
+        style={{
+          width: "85%",
+          height: "85%",
+          objectFit: "cover",
+          borderRadius: 40,
+        }}
+      />
+    </div>
+  );
+};
+
 export const Ore: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps, width } = useVideoConfig();
@@ -52,7 +91,7 @@ export const Ore: React.FC = () => {
 
   const textEndFrame = 32;
   const imageStartFrame = textEndFrame + 6; // 200ms gap
-  const imageInterval = 15; // 500ms at 30fps
+  const imageInterval = 9; // 300ms at 30fps
   const lastImageFrame = imageStartFrame + (imageFiles.length - 1) * imageInterval;
   const scene2Start = lastImageFrame + 15; // 500ms after last image
   const springSettleFrames = 20;
@@ -106,6 +145,144 @@ export const Ore: React.FC = () => {
   const video2Duration = 72; // 2.4s at 30fps
   const launchStart = video2Start + video2Duration; // launch.mp4 right after video2
   const launchDuration = 150; // 5 seconds at 30fps
+
+  // After launch video — flipping words scene
+  const afterLaunchStart = launchStart + launchDuration;
+  const flipInterval = 36; // ~1.2 seconds per word at 30fps
+  const afterLaunchWords = ["Product Shots", "Brand Identity", "Ads", "Social Posts", "Brand Videos", "Website Content"];
+  const wordCount = afterLaunchWords.length;
+  const manyMoreStart = afterLaunchStart + wordCount * flipInterval + 36;
+
+  // "Just enter your website" flip — after "and many more..." settles
+  const justEnterStart = manyMoreStart + 36;
+
+  const justEnterSpr = spring({
+    frame: frame - justEnterStart,
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+
+  // Active word index for dynamic placeholder sizing
+  const activeFlipIdx = Math.min(
+    Math.floor((frame - afterLaunchStart) / flipInterval),
+    afterLaunchWords.length - 1
+  );
+
+  // "Create" entrance
+  const afterCreateSpr = spring({
+    frame: frame - afterLaunchStart,
+    fps,
+    config: { damping: 12, stiffness: 100 },
+  });
+  const afterCreateY = interpolate(afterCreateSpr, [0, 1], [40, 0]);
+  const afterCreateOpacity = interpolate(afterCreateSpr, [0, 1], [0, 1]);
+
+  // Flip transition springs (5 transitions for 6 words)
+  const afterFlipSpr1 = spring({
+    frame: frame - (afterLaunchStart + flipInterval * 1),
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+  const afterFlipSpr2 = spring({
+    frame: frame - (afterLaunchStart + flipInterval * 2),
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+  const afterFlipSpr3 = spring({
+    frame: frame - (afterLaunchStart + flipInterval * 3),
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+  const afterFlipSpr4 = spring({
+    frame: frame - (afterLaunchStart + flipInterval * 4),
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+  const afterFlipSpr5 = spring({
+    frame: frame - (afterLaunchStart + flipInterval * 5),
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+
+  // Word 0: Product Shots — enters with afterCreateSpr, exits with afterFlipSpr1
+  const word0AfterY = frame < afterLaunchStart + flipInterval
+    ? interpolate(afterCreateSpr, [0, 1], [100, 0])
+    : interpolate(afterFlipSpr1, [0, 1], [0, -100]);
+  const word0AfterOpacity = frame < afterLaunchStart + flipInterval
+    ? interpolate(afterCreateSpr, [0, 1], [0, 1])
+    : interpolate(afterFlipSpr1, [0, 1], [1, 0]);
+
+  // Word 1: Brand Identity — enters with afterFlipSpr1, exits with afterFlipSpr2
+  const word1AfterY = frame < afterLaunchStart + flipInterval * 2
+    ? interpolate(afterFlipSpr1, [0, 1], [100, 0])
+    : interpolate(afterFlipSpr2, [0, 1], [0, -100]);
+  const word1AfterOpacity = frame < afterLaunchStart + flipInterval * 2
+    ? interpolate(afterFlipSpr1, [0, 1], [0, 1])
+    : interpolate(afterFlipSpr2, [0, 1], [1, 0]);
+
+  // Word 2: Ads — enters with afterFlipSpr2, exits with afterFlipSpr3
+  const word2AfterY = frame < afterLaunchStart + flipInterval * 3
+    ? interpolate(afterFlipSpr2, [0, 1], [100, 0])
+    : interpolate(afterFlipSpr3, [0, 1], [0, -100]);
+  const word2AfterOpacity = frame < afterLaunchStart + flipInterval * 3
+    ? interpolate(afterFlipSpr2, [0, 1], [0, 1])
+    : interpolate(afterFlipSpr3, [0, 1], [1, 0]);
+
+  // Word 3: Social Posts — enters with afterFlipSpr3, exits with afterFlipSpr4
+  const word3AfterY = frame < afterLaunchStart + flipInterval * 4
+    ? interpolate(afterFlipSpr3, [0, 1], [100, 0])
+    : interpolate(afterFlipSpr4, [0, 1], [0, -100]);
+  const word3AfterOpacity = frame < afterLaunchStart + flipInterval * 4
+    ? interpolate(afterFlipSpr3, [0, 1], [0, 1])
+    : interpolate(afterFlipSpr4, [0, 1], [1, 0]);
+
+  // Word 4: Brand Videos — enters with afterFlipSpr4, exits with afterFlipSpr5
+  const word4AfterY = frame < afterLaunchStart + flipInterval * 5
+    ? interpolate(afterFlipSpr4, [0, 1], [100, 0])
+    : interpolate(afterFlipSpr5, [0, 1], [0, -100]);
+  const word4AfterOpacity = frame < afterLaunchStart + flipInterval * 5
+    ? interpolate(afterFlipSpr4, [0, 1], [0, 1])
+    : interpolate(afterFlipSpr5, [0, 1], [1, 0]);
+
+  // Word 5: Website Content — enters with afterFlipSpr5, stays
+  const word5AfterY = interpolate(afterFlipSpr5, [0, 1], [100, 0]);
+  const word5AfterOpacity = interpolate(afterFlipSpr5, [0, 1], [0, 1]);
+
+  // "and many more..." entrance
+  const manyMoreAfterSpr = spring({
+    frame: frame - manyMoreStart,
+    fps,
+    config: { damping: 12, stiffness: 100 },
+  });
+  const manyMoreAfterY = interpolate(manyMoreAfterSpr, [0, 1], [40, 0]);
+  const manyMoreAfterOpacity = interpolate(manyMoreAfterSpr, [0, 1], [0, 1]);
+
+  // "and many more..." → "Just enter your website" flip
+  const manyMoreWordY = frame < justEnterStart
+    ? 0
+    : interpolate(justEnterSpr, [0, 1], [0, -100]);
+  const manyMoreWordOpacity = frame < justEnterStart
+    ? 1
+    : interpolate(justEnterSpr, [0, 1], [1, 0]);
+
+  // "Just enter your website" → "Try at itsore.com" flip
+  const tryAtStart = justEnterStart + 36;
+
+  const tryAtSpr = spring({
+    frame: frame - tryAtStart,
+    fps,
+    config: { damping: 12, stiffness: 120 },
+  });
+
+  const justEnterWordY = frame < tryAtStart
+    ? interpolate(justEnterSpr, [0, 1], [100, 0])
+    : interpolate(tryAtSpr, [0, 1], [0, -100]);
+  const justEnterWordOpacity = frame < tryAtStart
+    ? interpolate(justEnterSpr, [0, 1], [0, 1])
+    : interpolate(tryAtSpr, [0, 1], [1, 0]);
+
+  const tryAtWordY = interpolate(tryAtSpr, [0, 1], [100, 0]);
+  const tryAtWordOpacity = interpolate(tryAtSpr, [0, 1], [0, 1]);
 
   // Zoom spring for text (fast)
   const textZoomSpr = spring({
@@ -200,6 +377,26 @@ export const Ore: React.FC = () => {
         backgroundPosition: "center",
       }}
     >
+      {/* Background audio — afro1 through afro6 sequenced end-to-end */}
+      <Sequence from={0} durationInFrames={233}>
+        <Audio src={staticFile("afro1.mp3")} />
+      </Sequence>
+      <Sequence from={233} durationInFrames={233}>
+        <Audio src={staticFile("afro2.mp3")} />
+      </Sequence>
+      <Sequence from={466} durationInFrames={233}>
+        <Audio src={staticFile("afro3.mp3")} />
+      </Sequence>
+      <Sequence from={699} durationInFrames={233}>
+        <Audio src={staticFile("afro4.mp3")} />
+      </Sequence>
+      <Sequence from={932} durationInFrames={233}>
+        <Audio src={staticFile("afro5.mp3")} />
+      </Sequence>
+      <Sequence from={1165} durationInFrames={236}>
+        <Audio src={staticFile("afro6.mp3")} />
+      </Sequence>
+
       {/* Intro text - hidden when scene 2 is visible */}
       {frame >= scene2Start ? null : (
       <div
@@ -584,23 +781,190 @@ export const Ore: React.FC = () => {
         />
       </Sequence>
 
-      {/* Launch video - plays for 5 seconds after video2 */}
+      {/* Launch video - slides in from right instantly after video2 */}
       <Sequence from={launchStart} durationInFrames={launchDuration}>
-       <Video 
-  src={staticFile('launch.mp4')} 
-  style={{ 
-    position: 'absolute', 
-    top: '50%', 
-    left: '50%', 
-    transform: 'translate(-50%, -50%)', 
-    width: '85%', 
-    height: '85%', 
-    objectFit: 'cover', 
-    borderRadius: '40px' 
-  }} 
-/>
-
+        <LaunchVideo />
       </Sequence>
+
+      {/* After launch — Create [flipping word] then "and many more..." → "Just enter your website" */}
+      {frame >= afterLaunchStart && (
+        <AbsoluteFill
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {frame < manyMoreStart ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "0.25em",
+                fontFamily: "'Geist', 'Inter', sans-serif",
+                fontSize: 260,
+                fontWeight: 700,
+                color: "#000000",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  transform: `translateY(${afterCreateY}px)`,
+                  opacity: afterCreateOpacity,
+                }}
+              >
+                Create
+              </span>{" "}
+              <div
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  height: "1.4em",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Invisible placeholder using current word so container sizes dynamically */}
+                <span style={{ visibility: "hidden", whiteSpace: "nowrap" }}>{afterLaunchWords[activeFlipIdx]}</span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${word0AfterY}%)`,
+                    opacity: word0AfterOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Product Shots
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${word1AfterY}%)`,
+                    opacity: word1AfterOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Brand Identity
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${word2AfterY}%)`,
+                    opacity: word2AfterOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Ads
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${word3AfterY}%)`,
+                    opacity: word3AfterOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Social Posts
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${word4AfterY}%)`,
+                    opacity: word4AfterOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Brand Videos
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${word5AfterY}%)`,
+                    opacity: word5AfterOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Website Content
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                fontFamily: "'Geist', 'Inter', sans-serif",
+                fontSize: 260,
+                fontWeight: 700,
+                color: "#000000",
+                transform: `translateY(${manyMoreAfterY}px)`,
+                opacity: manyMoreAfterOpacity,
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  height: "1.4em",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Invisible placeholder using current active text */}
+                <span style={{ visibility: "hidden", whiteSpace: "nowrap" }}>{frame < justEnterStart ? "and many more..." : frame < tryAtStart ? "Just enter your website" : "Try at itsore.com"}</span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${manyMoreWordY}%)`,
+                    opacity: manyMoreWordOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  and many more...
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${justEnterWordY}%)`,
+                    opacity: justEnterWordOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Just enter your website
+                </span>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    transform: `translateX(-50%) translateY(-50%) translateY(${tryAtWordY}%)`,
+                    opacity: tryAtWordOpacity,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Try at itsore.com
+                </span>
+              </div>
+            </div>
+          )}
+        </AbsoluteFill>
+      )}
     </AbsoluteFill>
   );
 };
