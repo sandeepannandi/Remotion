@@ -8,7 +8,6 @@ import { Yt1 } from "./Yt1";
 import { Yt2 } from "./Yt2";
 import { Yt3 } from "./Yt3";
 import { Ore } from "./Ore";
-import { MyReel } from "./MyReel";
 
 import { preloadAssets } from "./preload";
 
@@ -100,14 +99,6 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={3840}
         height={2160}
-      />
-      <Composition
-        id="MyReel"
-        component={MyReel}
-        durationInFrames={698}
-        fps={30}
-        width={2160}
-        height={3840}
       />
     </>
   );
