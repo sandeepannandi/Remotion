@@ -3,7 +3,6 @@ import "./index.css";
 import { Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
-import { ExpenseIQReel1 } from "./ExpenseIQ/ExpenseIQReel1";
 import { Yt1 } from "./Yt1";
 import { Yt2 } from "./Yt2";
 import { Yt3 } from "./Yt3";
@@ -68,15 +67,6 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
       />
       <Composition
-        id="expenseiqreel1"
-        component={ExpenseIQReel1}
-        durationInFrames={585}
-        fps={30}
-        width={2160}
-        height={3840}
-      />
-
-      <Composition
         id="Yt2"
         component={Yt2}
         durationInFrames={6590}
@@ -87,7 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt3"
         component={Yt3}
-        durationInFrames={30}
+        durationInFrames={139} // audio ends at ~138.7 frames (4.16s at 0.9x)
         fps={30}
         width={3840}
         height={2160}

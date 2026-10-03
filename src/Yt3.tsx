@@ -1,12 +1,127 @@
-import { AbsoluteFill } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  Easing,
+  Img,
+  Video,
+  interpolate,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
+import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import React from "react";
 
+const { fontFamily } = loadFont();
+
+const TEXT_STYLE: React.CSSProperties = {
+  fontFamily,
+  color: "#F5F2E3",
+  fontSize: 500,
+  textAlign: "center",
+  textTransform: "uppercase",
+  letterSpacing: "0.02em",
+  lineHeight: 1,
+  display: "flex",
+  gap: "50px",
+};
+
+const VIDEO_START = 30; // mathvideo.mp4 starts (1s)
+const HAMMER_START = VIDEO_START + 24; // hammer appears ~0.8s after the video (200ms earlier)
+const IMPACT = HAMMER_START + 51; // hammer reaches center -> glass smash (swing ~1.7s)
+
 export const Yt3: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  // Raw progress 0->1 over the whole swing
+  const p = interpolate(frame, [HAMMER_START, IMPACT], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  // Main travel: slow start, explosive acceleration into the impact
+  const pe = interpolate(frame, [HAMMER_START, IMPACT], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.in(Easing.cubic),
+  });
+
+  // Anticipation: brief pull back out (wind-up) during the first 35% of the swing
+  const ant = Math.sin(Math.min(p / 0.35, 1) * Math.PI);
+
+  // Thrown arc: path bulges upward mid-flight
+  const arcY = Math.sin(p * Math.PI) * -280;
+
+  const hammerX = 2320 * (1 - pe) + ant * 320;
+  // Ends 320px below center (a little down at impact)
+  const hammerY = 1600 * (1 - pe) + ant * 200 + arcY + 320 * pe;
+  // Ends tilted slightly left (-14deg) during the final part of the swing
+  const rotation = 24 * (1 - pe) + ant * 14 - 14 * pe;
+
   return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: "white",
-      }}
-    />
+    <>
+      <Audio src={staticFile("recently.wav")} playbackRate={0.9} />
+      {/* Scene 1: RECENTLY... (first 1s) */}
+      {frame < VIDEO_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <div style={TEXT_STYLE}>
+            <span style={{ opacity: frame >= 0 ? 1 : 0 }}>Recently...</span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 2: mathvideo.mp4 full screen (instant cut at 1s) */}
+      {frame >= VIDEO_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Video
+            src={staticFile("mathvideo.mp4")}
+            startFrom={0}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+
+          {/* Overlay: hammer flying from bottom right to center */}
+          {frame >= HAMMER_START && frame < IMPACT && (
+            <AbsoluteFill
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Img
+                src={staticFile("hammer.png")}
+                style={{
+                  height: 1700,
+                  transform: `translate(${hammerX}px, ${hammerY}px) rotate(${rotation}deg)`,
+                  filter:
+                    "drop-shadow(0 40px 60px rgba(0, 0, 0, 0.65)) drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45))",
+                }}
+              />
+            </AbsoluteFill>
+          )}
+
+          {/* Overlay: glass smash full screen from impact onward */}
+          {frame >= IMPACT && (
+            <Img
+              src={staticFile("glasssmash.png")}
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+    </>
   );
 };
