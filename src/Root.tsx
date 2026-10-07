@@ -77,7 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt3"
         component={Yt3}
-        durationInFrames={139} // audio ends at ~138.7 frames (4.16s at 0.9x)
+        durationInFrames={350} // extended so worried.mp4 has time to play fully
         fps={30}
         width={3840}
         height={2160}

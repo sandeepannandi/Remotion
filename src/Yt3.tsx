@@ -109,7 +109,7 @@ export const Yt3: React.FC = () => {
           )}
 
           {/* Overlay: glass smash full screen from impact onward */}
-          {frame >= IMPACT && (
+          {frame >= IMPACT && frame < IMPACT + 30 && (
             <Img
               src={staticFile("glasssmash.png")}
               style={{
@@ -120,6 +120,21 @@ export const Yt3: React.FC = () => {
               }}
             />
           )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 3: worried.mp4 after first scene ends */}
+      {frame >= IMPACT + 30 && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Video
+            src={staticFile("worried.mp4")}
+            startFrom={0}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
         </AbsoluteFill>
       )}
     </>
