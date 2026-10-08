@@ -135,6 +135,46 @@ export const Yt3: React.FC = () => {
               objectFit: "cover",
             }}
           />
+
+          {/* Overlay: cursor logo on left + $20 green box (300ms later) */}
+          {frame >= IMPACT + 30 + 3 && (
+            <AbsoluteFill style={{ pointerEvents: "none" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: 320,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }}
+              >
+                <Img
+                  src={staticFile("cursor.png")}
+                  style={{
+                    width: 560,
+                    height: 560,
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+              {frame >= IMPACT + 30 + 3 + 9 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 320,
+                    top: "calc(50% + 300px)",
+                    backgroundColor: "#15803d",
+                    color: "white",
+                    padding: "22px 60px",
+                    borderRadius: 28,
+                    fontSize: 150,
+                    fontWeight: 700,
+                  }}
+                >
+                  $20
+                </div>
+              )}
+            </AbsoluteFill>
+          )}
         </AbsoluteFill>
       )}
     </>
