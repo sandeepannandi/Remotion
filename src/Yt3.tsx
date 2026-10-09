@@ -28,6 +28,28 @@ const TEXT_STYLE: React.CSSProperties = {
 const VIDEO_START = 30; // mathvideo.mp4 starts (1s)
 const HAMMER_START = VIDEO_START + 24; // hammer appears ~0.8s after the video (200ms earlier)
 const IMPACT = HAMMER_START + 51; // hammer reaches center -> glass smash (swing ~1.7s)
+// Scene 3 overlays: each box appears 9 frames after its image, and the next
+// scene starts 500ms (15 frames at 30fps) after that box appears
+const CURSOR_START = IMPACT + 30 + 3; // cursor appears 300ms into scene 3
+const BOX_DELAY = 9; // box appears 9 frames after its image
+const SCENE_DELAY = 15; // 500ms after the box -> next scene
+const BOX20_START = CURSOR_START + BOX_DELAY; // $20 box
+const CLAUDE_START = BOX20_START + SCENE_DELAY; // claude scene: 500ms after $20 box
+const GPT_START = CLAUDE_START + BOX_DELAY + SCENE_DELAY; // gpt scene: 500ms after claude's $100 box
+const GEMINI_START = GPT_START + BOX_DELAY + SCENE_DELAY; // gemini scene: 500ms after gpt's $100 box
+const SCATTER_START = GEMINI_START + BOX_DELAY + SCENE_DELAY; // scattered logos: 500ms after gemini's $20 box
+
+// Scattered scene: same-size logos scattered randomly across the frame
+// (top-left positions sized against each asset's measured aspect ratio so
+// nothing overlaps: heights at width 1150 are 452/647/420/647/648)
+const SPREAD_SIZE = 1150;
+const SPREAD_LOGOS = [
+  { src: "grok.png", left: 90, top: 110 },
+  { src: "deepseek.png", left: 1300, top: 560 },
+  { src: "kimi.png", left: 2560, top: 800 },
+  { src: "elevenlans.png", left: 330, top: 1310 },
+  { src: "opencode.png", left: 1750, top: 1350 },
+];
 
 export const Yt3: React.FC = () => {
   const frame = useCurrentFrame();
@@ -129,6 +151,7 @@ export const Yt3: React.FC = () => {
           <Video
             src={staticFile("worried.mp4")}
             startFrom={0}
+            muted
             style={{
               width: "100%",
               height: "100%",
@@ -137,41 +160,191 @@ export const Yt3: React.FC = () => {
           />
 
           {/* Overlay: cursor logo on left + $20 green box (300ms later) */}
-          {frame >= IMPACT + 30 + 3 && (
+          {frame >= CURSOR_START && frame < CLAUDE_START && (
             <AbsoluteFill style={{ pointerEvents: "none" }}>
               <div
                 style={{
                   position: "absolute",
                   left: 320,
-                  top: "50%",
+                  top: "calc(50% - 260px)",
                   transform: "translateY(-50%)",
                 }}
               >
                 <Img
                   src={staticFile("cursor.png")}
                   style={{
-                    width: 560,
-                    height: 560,
-                    objectFit: "contain",
+                    width: 1000,
+                    height: "auto",
+                    borderRadius: 20,
                   }}
                 />
-              </div>
-              {frame >= IMPACT + 30 + 3 + 9 && (
+              </div>              {frame >= BOX20_START && (
                 <div
                   style={{
                     position: "absolute",
-                    left: 320,
-                    top: "calc(50% + 300px)",
-                    backgroundColor: "#15803d",
+                    left: 820,
+                    transform: "translateX(-50%)",
+                    top: "calc(50% + 272px)",
+                    backgroundColor: "#14532d",
                     color: "white",
-                    padding: "22px 60px",
-                    borderRadius: 28,
-                    fontSize: 150,
-                    fontWeight: 700,
+                    fontFamily,
+                    lineHeight: 1,
+                    padding: "32px 68px",
+                    borderRadius: 20,
+                    fontSize: 320,
+                    fontWeight: 900,
                   }}
                 >
                   $20
                 </div>
+              )}
+            </AbsoluteFill>
+          )}
+
+          {/* Overlay: claude.webp + $100 box (replaces cursor scene) */}
+          {frame >= CLAUDE_START && frame < GPT_START && (
+            <AbsoluteFill style={{ pointerEvents: "none" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: 320,
+                  top: "calc(50% - 260px)",
+                  transform: "translateY(-50%)",
+                }}
+              >
+                <Img
+                  src={staticFile("claude.webp")}
+                  style={{
+                    width: 1000,
+                    height: 1000,
+                  }}
+                />
+              </div>
+              {frame >= CLAUDE_START + BOX_DELAY && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 820,
+                    transform: "translateX(-50%)",
+                    top: "calc(50% + 272px)",
+                    backgroundColor: "#14532d",
+                    color: "white",
+                    fontFamily,
+                    lineHeight: 1,
+                    padding: "32px 68px",
+                    borderRadius: 20,
+                    fontSize: 320,
+                    fontWeight: 900,
+                  }}
+                >
+                  $100
+                </div>
+              )}
+            </AbsoluteFill>
+          )}
+
+          {/* Overlay: gpt img + $100 box (replaces claude scene) */}
+          {frame >= GPT_START && frame < GEMINI_START && (
+            <AbsoluteFill style={{ pointerEvents: "none" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: 320,
+                  top: "calc(50% - 260px)",
+                  transform: "translateY(-50%)",
+                }}
+              >
+                <Img
+                  src={staticFile("gpt.png")}
+                  style={{
+                    width: 1000,
+                    height: 1000,
+                  }}
+                />
+              </div>
+              {frame >= GPT_START + BOX_DELAY && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 820,
+                    transform: "translateX(-50%)",
+                    top: "calc(50% + 272px)",
+                    backgroundColor: "#14532d",
+                    color: "white",
+                    fontFamily,
+                    lineHeight: 1,
+                    padding: "32px 68px",
+                    borderRadius: 20,
+                    fontSize: 320,
+                    fontWeight: 900,
+                  }}
+                >
+                  $100
+                </div>
+              )}
+            </AbsoluteFill>
+          )}
+
+          {/* Overlay: gemini logo + $20 box (replaces gpt scene) */}
+          {frame >= GEMINI_START && frame < SCATTER_START && (
+            <AbsoluteFill style={{ pointerEvents: "none" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: 320,
+                  top: "calc(50% - 260px)",
+                  transform: "translateY(-50%)",
+                }}
+              >
+                <Img
+                  src={staticFile("gemini.png")}
+                  style={{
+                    width: 1000,
+                    height: 1000,
+                  }}
+                />
+              </div>
+              {frame >= GEMINI_START + BOX_DELAY && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 820,
+                    transform: "translateX(-50%)",
+                    top: "calc(50% + 208px)",
+                    backgroundColor: "#14532d",
+                    color: "white",
+                    fontFamily,
+                    lineHeight: 1,
+                    padding: "32px 68px",
+                    borderRadius: 20,
+                    fontSize: 320,
+                    fontWeight: 900,
+                  }}
+                >
+                  $20
+                </div>
+              )}
+            </AbsoluteFill>
+          )}
+
+          {/* Overlay: scattered logos (grok, deepseek, kimi, elevenlans, opencode) */}
+          {frame >= SCATTER_START && (
+            <AbsoluteFill style={{ pointerEvents: "none" }}>
+              {SPREAD_LOGOS.map((logo, i) =>
+                frame >= SCATTER_START + i * BOX_DELAY ? (
+                  <Img
+                    key={logo.src}
+                    src={staticFile(logo.src)}
+                    style={{
+                      position: "absolute",
+                      left: logo.left,
+                      top: logo.top,
+                      width: SPREAD_SIZE,
+                      height: "auto",
+                      borderRadius: 20,
+                    }}
+                  />
+                ) : null,
               )}
             </AbsoluteFill>
           )}
