@@ -45,7 +45,7 @@ const SCATTER_START = GEMINI_START + BOX_DELAY + SCENE_DELAY; // scattered logos
 const SPREAD_SIZE = 1150;
 const SPREAD_LOGOS = [
   { src: "grok.png", left: 90, top: 110 },
-  { src: "deepseek.png", left: 1300, top: 560 },
+  { src: "deepseek.png", left: 1350, top: 440 },
   { src: "kimi.png", left: 2560, top: 800 },
   { src: "elevenlans.png", left: 330, top: 1310 },
   { src: "opencode.png", left: 1750, top: 1350 },
