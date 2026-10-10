@@ -3,8 +3,11 @@ import {
   Audio,
   Easing,
   Img,
+  OffthreadVideo,
+  Sequence,
   Video,
   interpolate,
+  random,
   staticFile,
   useCurrentFrame,
 } from "remotion";
@@ -32,12 +35,20 @@ const IMPACT = HAMMER_START + 51; // hammer reaches center -> glass smash (swing
 // scene starts 500ms (15 frames at 30fps) after that box appears
 const CURSOR_START = IMPACT + 30 + 3; // cursor appears 300ms into scene 3
 const BOX_DELAY = 9; // box appears 9 frames after its image
-const SCENE_DELAY = 15; // 500ms after the box -> next scene
+const SCENE_DELAY = 27; // 900ms after the box -> next scene (was 500ms, +400ms)
 const BOX20_START = CURSOR_START + BOX_DELAY; // $20 box
-const CLAUDE_START = BOX20_START + SCENE_DELAY; // claude scene: 500ms after $20 box
-const GPT_START = CLAUDE_START + BOX_DELAY + SCENE_DELAY; // gpt scene: 500ms after claude's $100 box
-const GEMINI_START = GPT_START + BOX_DELAY + SCENE_DELAY; // gemini scene: 500ms after gpt's $100 box
-const SCATTER_START = GEMINI_START + BOX_DELAY + SCENE_DELAY; // scattered logos: 500ms after gemini's $20 box
+const CLAUDE_START = BOX20_START + SCENE_DELAY + 3; // claude: now 1.2s after $20 box
+const GPT_START = CLAUDE_START + BOX_DELAY + SCENE_DELAY + 3; // gpt: now 1.0s after claude's $100 box
+const GEMINI_START = GPT_START + BOX_DELAY + SCENE_DELAY + 4; // gemini: now 1.3s after gpt's $100 box
+const SCATTER_START = GEMINI_START + BOX_DELAY + SCENE_DELAY + 3; // scattered logos: 500ms after gemini's $20 box (+200ms gap at start)
+// Scene 4: worried.mp4 plays to its very end, then moneythrow.mp4 plays fully
+const WORRIED_START = IMPACT + 30; // worried.mp4 starts (frame 135)
+const WORRIED_FRAMES = 338; // worried.mp4 = 11.262s @ 30fps
+// moneythrow.mp4 = 6.005s @ 30fps = 181 frames -> composition ends at 654
+const MONEY_START = WORRIED_START + WORRIED_FRAMES; // cut to moneythrow right as worried ends (frame 473)
+// Audio: recently.wav (4.16s at 0.9x speed) plays first, then cursor.wav
+// (11.92s) starts exactly when it ends and plays fully (~frame 497)
+const CURSOR_AUDIO_START = Math.ceil((4.16 / 0.9) * 30); // = frame 139
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
@@ -78,9 +89,36 @@ export const Yt3: React.FC = () => {
   // Ends tilted slightly left (-14deg) during the final part of the swing
   const rotation = 24 * (1 - pe) + ant * 14 - 14 * pe;
 
+  // Scene 4: demo API key materializes out of old-TV static haze
+  // (0 -> 1 over 1.5s, starting 0.4s into the money-throw scene)
+  const keyT = interpolate(
+    frame,
+    [MONEY_START + 12, MONEY_START + 57],
+    [0, 1],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.out(Easing.cubic),
+    },
+  );
+  const keySettle = 1 - keyT; // 1 = pure haze, 0 = fully resolved
+  const keyFlick = random(`key-flicker-${frame}`); // per-frame static shimmer
+  const keyOpacity =
+    keyT === 0 ? 0 : Math.min(1, keyT * (1 + 0.45 * keySettle * keyFlick));
+  const keyBlur = keySettle * 55; // heavy blur while hazy -> sharp
+  const keyGlow = keySettle * 80; // white bloom that burns off as it resolves
+  const keyBrightness = 100 + keySettle * 60; // over-bright while warming up
+  const keyContrast = 100 - keySettle * 45; // washed out while hazy
+  const keyJitterX = (random(`key-jx-${frame}`) - 0.5) * keySettle * 48;
+  const keyJitterY = (random(`key-jy-${frame}`) - 0.5) * keySettle * 32;
+
   return (
     <>
       <Audio src={staticFile("recently.wav")} playbackRate={0.9} />
+      {/* cursor.wav starts the moment recently.wav ends; plays in full */}
+      <Sequence layout="none" from={CURSOR_AUDIO_START}>
+        <Audio src={staticFile("cursor.wav")} />
+      </Sequence>
       {/* Scene 1: RECENTLY... (first 1s) */}
       {frame < VIDEO_START && (
         <AbsoluteFill
@@ -145,19 +183,24 @@ export const Yt3: React.FC = () => {
         </AbsoluteFill>
       )}
 
-      {/* Scene 3: worried.mp4 after first scene ends */}
-      {frame >= IMPACT + 30 && (
+      {/* Scene 3: worried.mp4 after first scene ends (plays to its very end) */}
+      {frame >= WORRIED_START && frame < MONEY_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <Video
-            src={staticFile("worried.mp4")}
-            startFrom={0}
-            muted
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          />
+          {/* Sequence resets the media timeline so worried.mp4 plays
+              from its own 0:00 (otherwise it follows the composition
+              clock and starts at its 4.5s mark) */}
+          <Sequence from={WORRIED_START}>
+            <Video
+              src={staticFile("worried.mp4")}
+              startFrom={0}
+              muted
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Sequence>
 
           {/* Overlay: cursor logo on left + $20 green box (300ms later) */}
           {frame >= CURSOR_START && frame < CLAUDE_START && (
@@ -321,7 +364,7 @@ export const Yt3: React.FC = () => {
                     fontWeight: 900,
                   }}
                 >
-                  $20
+                  $100
                 </div>
               )}
             </AbsoluteFill>
@@ -348,6 +391,53 @@ export const Yt3: React.FC = () => {
               )}
             </AbsoluteFill>
           )}
+        </AbsoluteFill>
+      )}
+
+      {/* Scene 4: moneythrow.mp4 plays fully once worried.mp4 ends;
+          a demo Claude API key appears out of old-TV static haze */}
+      {frame >= MONEY_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* Sequence makes moneythrow.mp4 play from its own 0:00 and
+              run fully within this scene; OffthreadVideo extracts frames
+              server-side so it renders reliably */}
+          <Sequence from={MONEY_START}>
+            <OffthreadVideo
+              src={staticFile("moneythrow.mp4")}
+              startFrom={0}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Sequence>
+
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                color: "white",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontSize: 150,
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                textAlign: "center",
+                whiteSpace: "nowrap",
+                opacity: keyOpacity,
+                textShadow: `0 0 ${keyGlow}px rgba(255, 255, 255, ${0.2 + 0.8 * keySettle}), 0 10px 40px rgba(0, 0, 0, 0.55)`,
+                filter: `blur(${keyBlur}px) brightness(${keyBrightness}%) contrast(${keyContrast}%)`,
+                transform: `translate(${keyJitterX}px, ${keyJitterY}px)`,
+              }}
+            >
+              sk_ae805c74aa5f961b83014bef53c8e
+            </div>
+          </AbsoluteFill>
         </AbsoluteFill>
       )}
     </>

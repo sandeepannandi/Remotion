@@ -77,7 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt3"
         component={Yt3}
-        durationInFrames={350} // extended so worried.mp4 has time to play fully
+        durationInFrames={654} // worried.mp4 plays fully (135-473), then moneythrow.mp4 fully (473-654)
         fps={30}
         width={3840}
         height={2160}
