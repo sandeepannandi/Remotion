@@ -12,6 +12,7 @@ import {
   useCurrentFrame,
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
+import { Gif } from "@remotion/gif";
 import React from "react";
 
 const { fontFamily } = loadFont();
@@ -51,7 +52,25 @@ const MONEY_START = WORRIED_START + WORRIED_FRAMES - 60; // cut to moneythrow 2s
 const CURSOR_AUDIO_START = Math.ceil((4.16 / 0.9) * 30); // = frame 139
 const GEMINI_AUDIO_END = GEMINI_START + Math.ceil(1.84 * 30); // gemini.wav ~55 frames
 const NOTTOMENTION_FRAMES = Math.ceil(6.16 * 30); // nottomention.wav ~185 frames
-export const TOTAL_DURATION = GEMINI_AUDIO_END + NOTTOMENTION_FRAMES; // video ends when final audio ends
+// Scene 5: expensive.png full screen + "$90 PER MONTH" typed word by word,
+// held for exactly as long as 90.wav lasts
+const EXPENSIVE_START = GEMINI_AUDIO_END + NOTTOMENTION_FRAMES; // frame 509
+const EXPENSIVE_FRAMES = Math.ceil(2.64 * 30); // 90.wav = 2.64s -> 80 frames
+// The pill text waits 400ms after the scene starts, then reveals one word
+// every 400ms (12 frames each, same cadence as the "I PAY $0" line)
+const TEXT_START = EXPENSIVE_START + 12; // frame 521
+const WORD_STEP = 12; // frames between words
+// Scene 6: laugh.mp4 + zero.wav right after the expensive scene
+const LAUGH_START = EXPENSIVE_START + EXPENSIVE_FRAMES; // frame 589
+// zero.wav = 1.12s at 0.9x speed -> ~37 frames (its speech ends ~10 frames
+// early, the rest is trailing silence), so the video stops with the last audio
+const ZERO_FRAMES = Math.round((1.12 / 0.9) * 30); // = 37 frames
+// Scene 7: rubpat.gif closes the video with sauce.wav as its audio, straight
+// after the laugh scene with no gap. The gif is 3 frames x 80ms = 0.24s per
+// cycle and loops forever (Netscape loop = 0), so it loops until the audio ends
+const RUB_START = LAUGH_START + ZERO_FRAMES; // frame 626
+const RUB_FRAMES = Math.ceil(2 * 30); // sauce.wav = 2s -> 60 frames
+export const TOTAL_DURATION = RUB_START + RUB_FRAMES; // video ends when sauce.wav ends (frame 686)
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
@@ -129,6 +148,14 @@ export const Yt3: React.FC = () => {
       {/* nottomention.wav plays after gemini.wav ends */}
       <Sequence layout="none" from={GEMINI_AUDIO_END}>
         <Audio src={staticFile("nottomention.wav")} />
+      </Sequence>
+      {/* 90.wav narrates the expensive scene, which is cut when it ends */}
+      <Sequence layout="none" from={EXPENSIVE_START} durationInFrames={EXPENSIVE_FRAMES}>
+        <Audio src={staticFile("90.wav")} />
+      </Sequence>
+      {/* sauce.wav scores the closing gif scene, which is cut when it ends */}
+      <Sequence layout="none" from={RUB_START} durationInFrames={RUB_FRAMES}>
+        <Audio src={staticFile("sauce.wav")} />
       </Sequence>
       {/* Scene 1: RECENTLY... (first 1s) */}
       {frame < VIDEO_START && (
@@ -449,6 +476,100 @@ export const Yt3: React.FC = () => {
               sk_ae805c74aa5f961b83014bef53c8e
             </div>
           </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 5: expensive.png full screen with the green "$90 PER MONTH"
+          pill centered on top, revealed word by word like the "I PAY $0" line */}
+      {frame >= EXPENSIVE_START && frame < LAUGH_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("expensive.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            {/* Same green pill as the $20 / $100 boxes, words popped in one
+                by one like the "I PAY $0" line — first word 400ms in */}
+            {frame >= TEXT_START ? (
+              <div
+                style={{
+                  backgroundColor: "#14532d",
+                  color: "white",
+                  fontFamily,
+                  lineHeight: 1,
+                  padding: "32px 68px",
+                  borderRadius: 20,
+                  fontSize: 320,
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  display: "flex",
+                  gap: "50px",
+                }}
+              >
+                <span>$90</span>
+                {frame >= TEXT_START + WORD_STEP ? <span>PER</span> : null}
+                {frame >= TEXT_START + WORD_STEP * 2 ? <span>MONTH</span> : null}
+              </div>
+            ) : null}
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 6: laugh.mp4 with "I PAY 0" text overlay at bottom — the shot
+          lasts exactly as long as zero.wav, then cuts to the closing gif */}
+      {frame >= LAUGH_START && frame < RUB_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence from={LAUGH_START}>
+            <OffthreadVideo
+              src={staticFile("laugh.mp4")}
+              startFrom={0}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Sequence>
+          <Sequence from={LAUGH_START}>
+            <Audio src={staticFile("zero.wav")} playbackRate={0.9} />
+          </Sequence>
+          <AbsoluteFill
+            style={{
+              justifyContent: "flex-end",
+              alignItems: "center",
+              pointerEvents: "none",
+              paddingBottom: 120,
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span style={{ opacity: 1 }}>I</span>
+              <span style={{ opacity: frame >= LAUGH_START + 12 ? 1 : 0 }}>PAY</span>
+              <span style={{ opacity: frame >= LAUGH_START + 24 ? 1 : 0 }}>$0</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 7: rubpat.gif full screen with sauce.wav, starts the frame
+          after the laugh scene cuts (zero.wav ends) and runs to the end */}
+      {frame >= RUB_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Gif
+            src={staticFile("rubpat.gif")}
+            fit="contain"
+            loopBehavior="loop"
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
         </AbsoluteFill>
       )}
     </>
