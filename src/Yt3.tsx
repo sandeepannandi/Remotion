@@ -38,17 +38,18 @@ const BOX_DELAY = 9; // box appears 9 frames after its image
 const SCENE_DELAY = 27; // 900ms after the box -> next scene (was 500ms, +400ms)
 const BOX20_START = CURSOR_START + BOX_DELAY; // $20 box
 const CLAUDE_START = BOX20_START + SCENE_DELAY + 3; // claude: now 1.2s after $20 box
-const GPT_START = CLAUDE_START + BOX_DELAY + SCENE_DELAY + 3; // gpt: now 1.0s after claude's $100 box
-const GEMINI_START = GPT_START + BOX_DELAY + SCENE_DELAY + 4; // gemini: now 1.3s after gpt's $100 box
-const SCATTER_START = GEMINI_START + BOX_DELAY + SCENE_DELAY + 3; // scattered logos: 500ms after gemini's $20 box (+200ms gap at start)
+const GPT_START = CLAUDE_START + BOX_DELAY + SCENE_DELAY + 9; // gpt: now 1.2s after claude's $20 box (+200ms)
+const GEMINI_START = GPT_START + BOX_DELAY + SCENE_DELAY + 10; // gemini: now 1.3s after gpt's $100 box (+200ms for cursor audio extension)
+const SCATTER_START = GEMINI_START + BOX_DELAY + SCENE_DELAY + 35; // scattered logos: 1.95s after gemini's $20 box (+150ms extension)
 // Scene 4: worried.mp4 plays to its very end, then moneythrow.mp4 plays fully
 const WORRIED_START = IMPACT + 30; // worried.mp4 starts (frame 135)
 const WORRIED_FRAMES = 338; // worried.mp4 = 11.262s @ 30fps
 // moneythrow.mp4 = 6.005s @ 30fps = 181 frames -> composition ends at 654
-const MONEY_START = WORRIED_START + WORRIED_FRAMES; // cut to moneythrow right as worried ends (frame 473)
+const MONEY_START = WORRIED_START + WORRIED_FRAMES - 60; // cut to moneythrow 2s earlier (frame 413)
 // Audio: recently.wav (4.16s at 0.9x speed) plays first, then cursor.wav
 // (11.92s) starts exactly when it ends and plays fully (~frame 497)
 const CURSOR_AUDIO_START = Math.ceil((4.16 / 0.9) * 30); // = frame 139
+const GEMINI_AUDIO_END = GEMINI_START + Math.ceil(1.84 * 30); // gemini.wav ~55 frames
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
@@ -115,9 +116,17 @@ export const Yt3: React.FC = () => {
   return (
     <>
       <Audio src={staticFile("recently.wav")} playbackRate={0.9} />
-      {/* cursor.wav starts the moment recently.wav ends; plays in full */}
-      <Sequence layout="none" from={CURSOR_AUDIO_START}>
+      {/* cursor.wav plays until gemini scene starts, then stops */}
+      <Sequence layout="none" from={CURSOR_AUDIO_START} durationInFrames={GEMINI_START - CURSOR_AUDIO_START}>
         <Audio src={staticFile("cursor.wav")} />
+      </Sequence>
+      {/* gemini.wav plays at start of gemini scene */}
+      <Sequence layout="none" from={GEMINI_START}>
+        <Audio src={staticFile("gemini.wav")} />
+      </Sequence>
+      {/* nottomention.wav plays after gemini.wav ends */}
+      <Sequence layout="none" from={GEMINI_AUDIO_END}>
+        <Audio src={staticFile("nottomention.wav")} />
       </Sequence>
       {/* Scene 1: RECENTLY... (first 1s) */}
       {frame < VIDEO_START && (
@@ -244,7 +253,7 @@ export const Yt3: React.FC = () => {
             </AbsoluteFill>
           )}
 
-          {/* Overlay: claude.webp + $100 box (replaces cursor scene) */}
+          {/* Overlay: claude.webp + $20 box (replaces cursor scene) */}
           {frame >= CLAUDE_START && frame < GPT_START && (
             <AbsoluteFill style={{ pointerEvents: "none" }}>
               <div
@@ -263,7 +272,7 @@ export const Yt3: React.FC = () => {
                   }}
                 />
               </div>
-              {frame >= CLAUDE_START + BOX_DELAY && (
+              {frame >= CLAUDE_START + BOX_DELAY + 6 && (
                 <div
                   style={{
                     position: "absolute",
@@ -305,7 +314,7 @@ export const Yt3: React.FC = () => {
                   }}
                 />
               </div>
-              {frame >= GPT_START + BOX_DELAY && (
+              {frame >= GPT_START + BOX_DELAY + 9 && (
                 <div
                   style={{
                     position: "absolute",
@@ -347,7 +356,7 @@ export const Yt3: React.FC = () => {
                   }}
                 />
               </div>
-              {frame >= GEMINI_START + BOX_DELAY && (
+              {frame >= GEMINI_START + BOX_DELAY + 15 && (
                 <div
                   style={{
                     position: "absolute",
@@ -364,7 +373,7 @@ export const Yt3: React.FC = () => {
                     fontWeight: 900,
                   }}
                 >
-                  $100
+                  $20
                 </div>
               )}
             </AbsoluteFill>
@@ -374,7 +383,7 @@ export const Yt3: React.FC = () => {
           {frame >= SCATTER_START && (
             <AbsoluteFill style={{ pointerEvents: "none" }}>
               {SPREAD_LOGOS.map((logo, i) =>
-                frame >= SCATTER_START + i * BOX_DELAY ? (
+                frame >= SCATTER_START + i * (BOX_DELAY + 6) ? (
                   <Img
                     key={logo.src}
                     src={staticFile(logo.src)}
