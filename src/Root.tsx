@@ -5,7 +5,7 @@ import { MarketingVideo } from "./MarketingVideo";
 import { ExpenseIQVideo } from "./ExpenseIQ/ExpenseIQVideo";
 import { Yt1 } from "./Yt1";
 import { Yt2 } from "./Yt2";
-import { Yt3 } from "./Yt3";
+import { Yt3, TOTAL_DURATION } from "./Yt3";
 import { Ore } from "./Ore";
 
 import { preloadAssets } from "./preload";
@@ -77,7 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt3"
         component={Yt3}
-        durationInFrames={654} // worried.mp4 plays fully (135-473), then moneythrow.mp4 fully (473-654)
+        durationInFrames={TOTAL_DURATION} // video ends when final audio ends
         fps={30}
         width={3840}
         height={2160}

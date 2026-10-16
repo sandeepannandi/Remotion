@@ -50,6 +50,8 @@ const MONEY_START = WORRIED_START + WORRIED_FRAMES - 60; // cut to moneythrow 2s
 // (11.92s) starts exactly when it ends and plays fully (~frame 497)
 const CURSOR_AUDIO_START = Math.ceil((4.16 / 0.9) * 30); // = frame 139
 const GEMINI_AUDIO_END = GEMINI_START + Math.ceil(1.84 * 30); // gemini.wav ~55 frames
+const NOTTOMENTION_FRAMES = Math.ceil(6.16 * 30); // nottomention.wav ~185 frames
+export const TOTAL_DURATION = GEMINI_AUDIO_END + NOTTOMENTION_FRAMES; // video ends when final audio ends
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
