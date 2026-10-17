@@ -60,17 +60,23 @@ const EXPENSIVE_FRAMES = Math.ceil(2.64 * 30); // 90.wav = 2.64s -> 80 frames
 // every 400ms (12 frames each, same cadence as the "I PAY $0" line)
 const TEXT_START = EXPENSIVE_START + 12; // frame 521
 const WORD_STEP = 12; // frames between words
-// Scene 6: laugh.mp4 + zero.wav right after the expensive scene
-const LAUGH_START = EXPENSIVE_START + EXPENSIVE_FRAMES; // frame 589
+// Scene 5b: nomen images scattered on black bg, appearing one by one
+// with a fast fade-in transition, large size
+const NOMEN_START = EXPENSIVE_START + EXPENSIVE_FRAMES; // frame 589
+const NOMEN_FRAMES = Math.ceil(3.84 * 30); // nomore.wav = 3.84s -> 116 frames
+// Scene 6: laugh.mp4 + zero.wav right after the nomen scene
+const LAUGH_START = NOMEN_START + NOMEN_FRAMES; // frame 705
 // zero.wav = 1.12s at 0.9x speed -> ~37 frames (its speech ends ~10 frames
 // early, the rest is trailing silence), so the video stops with the last audio
 const ZERO_FRAMES = Math.round((1.12 / 0.9) * 30); // = 37 frames
 // Scene 7: rubpat.gif closes the video with sauce.wav as its audio, straight
 // after the laugh scene with no gap. The gif is 3 frames x 80ms = 0.24s per
 // cycle and loops forever (Netscape loop = 0), so it loops until the audio ends
-const RUB_START = LAUGH_START + ZERO_FRAMES; // frame 626
+const RUB_START = LAUGH_START + ZERO_FRAMES; // frame 742
 const RUB_FRAMES = Math.ceil(2 * 30); // sauce.wav = 2s -> 60 frames
-export const TOTAL_DURATION = RUB_START + RUB_FRAMES; // video ends when sauce.wav ends (frame 686)
+const BROKE_START = RUB_START + RUB_FRAMES; // broke.png starts after rubpat.gif
+const BROKE_FRAMES = Math.ceil(1.36 * 30); // gobroke.wav = 1.36s -> 41 frames
+export const TOTAL_DURATION = BROKE_START + BROKE_FRAMES; // video ends when gobroke.wav ends
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
@@ -153,9 +159,17 @@ export const Yt3: React.FC = () => {
       <Sequence layout="none" from={EXPENSIVE_START} durationInFrames={EXPENSIVE_FRAMES}>
         <Audio src={staticFile("90.wav")} />
       </Sequence>
+      {/* nomore.wav narrates the nomen scene, which plays until the audio ends */}
+      <Sequence layout="none" from={NOMEN_START}>
+        <Audio src={staticFile("nomore.wav")} />
+      </Sequence>
       {/* sauce.wav scores the closing gif scene, which is cut when it ends */}
       <Sequence layout="none" from={RUB_START} durationInFrames={RUB_FRAMES}>
         <Audio src={staticFile("sauce.wav")} />
+      </Sequence>
+      {/* gobroke.wav plays during the broke scene */}
+      <Sequence layout="none" from={BROKE_START}>
+        <Audio src={staticFile("gobroke.wav")} />
       </Sequence>
       {/* Scene 1: RECENTLY... (first 1s) */}
       {frame < VIDEO_START && (
@@ -478,9 +492,46 @@ export const Yt3: React.FC = () => {
           </AbsoluteFill>
         </AbsoluteFill>
       )}
+      {/* Scene 5b: nomen images scattered on black bg, appearing one by one
+          with a 3D page-turn transition (perspective + rotateY + scale + opacity) */}
+      {frame >= NOMEN_START && frame < LAUGH_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {[
+            { src: "nomen.png", left: "5%", top: "10%", width: "50%" },
+            { src: "nomen2.png", left: "45%", top: "20%", width: "50%" },
+            { src: "nomen3.png", left: "10%", top: "52%", width: "58%" },
+          ].map((img, i) => {
+            const appearFrame = NOMEN_START + i * 30;
+            const p = interpolate(
+              frame,
+              [appearFrame, appearFrame + 24],
+              [0, 1],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) },
+            );
+            return (
+              <Img
+                key={img.src}
+                src={staticFile(img.src)}
+                style={{
+                  position: "absolute",
+                  left: img.left,
+                  top: img.top,
+                  width: img.width,
+                  height: "auto",
+                  objectFit: "contain",
+                  opacity: p,
+                  transform: `perspective(1500px) rotateY(${-90 + 90 * p}deg) scale(${0.2 + 0.8 * p})`,
+                  transformOrigin: "left center",
+                  filter: `brightness(${0.4 + 0.6 * p}) drop-shadow(0 0 ${20 * p}px rgba(255,255,255,${0.3 * p}))`,
+                }}
+              />
+            );
+          })}
+        </AbsoluteFill>
+      )}
       {/* Scene 5: expensive.png full screen with the green "$90 PER MONTH"
           pill centered on top, revealed word by word like the "I PAY $0" line */}
-      {frame >= EXPENSIVE_START && frame < LAUGH_START && (
+      {frame >= EXPENSIVE_START && frame < NOMEN_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           <Img
             src={staticFile("expensive.png")}
@@ -498,7 +549,7 @@ export const Yt3: React.FC = () => {
             }}
           >
             {/* Same green pill as the $20 / $100 boxes, words popped in one
-                by one like the "I PAY $0" line — first word 400ms in */}
+                by one like the "I PAY $0" line - first word 400ms in */}
             {frame >= TEXT_START ? (
               <div
                 style={{
@@ -523,7 +574,7 @@ export const Yt3: React.FC = () => {
           </AbsoluteFill>
         </AbsoluteFill>
       )}
-      {/* Scene 6: laugh.mp4 with "I PAY 0" text overlay at bottom — the shot
+      {/* Scene 6: laugh.mp4 with "I PAY 0" text overlay at bottom - the shot
           lasts exactly as long as zero.wav, then cuts to the closing gif */}
       {frame >= LAUGH_START && frame < RUB_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -570,6 +621,32 @@ export const Yt3: React.FC = () => {
               height: "100%",
             }}
           />
+        </AbsoluteFill>
+      )}
+      {/* Scene 8: broke.png full screen with "GO BROKE" text overlay at bottom,
+          revealed word by word like the "I PAY $0" line, starting 300ms in */}
+      {frame >= BROKE_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("broke.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span style={{ opacity: frame >= BROKE_START + 15 ? 1 : 0 }}>GO</span>
+              <span style={{ opacity: frame >= BROKE_START + 27 ? 1 : 0 }}>BROKE</span>
+            </div>
+          </AbsoluteFill>
         </AbsoluteFill>
       )}
     </>
