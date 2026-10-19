@@ -83,12 +83,65 @@ const SCATTER2_START = WORK_START + 33; // logos begin 1.1s in
 const LOGO_STEP = 10; // frames between logos
 const BUTWAIT_WORDS = ["SO", "I", "FOUND"];
 const BUTWAIT_STEP = 9; // frames between the two words
-export const TOTAL_DURATION = WORK_START + WORK_FRAMES;
 
-// Free-alt tools arranged on a ring around the centre of the frame, one by
-// one. The ring is an ellipse (a circle would push the top/bottom tiles off
-// the 16:9 frame) so the seven tiles wrap around a free middle spot.
-const TILE_WIDTH = 820;
+// Scene 10: one segment per tool, each on its own black screen: the tool
+// name on top (same Bebas Neue text style and timing as "GO BROKE") with the
+// tool logo underneath it. Add another entry to TOOL_SEGMENTS to extend it.
+const TOOL_START = WORK_START + WORK_FRAMES;
+const TOOL_TITLE_DELAY = 0; // the marker and title are up on the first frame
+const TOOL_WORD_STEP = 12; // frames between title words
+const TOOL_SEGMENTS = [
+  {
+    title: "OMNIROUTE",
+    src: "omniroute.png",
+    audio: "omni.wav",
+    // omni.wav = 2.24s, the segment lasts exactly as long as the audio
+    frames: Math.ceil(2.24 * 30),
+  },
+];
+
+const TOOL_TIMELINE = TOOL_SEGMENTS.map((seg, i) => ({
+  ...seg,
+  index: i + 1,
+  start:
+    TOOL_START +
+    TOOL_SEGMENTS.slice(0, i).reduce((acc, s) => acc + s.frames, 0),
+}));
+
+// Scene 11: OmniRoute hub diagram - "50+ AI" on the left, the omniroute hub
+// in the centre, and the tool logos stacked on the right, each one wired to
+// the hub with a line that draws itself in.
+const HUB_START =
+  TOOL_START + TOOL_SEGMENTS.reduce((acc, s) => acc + s.frames, 0);
+const HUB_FRAMES = 180;
+const HUB_LEFT_CHARS = ["5", "0", "+", "A", "I"];
+const HUB_LEFT_START = 6; // frames before the first character shows
+const HUB_LEFT_STEP = 8; // frames between characters
+const HUB_HUB_DELAY = 10; // frames before "omniroute" shows
+const HUB_LOGO_W = 560;
+const HUB_COLUMN_X = 2900;
+const HUB_NODE_Y = 1080;
+const HUB_LINE_START_X = 2290;
+const HUB_LINE_DRAW = 14; // frames a line takes to draw itself
+const HUB_ROWS = [
+  { src: "claude.webp", h: 560, y: 320, delay: 50 },
+  { src: "codex.png", h: 274, y: 780, delay: 70 },
+  { src: "kilo.png", h: 292, y: 1240, delay: 90 },
+  { src: "opencode.png", h: 315, y: 1700, delay: 110 },
+];
+
+export const TOTAL_DURATION =
+  TOOL_START +
+  TOOL_SEGMENTS.reduce((acc, s) => acc + s.frames, 0) +
+  HUB_FRAMES;
+
+// Free-alt tools scattered in a circular cloud around the centre of the
+// frame. Slots are spread around an ellipse (a circle would push the top and
+// bottom tiles off the 16:9 frame), then every slot is jittered in angle and
+// radius so the layout reads as a random scatter rather than a neat ring.
+// The pop-in order is shuffled too, so the tiles never reveal themselves
+// clockwise from one side.
+const TILE_WIDTH = 880;
 const TILE_AR: Record<string, number> = {
   "omniroute.png": 255 / 82,
   "opencode.png": 1280 / 721,
@@ -109,23 +162,88 @@ const FREE_TOOL_ORDER = [
 ];
 const RING_CENTER_X = 1920;
 const RING_CENTER_Y = 1080;
-const RING_RX = 1450;
-const RING_RY = 780;
-const RING_START_ANGLE = -90; // first tile sits at the top
-const RING_STEP_ANGLE = 360 / FREE_TOOL_ORDER.length;
+const RING_RX = 1380;
+const RING_RY = 800;
 
-const FREE_TOOLS = FREE_TOOL_ORDER.map((src, i) => {
-  const angle = (RING_START_ANGLE + i * RING_STEP_ANGLE) * (Math.PI / 180);
-  const tileH = Math.round(TILE_WIDTH / TILE_AR[src]);
-  const cx = RING_CENTER_X + RING_RX * Math.cos(angle);
-  const cy = RING_CENTER_Y + RING_RY * Math.sin(angle);
-  return {
-    src,
-    left: Math.round(cx - TILE_WIDTH / 2),
-    top: Math.round(cy - tileH / 2),
-    rot: (random(`rot-${src}`) - 0.5) * 4,
+const mulberry32 = (seed: number) => {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-});
+};
+
+const FREE_TOOLS = (() => {
+  const rng = mulberry32(20261019);
+  const slots = [...FREE_TOOL_ORDER];
+
+  // shuffle which tool sits in which slot
+  for (let i = slots.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [slots[i], slots[j]] = [slots[j], slots[i]];
+  }
+
+  // shuffle the pop-in order so tiles appear in a random sequence
+  const popOrder = [...slots];
+  for (let i = popOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [popOrder[i], popOrder[j]] = [popOrder[j], popOrder[i]];
+  }
+  const popIndex: Record<string, number> = {};
+  popOrder.forEach((src, i) => {
+    popIndex[src] = i;
+  });
+
+  const step = (Math.PI * 2) / slots.length;
+  let layout: { src: string; left: number; top: number; rot: number }[] = [];
+
+  // jitter the ring, tightening the jitter on every retry until nothing
+  // overlaps
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const shrink = 1 - attempt / 60;
+    const angleJitter = 0.22 * shrink;
+    const radiusJitter = 90 * shrink;
+    const candidate = slots.map((src, i) => {
+      const angle = -Math.PI / 2 + i * step + (rng() - 0.5) * angleJitter;
+      const rx = RING_RX + (rng() - 0.5) * radiusJitter;
+      const ry = RING_RY + (rng() - 0.5) * radiusJitter;
+      const tileH = Math.round(TILE_WIDTH / TILE_AR[src]);
+      const cx = RING_CENTER_X + rx * Math.cos(angle);
+      const cy = RING_CENTER_Y + ry * Math.sin(angle);
+      return {
+        src,
+        left: Math.round(cx - TILE_WIDTH / 2),
+        top: Math.round(cy - tileH / 2),
+        rot: (rng() - 0.5) * 4,
+      };
+    });
+
+    const clash = candidate.some((a, i) =>
+      candidate.some((b, j) => {
+        if (j <= i) {
+          return false;
+        }
+        const ah = Math.round(TILE_WIDTH / TILE_AR[a.src]);
+        const bh = Math.round(TILE_WIDTH / TILE_AR[b.src]);
+        return (
+          a.left < b.left + TILE_WIDTH &&
+          a.left + TILE_WIDTH > b.left &&
+          a.top < b.top + bh &&
+          a.top + ah > b.top
+        );
+      }),
+    );
+
+    if (!clash) {
+      layout = candidate;
+      break;
+    }
+  }
+
+  return layout.map((tile) => ({ ...tile, popIndex: popIndex[tile.src] }));
+})();
 // The "$0" badge lands in the middle of the ring once the last tile is up
 const BADGE_START = SCATTER2_START + (FREE_TOOL_ORDER.length - 1) * LOGO_STEP + 10;
 
@@ -741,8 +859,8 @@ export const Yt3: React.FC = () => {
            )}
            {frame >= SCATTER2_START && (
              <AbsoluteFill style={{ pointerEvents: "none" }}>
-               {FREE_TOOLS.map((tool, i) =>
-                 frame >= SCATTER2_START + i * LOGO_STEP ? (
+               {FREE_TOOLS.map((tool) =>
+                 frame >= SCATTER2_START + tool.popIndex * LOGO_STEP ? (
                    <Img
                      key={tool.src}
                      src={staticFile(tool.src)}
@@ -798,6 +916,196 @@ export const Yt3: React.FC = () => {
                  PER MONTH
                </div>
              </AbsoluteFill>
+           )}
+          </AbsoluteFill>
+        )}
+       {/* Scene 10: per-tool showcase - tool name on top, logo underneath */}
+       {TOOL_TIMELINE.map((seg) => (
+         <React.Fragment key={seg.src}>
+           {seg.audio ? (
+             <Sequence
+               layout="none"
+               from={seg.start}
+               durationInFrames={seg.frames}
+             >
+               <Audio src={staticFile(seg.audio)} />
+             </Sequence>
+           ) : null}
+           {frame >= seg.start && frame < seg.start + seg.frames ? (
+             <AbsoluteFill style={{ backgroundColor: "black" }}>
+             {/* Numbered marker in the top left corner */}
+             <div
+               style={{
+                 position: "absolute",
+                 left: 120,
+                 top: 120,
+                 backgroundColor: "#DC2626",
+                 color: "white",
+                 fontFamily,
+                 fontSize: 380,
+                 fontWeight: 900,
+                 lineHeight: 1,
+                 letterSpacing: "0.02em",
+                 padding: "34px 48px",
+                 borderRadius: 12,
+                 opacity: frame >= seg.start + TOOL_TITLE_DELAY ? 1 : 0,
+                 pointerEvents: "none",
+               }}
+             >
+               {seg.index}
+             </div>
+             {/* Tool name in the centre of the frame */}
+             <AbsoluteFill
+               style={{
+                 justifyContent: "center",
+                 alignItems: "center",
+                 pointerEvents: "none",
+               }}
+             >
+               <div style={TEXT_STYLE}>
+                 {seg.title.split(" ").map((word, i) => (
+                   <span
+                     key={word}
+                     style={{
+                       opacity:
+                         frame >= seg.start + TOOL_TITLE_DELAY + i * TOOL_WORD_STEP
+                           ? 1
+                           : 0,
+                     }}
+                   >
+                     {word}
+                   </span>
+                 ))}
+                </div>
+              </AbsoluteFill>
+            </AbsoluteFill>
+          ) : null}
+         </React.Fragment>
+       ))}
+       {/* Scene 11: OmniRoute hub diagram */}
+       {frame >= HUB_START && (
+         <AbsoluteFill style={{ backgroundColor: "black" }}>
+           {/* Lines from the hub out to every tool, drawn on frame */}
+           <svg
+             width={3840}
+             height={2160}
+             style={{ position: "absolute", left: 0, top: 0 }}
+           >
+             {HUB_ROWS.map((row) => {
+               const x1 = HUB_LINE_START_X;
+               const y1 = HUB_NODE_Y;
+               const x2 = HUB_COLUMN_X - 30;
+               const y2 = row.y;
+               const len = Math.hypot(x2 - x1, y2 - y1);
+               const p = interpolate(
+                 frame,
+                 [HUB_START + row.delay, HUB_START + row.delay + HUB_LINE_DRAW],
+                 [0, 1],
+                 {
+                   extrapolateLeft: "clamp",
+                   extrapolateRight: "clamp",
+                   easing: Easing.out(Easing.cubic),
+                 },
+               );
+               return (
+                 <line
+                   key={row.src}
+                   x1={x1}
+                   y1={y1}
+                   x2={x2}
+                   y2={y2}
+                   stroke="#22C55E"
+                   strokeWidth={7}
+                   strokeLinecap="round"
+                   strokeDasharray={len}
+                   strokeDashoffset={len * (1 - p)}
+                 />
+               );
+             })}
+           </svg>
+
+           {/* "50+ AI" on the left, one character at a time */}
+           <div
+             style={{
+               position: "absolute",
+               left: 300,
+               top: HUB_NODE_Y,
+               transform: "translateY(-50%)",
+               display: "flex",
+               alignItems: "baseline",
+               gap: 24,
+               fontFamily,
+               fontSize: 150,
+               lineHeight: 1,
+               letterSpacing: "0.04em",
+               pointerEvents: "none",
+             }}
+           >
+             {HUB_LEFT_CHARS.map((c, i) => (
+               <span
+                 key={`${c}-${i}`}
+                 style={{
+                   color: i >= 3 ? "#22C55E" : "#F5F2E3",
+                   opacity:
+                     frame >= HUB_START + HUB_LEFT_START + i * HUB_LEFT_STEP
+                       ? 1
+                       : 0,
+                 }}
+               >
+                 {c}
+               </span>
+             ))}
+           </div>
+
+           {/* The omniroute hub in the centre of the frame */}
+           <div
+             style={{
+               position: "absolute",
+               left: 0,
+               right: 0,
+               top: HUB_NODE_Y,
+               transform: "translateY(-50%)",
+               textAlign: "center",
+               fontFamily,
+               fontSize: 150,
+               lineHeight: 1,
+               letterSpacing: "0.06em",
+               textTransform: "uppercase",
+               color: "#F5F2E3",
+               opacity: frame >= HUB_START + HUB_HUB_DELAY ? 1 : 0,
+               pointerEvents: "none",
+             }}
+           >
+             omniroute
+           </div>
+
+           {/* The tool logos on the right, one by one */}
+           {HUB_ROWS.map((row) =>
+             frame >= HUB_START + row.delay + HUB_LINE_DRAW ? (
+               <div
+                 key={row.src}
+                 style={{
+                   position: "absolute",
+                   left: HUB_COLUMN_X,
+                   top: row.y - row.h / 2,
+                   width: HUB_LOGO_W,
+                   height: row.h,
+                   borderRadius: 20,
+                   border: "4px solid rgba(255, 255, 255, 0.16)",
+                   overflow: "hidden",
+                   filter: "drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6))",
+                 }}
+               >
+                 <Img
+                   src={staticFile(row.src)}
+                   style={{
+                     width: "100%",
+                     height: "100%",
+                     objectFit: "cover",
+                   }}
+                 />
+               </div>
+             ) : null,
            )}
          </AbsoluteFill>
        )}
