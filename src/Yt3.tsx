@@ -76,7 +76,58 @@ const RUB_START = LAUGH_START + ZERO_FRAMES; // frame 742
 const RUB_FRAMES = Math.ceil(2 * 30); // sauce.wav = 2s -> 60 frames
 const BROKE_START = RUB_START + RUB_FRAMES; // broke.png starts after rubpat.gif
 const BROKE_FRAMES = Math.ceil(1.36 * 30); // gobroke.wav = 1.36s -> 41 frames
-export const TOTAL_DURATION = BROKE_START + BROKE_FRAMES; // video ends when gobroke.wav ends
+const WORK_START = BROKE_START + BROKE_FRAMES; // new scene starts after broke
+// work.wav = 4.32s, played at 0.9x -> 4.8s of audio -> 144 frames
+const WORK_FRAMES = Math.ceil((4.32 / 0.9) * 30);
+const SCATTER2_START = WORK_START + 33; // logos begin 1.1s in
+const LOGO_STEP = 10; // frames between logos
+const BUTWAIT_WORDS = ["SO", "I", "FOUND"];
+const BUTWAIT_STEP = 9; // frames between the two words
+export const TOTAL_DURATION = WORK_START + WORK_FRAMES;
+
+// Free-alt tools arranged on a ring around the centre of the frame, one by
+// one. The ring is an ellipse (a circle would push the top/bottom tiles off
+// the 16:9 frame) so the seven tiles wrap around a free middle spot.
+const TILE_WIDTH = 820;
+const TILE_AR: Record<string, number> = {
+  "omniroute.png": 255 / 82,
+  "opencode.png": 1280 / 721,
+  "kilo.png": 213 / 111,
+  "groq.png": 214 / 109,
+  "codex.png": 399 / 195,
+  "mistral.png": 177 / 75,
+  "freebuff.png": 222 / 106,
+};
+const FREE_TOOL_ORDER = [
+  "omniroute.png",
+  "opencode.png",
+  "kilo.png",
+  "groq.png",
+  "codex.png",
+  "mistral.png",
+  "freebuff.png",
+];
+const RING_CENTER_X = 1920;
+const RING_CENTER_Y = 1080;
+const RING_RX = 1450;
+const RING_RY = 780;
+const RING_START_ANGLE = -90; // first tile sits at the top
+const RING_STEP_ANGLE = 360 / FREE_TOOL_ORDER.length;
+
+const FREE_TOOLS = FREE_TOOL_ORDER.map((src, i) => {
+  const angle = (RING_START_ANGLE + i * RING_STEP_ANGLE) * (Math.PI / 180);
+  const tileH = Math.round(TILE_WIDTH / TILE_AR[src]);
+  const cx = RING_CENTER_X + RING_RX * Math.cos(angle);
+  const cy = RING_CENTER_Y + RING_RY * Math.sin(angle);
+  return {
+    src,
+    left: Math.round(cx - TILE_WIDTH / 2),
+    top: Math.round(cy - tileH / 2),
+    rot: (random(`rot-${src}`) - 0.5) * 4,
+  };
+});
+// The "$0" badge lands in the middle of the ring once the last tile is up
+const BADGE_START = SCATTER2_START + (FREE_TOOL_ORDER.length - 1) * LOGO_STEP + 10;
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
@@ -167,10 +218,14 @@ export const Yt3: React.FC = () => {
       <Sequence layout="none" from={RUB_START} durationInFrames={RUB_FRAMES}>
         <Audio src={staticFile("sauce.wav")} />
       </Sequence>
-      {/* gobroke.wav plays during the broke scene */}
-      <Sequence layout="none" from={BROKE_START}>
-        <Audio src={staticFile("gobroke.wav")} />
-      </Sequence>
+       {/* gobroke.wav plays during the broke scene */}
+       <Sequence layout="none" from={BROKE_START}>
+         <Audio src={staticFile("gobroke.wav")} />
+       </Sequence>
+       {/* work.wav plays during the new free-alts scene at 0.9x speed */}
+       <Sequence layout="none" from={WORK_START} durationInFrames={WORK_FRAMES}>
+         <Audio src={staticFile("work.wav")} playbackRate={0.9} />
+       </Sequence>
       {/* Scene 1: RECENTLY... (first 1s) */}
       {frame < VIDEO_START && (
         <AbsoluteFill
@@ -649,6 +704,103 @@ export const Yt3: React.FC = () => {
           </AbsoluteFill>
         </AbsoluteFill>
       )}
-    </>
+       {/* Scene 9: "SO I FOUND" hits on the black frame, then the free-alt
+           tool tiles appear instantly one by one around a ring, with a "$0"
+           badge landing in the middle once the ring is complete */}
+       {frame >= WORK_START && (
+         <AbsoluteFill style={{ backgroundColor: "black" }}>
+           {frame < SCATTER2_START && (
+             <AbsoluteFill
+               style={{
+                 justifyContent: "center",
+                 alignItems: "center",
+                 pointerEvents: "none",
+               }}
+             >
+               <div style={TEXT_STYLE}>
+                 {BUTWAIT_WORDS.map((w, i) => (
+                   <span
+                     key={w}
+                     style={{
+                       opacity:
+                         frame >= WORK_START + i * BUTWAIT_STEP
+                           ? interpolate(
+                               frame,
+                               [SCATTER2_START, SCATTER2_START + 8],
+                               [1, 0],
+                               { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+                             )
+                           : 0,
+                     }}
+                   >
+                     {w}
+                   </span>
+                 ))}
+               </div>
+             </AbsoluteFill>
+           )}
+           {frame >= SCATTER2_START && (
+             <AbsoluteFill style={{ pointerEvents: "none" }}>
+               {FREE_TOOLS.map((tool, i) =>
+                 frame >= SCATTER2_START + i * LOGO_STEP ? (
+                   <Img
+                     key={tool.src}
+                     src={staticFile(tool.src)}
+                     style={{
+                       position: "absolute",
+                       left: tool.left,
+                       top: tool.top,
+                       width: TILE_WIDTH,
+                       height: "auto",
+                       borderRadius: 24,
+                       border: "4px solid rgba(255, 255, 255, 0.14)",
+                       transform: `rotate(${tool.rot}deg)`,
+                       filter: "drop-shadow(0 30px 60px rgba(0, 0, 0, 0.65))",
+                     }}
+                   />
+                 ) : null,
+               )}
+             </AbsoluteFill>
+           )}
+           {/* Centre badge: lands in the middle of the ring once every tool
+               is on screen */}
+           {frame >= BADGE_START && (
+             <AbsoluteFill
+               style={{
+                 justifyContent: "center",
+                 alignItems: "center",
+                 pointerEvents: "none",
+               }}
+             >
+               <div
+                 style={{
+                   backgroundColor: "#14532d",
+                   color: "white",
+                   fontFamily,
+                   lineHeight: 1,
+                   padding: "34px 78px",
+                   borderRadius: 26,
+                   fontSize: 380,
+                   fontWeight: 900,
+                 }}
+               >
+                 $0
+               </div>
+               <div
+                 style={{
+                   fontFamily,
+                   color: "#F5F2E3",
+                   fontSize: 96,
+                   letterSpacing: "0.14em",
+                   marginTop: 26,
+                 }}
+               >
+                 PER MONTH
+               </div>
+             </AbsoluteFill>
+           )}
+         </AbsoluteFill>
+       )}
+     </>
   );
 };
