@@ -108,27 +108,71 @@ const TOOL_TIMELINE = TOOL_SEGMENTS.map((seg, i) => ({
     TOOL_SEGMENTS.slice(0, i).reduce((acc, s) => acc + s.frames, 0),
 }));
 
-// Scene 11: OmniRoute hub diagram - "50+ AI" on the left, the omniroute hub
-// in the centre, and the tool logos stacked on the right, each one wired to
-// the hub with a line that draws itself in.
+// Scene 11: OmniRoute hub diagram - the omniroute hub in the centre (same
+// font as the previous scene, a little smaller and eased in), the tool logos
+// stacked on the right one by one, each wired to the hub with a curved line
+// that draws itself in, and "50+ AI" landing on the left at the end.
 const HUB_START =
   TOOL_START + TOOL_SEGMENTS.reduce((acc, s) => acc + s.frames, 0);
-const HUB_FRAMES = 180;
-const HUB_LEFT_CHARS = ["5", "0", "+", "A", "I"];
-const HUB_LEFT_START = 6; // frames before the first character shows
-const HUB_LEFT_STEP = 8; // frames between characters
-const HUB_HUB_DELAY = 10; // frames before "omniroute" shows
-const HUB_LOGO_W = 560;
-const HUB_COLUMN_X = 2900;
+// connects.wav = 7.28s, the scene lasts exactly as long as the audio
+const HUB_FRAMES = Math.ceil(7.28 * 30);
+const HUB_HUB_FRAMES = 15; // frames the hub text shrinks over
+const HUB_HUB_SCALE = 0.8; // it lands a little smaller than the last scene
+const HUB_LOGO_W = 400;
+const HUB_COLUMN_X = 3220; // the logo column sits on the right
 const HUB_NODE_Y = 1080;
-const HUB_LINE_START_X = 2290;
-const HUB_LINE_DRAW = 14; // frames a line takes to draw itself
+const HUB_TEXT_RIGHT = 2630; // right edge of the omniroute text
+const HUB_HUB_LINE_END = HUB_TEXT_RIGHT; // the cables emerge from the hub text
+const HUB_LINE_DRAW = 10; // frames a line takes to draw itself
+// the connector between "50+ AI" on the left and the hub in the centre
+const HUB_LEFT_FONT = 260;
+const HUB_LEFT_X = 240;
+const HUB_LEFT_START = 190; // frame it lands on
+// the connector runs from the left edge of the omniroute box all the way
+// over to the "50+ AI" box, so it touches both of them
+const HUB_LEFT_LINE = { hubX: 1140, aiX: 880, delay: 180 };
 const HUB_ROWS = [
-  { src: "claude.webp", h: 560, y: 320, delay: 50 },
-  { src: "codex.png", h: 274, y: 780, delay: 70 },
-  { src: "kilo.png", h: 292, y: 1240, delay: 90 },
-  { src: "opencode.png", h: 315, y: 1700, delay: 110 },
+  // claude.webp is a 1280x1280 canvas with the wordmark inside it, so it
+  // gets a wider canvas to keep the visible logo the same size as the rest
+  { src: "claude.webp", ar: 1, w: 515, y: 250, delay: 32 },
+  { src: "chat.png", ar: 900 / 911, y: 729, delay: 64 },
+  { src: "kilo2.png", ar: 1, y: 1209, delay: 96 },
+  { src: "open.png", ar: 480 / 600, y: 1738, delay: 128 },
 ];
+
+// Approximate length of a cubic bezier, used to animate the line draw
+const bezierLength = (
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+) => {
+  let len = 0;
+  let px = x0;
+  let py = y0;
+  for (let i = 1; i <= 24; i++) {
+    const t = i / 24;
+    const mt = 1 - t;
+    const bx =
+      mt * mt * mt * x0 +
+      3 * mt * mt * t * x1 +
+      3 * mt * t * t * x2 +
+      t * t * t * x3;
+    const by =
+      mt * mt * mt * y0 +
+      3 * mt * mt * t * y1 +
+      3 * mt * t * t * y2 +
+      t * t * t * y3;
+    len += Math.hypot(bx - px, by - py);
+    px = bx;
+    py = by;
+  }
+  return len;
+};
 
 export const TOTAL_DURATION =
   TOOL_START +
@@ -983,20 +1027,32 @@ export const Yt3: React.FC = () => {
          </React.Fragment>
        ))}
        {/* Scene 11: OmniRoute hub diagram */}
+       <Sequence
+         layout="none"
+         from={HUB_START}
+         durationInFrames={HUB_FRAMES}
+       >
+         <Audio src={staticFile("connects.wav")} />
+       </Sequence>
        {frame >= HUB_START && (
          <AbsoluteFill style={{ backgroundColor: "black" }}>
-           {/* Lines from the hub out to every tool, drawn on frame */}
+           {/* Curved lines from the hub out to every tool, drawn on frame */}
            <svg
              width={3840}
              height={2160}
              style={{ position: "absolute", left: 0, top: 0 }}
            >
              {HUB_ROWS.map((row) => {
-               const x1 = HUB_LINE_START_X;
-               const y1 = HUB_NODE_Y;
-               const x2 = HUB_COLUMN_X - 30;
-               const y2 = row.y;
-               const len = Math.hypot(x2 - x1, y2 - y1);
+               // the cable starts at the omniroute hub and sweeps right out
+               // to the logo, so it reads left to right
+               const x1 = HUB_COLUMN_X;
+               const y1 = row.y;
+               const x2 = HUB_HUB_LINE_END;
+               const y2 = HUB_NODE_Y;
+               const span = x1 - x2;
+               const cx1 = x1 - span * 0.45;
+               const cx2 = x2 + span * 0.45;
+               const len = bezierLength(x1, y1, cx1, y1, cx2, y2, x2, y2);
                const p = interpolate(
                  frame,
                  [HUB_START + row.delay, HUB_START + row.delay + HUB_LINE_DRAW],
@@ -1004,16 +1060,14 @@ export const Yt3: React.FC = () => {
                  {
                    extrapolateLeft: "clamp",
                    extrapolateRight: "clamp",
-                   easing: Easing.out(Easing.cubic),
+                   easing: Easing.linear,
                  },
                );
                return (
-                 <line
+                 <path
                    key={row.src}
-                   x1={x1}
-                   y1={y1}
-                   x2={x2}
-                   y2={y2}
+                   d={`M ${x2} ${y2} C ${cx2} ${y2}, ${cx1} ${y1}, ${x1} ${y1}`}
+                   fill="none"
                    stroke="#22C55E"
                    strokeWidth={7}
                    strokeLinecap="round"
@@ -1022,93 +1076,169 @@ export const Yt3: React.FC = () => {
                  />
                );
              })}
-           </svg>
 
-           {/* "50+ AI" on the left, one character at a time */}
-           <div
-             style={{
-               position: "absolute",
-               left: 300,
-               top: HUB_NODE_Y,
-               transform: "translateY(-50%)",
-               display: "flex",
-               alignItems: "baseline",
-               gap: 24,
-               fontFamily,
-               fontSize: 150,
-               lineHeight: 1,
-               letterSpacing: "0.04em",
-               pointerEvents: "none",
-             }}
-           >
-             {HUB_LEFT_CHARS.map((c, i) => (
-               <span
-                 key={`${c}-${i}`}
-                 style={{
-                   color: i >= 3 ? "#22C55E" : "#F5F2E3",
-                   opacity:
-                     frame >= HUB_START + HUB_LEFT_START + i * HUB_LEFT_STEP
-                       ? 1
-                       : 0,
-                 }}
-               >
-                 {c}
-               </span>
-             ))}
-           </div>
-
-           {/* The omniroute hub in the centre of the frame */}
-           <div
-             style={{
-               position: "absolute",
-               left: 0,
-               right: 0,
-               top: HUB_NODE_Y,
-               transform: "translateY(-50%)",
-               textAlign: "center",
-               fontFamily,
-               fontSize: 150,
-               lineHeight: 1,
-               letterSpacing: "0.06em",
-               textTransform: "uppercase",
-               color: "#F5F2E3",
-               opacity: frame >= HUB_START + HUB_HUB_DELAY ? 1 : 0,
-               pointerEvents: "none",
-             }}
-           >
-             omniroute
-           </div>
-
-           {/* The tool logos on the right, one by one */}
-           {HUB_ROWS.map((row) =>
-             frame >= HUB_START + row.delay + HUB_LINE_DRAW ? (
-               <div
-                 key={row.src}
-                 style={{
-                   position: "absolute",
-                   left: HUB_COLUMN_X,
-                   top: row.y - row.h / 2,
-                   width: HUB_LOGO_W,
-                   height: row.h,
-                   borderRadius: 20,
-                   border: "4px solid rgba(255, 255, 255, 0.16)",
-                   overflow: "hidden",
-                   filter: "drop-shadow(0 24px 48px rgba(0, 0, 0, 0.6))",
-                 }}
-               >
-                 <Img
-                   src={staticFile(row.src)}
-                   style={{
-                     width: "100%",
-                     height: "100%",
-                     objectFit: "cover",
-                   }}
+             {/* straight connector between the hub and "50+ AI" - it also
+                 starts at the hub and grows out to the left */}
+             {(() => {
+               const { hubX, aiX, delay } = HUB_LEFT_LINE;
+               const len = hubX - aiX;
+               const p = interpolate(
+                 frame,
+                 [HUB_START + delay, HUB_START + delay + HUB_LINE_DRAW],
+                 [0, 1],
+                 {
+                   extrapolateLeft: "clamp",
+                   extrapolateRight: "clamp",
+                   easing: Easing.linear,
+                 },
+               );
+               return (
+                 <line
+                   x1={hubX}
+                   y1={HUB_NODE_Y}
+                   x2={aiX}
+                   y2={HUB_NODE_Y}
+                   stroke="#22C55E"
+                   strokeWidth={7}
+                   strokeLinecap="round"
+                   strokeDasharray={len}
+                   strokeDashoffset={len * (1 - p)}
                  />
-               </div>
-             ) : null,
-           )}
-         </AbsoluteFill>
-       )}
-     </>
+               );
+             })()}
+          </svg>
+
+          {/* "50+ AI" on the left, in a box that lands red and flips to
+              green the moment the line reaches it */}
+          <div
+            style={{
+              position: "absolute",
+              left: HUB_LEFT_X,
+              top: HUB_NODE_Y,
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                position: "relative",
+                display: "inline-block",
+                fontFamily,
+                fontSize: HUB_LEFT_FONT,
+                lineHeight: 1,
+                letterSpacing: "0.02em",
+                textTransform: "uppercase",
+                color: "#F5F2E3",
+                backgroundColor: "#14532d",
+                padding: "18px 52px",
+                borderRadius: 20,
+                boxShadow: "0 30px 80px rgba(0, 0, 0, 0.55)",
+                opacity: frame >= HUB_START + HUB_LEFT_START ? 1 : 0,
+                transform: `scale(${interpolate(
+                  frame,
+                  [HUB_START + HUB_LEFT_START, HUB_START + HUB_LEFT_START + 6],
+                  [0.86, 1],
+                  {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                    easing: Easing.out(Easing.cubic),
+                  },
+                )})`,
+                transformOrigin: "left center",
+              }}
+            >
+              50+ AI
+            </div>
+          </div>
+
+          {/* The omniroute hub in the centre - it shows up at full size and
+              then shrinks a little, and the green box lands the moment it
+              has shrunk */}
+          {(() => {
+            const t = interpolate(
+              frame,
+              [HUB_START, HUB_START + HUB_HUB_FRAMES],
+              [0, 1],
+              {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: Easing.out(Easing.cubic),
+              },
+            );
+            const boxStart = HUB_START + HUB_HUB_FRAMES;
+            const box = interpolate(
+              frame,
+              [boxStart, boxStart + 6],
+              [0, 1],
+              {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: Easing.out(Easing.cubic),
+              },
+            );
+            return (
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: HUB_NODE_Y,
+                  transform: `translateY(-50%) scale(${1 - (1 - HUB_HUB_SCALE) * t})`,
+                  textAlign: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
+                    fontFamily,
+                    fontSize: 500,
+                    lineHeight: 1,
+                    letterSpacing: "0.02em",
+                    textTransform: "uppercase",
+                    color: box > 0 ? "white" : "#F5F2E3",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {/* the green box drops in behind the text once it has
+                      shrunk */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: "-26px -60px",
+                      backgroundColor: "#14532d",
+                      borderRadius: 20,
+                      opacity: box,
+                      transform: `scale(${0.86 + 0.14 * box})`,
+                      boxShadow: "0 30px 80px rgba(0, 0, 0, 0.55)",
+                      zIndex: 0,
+                    }}
+                  />
+                  <span style={{ position: "relative", zIndex: 1 }}>omniroute</span>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* The tool logos on the right, one by one, plain logos */}
+          {HUB_ROWS.map((row) =>
+            frame >= HUB_START + row.delay + HUB_LINE_DRAW ? (
+              <Img
+                key={row.src}
+                src={staticFile(row.src)}
+                style={{
+                  position: "absolute",
+                  left: HUB_COLUMN_X,
+                  top: row.y - (row.w ?? HUB_LOGO_W) / row.ar / 2,
+                  width: row.w ?? HUB_LOGO_W,
+                  height: "auto",
+                }}
+              />
+            ) : null,
+          )}
+        </AbsoluteFill>
+      )}
+    </>
   );
 };
