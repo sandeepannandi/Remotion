@@ -12,10 +12,12 @@ import {
   useCurrentFrame,
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
+import { loadFont as loadInterFont } from "@remotion/google-fonts/Inter";
 import { Gif } from "@remotion/gif";
 import React from "react";
 
 const { fontFamily } = loadFont();
+const { fontFamily: interFontFamily } = loadInterFont();
 
 const TEXT_STYLE: React.CSSProperties = {
   fontFamily,
@@ -121,8 +123,7 @@ const HUB_HUB_SCALE = 0.8; // it lands a little smaller than the last scene
 const HUB_LOGO_W = 400;
 const HUB_COLUMN_X = 3220; // the logo column sits on the right
 const HUB_NODE_Y = 1080;
-const HUB_TEXT_RIGHT = 2630; // right edge of the omniroute text
-const HUB_HUB_LINE_END = HUB_TEXT_RIGHT; // the cables emerge from the hub text
+const HUB_HUB_LINE_END = 2706; // the cables emerge from the hub box
 const HUB_LINE_DRAW = 10; // frames a line takes to draw itself
 // the connector between "50+ AI" on the left and the hub in the centre
 const HUB_LEFT_FONT = 260;
@@ -174,10 +175,46 @@ const bezierLength = (
   return len;
 };
 
+// Scene 12: the install command on a black screen, shown in the middle of
+// the frame like a terminal line. It cuts straight in, no transition.
+const CMD_START = HUB_START + HUB_FRAMES;
+const CMD_FRAMES = Math.ceil(4.56 * 30); // runo.wav = 4.56s -> 137 frames
+const CMD_FONT_SIZE = 280;
+
+// Scene 13: the omnifree.png poster full screen on a black background
+const FREE_START = CMD_START + CMD_FRAMES;
+// all.wav = 3.68s, the scene lasts exactly as long as the audio
+const FREE_FRAMES = Math.ceil(3.68 * 30); // 111 frames
+
+// Scene 14: the same per-tool showcase as scene 10, but for opencode
+// (badge "2" in the top left corner, the name in the middle of the frame)
+const OC_START = FREE_START + FREE_FRAMES;
+// opena.wav = 1.92s -> 58 frames, it plays out completely inside the scene
+const OC_AUDIO_FRAMES = Math.ceil(1.92 * 30);
+// the card holds for as long as the omniroute one, but never shorter than
+// the audio, so opena.wav is never cut off
+const OC_FRAMES = Math.max(Math.ceil(2.24 * 30), OC_AUDIO_FRAMES);
+
+// Scene 15: the closing bridge - open.png (opencode) on the left, cursor.png
+// on the right and a two way arrow between them. Plain black screen, no
+// transition, the three pieces just pop in one after another.
+const BRIDGE_START = OC_START + OC_FRAMES;
+const BRIDGE_FRAMES = 75; // 2.5s
+const BRIDGE_LOGO_H = 760; // both logos are the same height
+const BRIDGE_OPEN_X = 640; // open.png sits on the left
+const BRIDGE_CURSOR_X = 2560; // cursor.png sits on the right
+const BRIDGE_ARROW_X = 1404; // the arrow fills the gap between them
+const BRIDGE_ARROW_W = 1000;
+const BRIDGE_STEP = 6; // frames between each piece popping in
+
 export const TOTAL_DURATION =
   TOOL_START +
   TOOL_SEGMENTS.reduce((acc, s) => acc + s.frames, 0) +
-  HUB_FRAMES;
+  HUB_FRAMES +
+  CMD_FRAMES +
+  FREE_FRAMES +
+  OC_FRAMES +
+  BRIDGE_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1027,16 +1064,24 @@ export const Yt3: React.FC = () => {
          </React.Fragment>
        ))}
        {/* Scene 11: OmniRoute hub diagram */}
-       <Sequence
-         layout="none"
-         from={HUB_START}
-         durationInFrames={HUB_FRAMES}
-       >
-         <Audio src={staticFile("connects.wav")} />
-       </Sequence>
-       {frame >= HUB_START && (
-         <AbsoluteFill style={{ backgroundColor: "black" }}>
-           {/* Curved lines from the hub out to every tool, drawn on frame */}
+        <Sequence
+          layout="none"
+          from={HUB_START}
+          durationInFrames={HUB_FRAMES}
+        >
+          <Audio src={staticFile("connects.wav")} />
+        </Sequence>
+        {/* opena.wav plays the whole way through the opencode card */}
+        <Sequence
+          layout="none"
+          from={OC_START}
+          durationInFrames={OC_FRAMES}
+        >
+          <Audio src={staticFile("opena.wav")} />
+        </Sequence>
+        {frame >= HUB_START && frame < CMD_START && (
+          <AbsoluteFill style={{ backgroundColor: "black" }}>
+            {/* Curved lines from the hub out to every tool, drawn on frame */}
            <svg
              width={3840}
              height={2160}
@@ -1236,6 +1281,163 @@ export const Yt3: React.FC = () => {
                 }}
               />
             ) : null,
+          )}
+        </AbsoluteFill>
+      )}
+      {/* Scene 12: the install command, centred, cut straight in */}
+      {frame >= CMD_START && frame < FREE_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <Sequence layout="none" from={CMD_START} durationInFrames={CMD_FRAMES}>
+            <Audio src={staticFile("runo.wav")} />
+          </Sequence>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              fontFamily: interFontFamily,
+              fontSize: CMD_FONT_SIZE,
+              lineHeight: 1,
+              fontWeight: 700,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span style={{ color: "#FFFFFF" }}>$</span>
+            <span style={{ color: "#F5F2E3" }}>&nbsp;</span>
+            <span style={{ color: "#3B82F6" }}>npx</span>
+            <span style={{ color: "#F5F2E3" }}>&nbsp;</span>
+            <span style={{ color: "#22C55E" }}>omniroute@latest</span>
+          </div>
+        </AbsoluteFill>
+      )}
+      {/* Scene 13: the omnifree poster, full screen on black */}
+      {frame >= FREE_START && frame < OC_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence layout="none" from={FREE_START} durationInFrames={FREE_FRAMES}>
+            <Audio src={staticFile("all.wav")} />
+          </Sequence>
+          <Img
+            src={staticFile("omnifree.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              transform: "scale(0.88)",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 14: the same card as scene 10, but for opencode */}
+      {frame >= OC_START && frame < BRIDGE_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* Numbered marker in the top left corner */}
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            2
+          </div>
+          {/* Tool name in the centre of the frame */}
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>OPENCODE</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 15: the closing bridge - opencode on the left, cursor on the
+          right and a two way arrow between them. No transition, the pieces
+          just pop in one after another. */}
+      {frame >= BRIDGE_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {frame >= BRIDGE_START && (
+            <Img
+              src={staticFile("open.png")}
+              style={{
+                position: "absolute",
+                left: BRIDGE_OPEN_X,
+                top: 1080 - BRIDGE_LOGO_H / 2,
+                width: BRIDGE_LOGO_H * (480 / 600),
+                height: BRIDGE_LOGO_H,
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= BRIDGE_START + BRIDGE_STEP && (
+            <svg
+              width={BRIDGE_ARROW_W}
+              height={200}
+              viewBox="0 0 1000 200"
+              style={{
+                position: "absolute",
+                left: BRIDGE_ARROW_X,
+                top: 1080 - 100,
+              }}
+            >
+              <line
+                x1="70"
+                y1="100"
+                x2="930"
+                y2="100"
+                stroke="#F5F2E3"
+                strokeWidth={16}
+                strokeLinecap="round"
+              />
+              <polyline
+                points="70,35 130,100 70,165"
+                fill="none"
+                stroke="#F5F2E3"
+                strokeWidth={16}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <polyline
+                points="930,35 870,100 930,165"
+                fill="none"
+                stroke="#F5F2E3"
+                strokeWidth={16}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+          {frame >= BRIDGE_START + BRIDGE_STEP * 2 && (
+            <Img
+              src={staticFile("cursor.png")}
+              style={{
+                position: "absolute",
+                left: BRIDGE_CURSOR_X,
+                top: 1080 - BRIDGE_LOGO_H / 2,
+                width: BRIDGE_LOGO_H,
+                height: BRIDGE_LOGO_H,
+                objectFit: "contain",
+              }}
+            />
           )}
         </AbsoluteFill>
       )}
