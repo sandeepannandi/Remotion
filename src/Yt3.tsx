@@ -217,7 +217,7 @@ const CLI_FRAMES = Math.ceil((219 / 60 / 1.6) * 30); // 219 frames @ 60fps -> 69
 // middle. It cuts straight in when the cli recording ends.
 const VEN_START = CLI_START + CLI_FRAMES;
 const VEN_FRAMES = Math.ceil(12 * 30); // 360 frames, plays for full openomni.wav
-const VEN_R = 860; // radius of both circles
+const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
 const VEN_RIGHT_CX = 2560; // pulled apart a bit
