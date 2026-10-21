@@ -200,12 +200,33 @@ const OC_FRAMES = Math.max(Math.ceil(2.24 * 30), OC_AUDIO_FRAMES);
 // transition, the three pieces just pop in one after another.
 const BRIDGE_START = OC_START + OC_FRAMES;
 const BRIDGE_FRAMES = 75; // 2.5s
-const BRIDGE_LOGO_H = 760; // both logos are the same height
-const BRIDGE_OPEN_X = 640; // open.png sits on the left
-const BRIDGE_CURSOR_X = 2560; // cursor.png sits on the right
-const BRIDGE_ARROW_X = 1404; // the arrow fills the gap between them
-const BRIDGE_ARROW_W = 1000;
+const BRIDGE_LOGO_H = 900; // both logos are the same height
+const BRIDGE_OPEN_X = 510; // open.png sits on the left
+const BRIDGE_CURSOR_X = 2430; // cursor.png sits on the right
+const BRIDGE_ARROW_X = 1380; // the arrow fills the gap between them
+const BRIDGE_ARROW_W = 900;
 const BRIDGE_STEP = 6; // frames between each piece popping in
+
+// Scene 16: the opencli.mp4 terminal recording, full screen. It is played
+// back at 0.6x so the terminal output is readable: 3.65s of footage becomes
+// about 6.08s.
+const CLI_START = BRIDGE_START + BRIDGE_FRAMES;
+const CLI_FRAMES = Math.ceil((219 / 60 / 0.6) * 30); // 219 frames @ 60fps -> 183
+
+// Scene 17: a venn diagram - the open logo inside the left circle and the
+// omniroute logo inside the right one, the two circles overlapping in the
+// middle. It cuts straight in when the cli recording ends.
+const VEN_START = CLI_START + CLI_FRAMES;
+const VEN_FRAMES = 90; // 3s
+const VEN_R = 860; // radius of both circles
+const VEN_CY = 1080;
+const VEN_LEFT_CX = 1395; // the open circle
+const VEN_RIGHT_CX = 2445; // the omniroute circle
+const VEN_OPEN_W = 560; // open.png, 480x600
+const VEN_OPEN_H = 700;
+const VEN_OPEN_CX = 1300;
+const VEN_OMNI_W = 820; // omniroute.png, 255x82
+const VEN_OMNI_CX = 2540;
 
 export const TOTAL_DURATION =
   TOOL_START +
@@ -214,7 +235,9 @@ export const TOTAL_DURATION =
   CMD_FRAMES +
   FREE_FRAMES +
   OC_FRAMES +
-  BRIDGE_FRAMES;
+  BRIDGE_FRAMES +
+  CLI_FRAMES +
+  VEN_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1391,36 +1414,37 @@ export const Yt3: React.FC = () => {
           {frame >= BRIDGE_START + BRIDGE_STEP && (
             <svg
               width={BRIDGE_ARROW_W}
-              height={200}
-              viewBox="0 0 1000 200"
+              height={220}
+              viewBox="0 0 900 220"
               style={{
                 position: "absolute",
                 left: BRIDGE_ARROW_X,
-                top: 1080 - 100,
+                top: 1080 - 110,
               }}
             >
               <line
-                x1="70"
-                y1="100"
-                x2="930"
-                y2="100"
+                x1="45"
+                y1="110"
+                x2="855"
+                y2="110"
                 stroke="#F5F2E3"
-                strokeWidth={16}
+                strokeWidth={20}
                 strokeLinecap="round"
               />
+              {/* both heads point outwards, away from the middle */}
               <polyline
-                points="70,35 130,100 70,165"
+                points="105,40 45,110 105,180"
                 fill="none"
                 stroke="#F5F2E3"
-                strokeWidth={16}
+                strokeWidth={20}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <polyline
-                points="930,35 870,100 930,165"
+                points="795,40 855,110 795,180"
                 fill="none"
                 stroke="#F5F2E3"
-                strokeWidth={16}
+                strokeWidth={20}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -1439,6 +1463,75 @@ export const Yt3: React.FC = () => {
               }}
             />
           )}
+        </AbsoluteFill>
+      )}
+      {/* Scene 16: the opencli.mp4 recording, full screen, played back fast */}
+      {frame >= CLI_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* Sequence makes the video play from its own 0:00 instead of
+              following the composition clock */}
+          <Sequence from={CLI_START}>
+            <OffthreadVideo
+              src={staticFile("opencli.mp4")}
+              startFrom={0}
+              playbackRate={1.6}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Sequence>
+        </AbsoluteFill>
+      )}
+      {/* Scene 17: the venn diagram, the two logos sitting in their own
+          circle with the circles overlapping in the middle */}
+      {frame >= VEN_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <svg
+            width={3840}
+            height={2160}
+            style={{ position: "absolute", left: 0, top: 0 }}
+          >
+            <circle
+              cx={VEN_LEFT_CX}
+              cy={VEN_CY}
+              r={VEN_R}
+              fill="none"
+              stroke="#60A5FA"
+              strokeWidth={10}
+            />
+            <circle
+              cx={VEN_RIGHT_CX}
+              cy={VEN_CY}
+              r={VEN_R}
+              fill="none"
+              stroke="#4ADE80"
+              strokeWidth={10}
+            />
+          </svg>
+          <Img
+            src={staticFile("open.png")}
+            style={{
+              position: "absolute",
+              left: VEN_OPEN_CX - VEN_OPEN_W / 2,
+              top: VEN_CY - VEN_OPEN_H / 2,
+              width: VEN_OPEN_W,
+              height: VEN_OPEN_H,
+              objectFit: "contain",
+            }}
+          />
+          <Img
+            src={staticFile("omniroute.png")}
+            style={{
+              position: "absolute",
+              left: VEN_OMNI_CX - VEN_OMNI_W / 2,
+              top: VEN_CY - VEN_OMNI_W / 3.1098 / 2,
+              width: VEN_OMNI_W,
+              height: VEN_OMNI_W / 3.1098,
+              objectFit: "contain",
+            }}
+          />
         </AbsoluteFill>
       )}
     </>
