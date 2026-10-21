@@ -208,10 +208,9 @@ const BRIDGE_ARROW_W = 900;
 const BRIDGE_STEP = 6; // frames between each piece popping in
 
 // Scene 16: the opencli.mp4 terminal recording, full screen. It is played
-// back at 0.6x so the terminal output is readable: 3.65s of footage becomes
-// about 6.08s.
+// back at 1.6x so it goes by quickly: 3.65s of footage becomes 2.28s.
 const CLI_START = BRIDGE_START + BRIDGE_FRAMES;
-const CLI_FRAMES = Math.ceil((219 / 60 / 0.6) * 30); // 219 frames @ 60fps -> 183
+const CLI_FRAMES = Math.ceil((219 / 60 / 1.6) * 30); // 219 frames @ 60fps -> 69
 
 // Scene 17: a venn diagram - the open logo inside the left circle and the
 // omniroute logo inside the right one, the two circles overlapping in the
