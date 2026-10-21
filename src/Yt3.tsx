@@ -216,16 +216,16 @@ const CLI_FRAMES = Math.ceil((219 / 60 / 1.6) * 30); // 219 frames @ 60fps -> 69
 // omniroute logo inside the right one, the two circles overlapping in the
 // middle. It cuts straight in when the cli recording ends.
 const VEN_START = CLI_START + CLI_FRAMES;
-const VEN_FRAMES = 90; // 3s
+const VEN_FRAMES = Math.ceil(12 * 30); // 360 frames, plays for full openomni.wav
 const VEN_R = 860; // radius of both circles
 const VEN_CY = 1080;
-const VEN_LEFT_CX = 1395; // the open circle
-const VEN_RIGHT_CX = 2445; // the omniroute circle
-const VEN_OPEN_W = 560; // open.png, 480x600
-const VEN_OPEN_H = 700;
-const VEN_OPEN_CX = 1300;
-const VEN_OMNI_W = 820; // omniroute.png, 255x82
-const VEN_OMNI_CX = 2540;
+const VEN_LEFT_CX = 1280; // pulled apart a bit
+const VEN_RIGHT_CX = 2560; // pulled apart a bit
+const VEN_OPEN_W = 600; // open.png
+const VEN_OPEN_H = 750;
+const VEN_OPEN_CX = 1185;
+const VEN_OMNI_W = 880; // omniroute.png
+const VEN_OMNI_CX = 2655;
 
 export const TOTAL_DURATION =
   TOOL_START +
@@ -1101,6 +1101,14 @@ export const Yt3: React.FC = () => {
         >
           <Audio src={staticFile("opena.wav")} />
         </Sequence>
+        {/* openomni.wav plays fully after opena.wav ends */}
+        <Sequence
+          layout="none"
+          from={OC_START + OC_FRAMES}
+          durationInFrames={Math.ceil(12 * 30)}
+        >
+          <Audio src={staticFile("openomni.wav")} />
+        </Sequence>
         {frame >= HUB_START && frame < CMD_START && (
           <AbsoluteFill style={{ backgroundColor: "black" }}>
             {/* Curved lines from the hub out to every tool, drawn on frame */}
@@ -1492,21 +1500,36 @@ export const Yt3: React.FC = () => {
             height={2160}
             style={{ position: "absolute", left: 0, top: 0 }}
           >
+            <defs>
+              <mask id="venn-left-only">
+                <rect width="3840" height="2160" fill="white" />
+                <circle cx={VEN_RIGHT_CX} cy={VEN_CY} r={VEN_R} fill="black" />
+              </mask>
+              <mask id="venn-right-only">
+                <rect width="3840" height="2160" fill="white" />
+                <circle cx={VEN_LEFT_CX} cy={VEN_CY} r={VEN_R} fill="black" />
+              </mask>
+              <mask id="venn-intersect">
+                <rect width="3840" height="2160" fill="black" />
+                <circle cx={VEN_LEFT_CX} cy={VEN_CY} r={VEN_R} fill="white" />
+                <circle cx={VEN_RIGHT_CX} cy={VEN_CY} r={VEN_R} fill="white" />
+              </mask>
+            </defs>
             <circle
               cx={VEN_LEFT_CX}
               cy={VEN_CY}
               r={VEN_R}
               fill="none"
-              stroke="#60A5FA"
-              strokeWidth={10}
+              stroke="white"
+              strokeWidth={12}
             />
             <circle
               cx={VEN_RIGHT_CX}
               cy={VEN_CY}
               r={VEN_R}
               fill="none"
-              stroke="#4ADE80"
-              strokeWidth={10}
+              stroke="white"
+              strokeWidth={12}
             />
           </svg>
           <Img
