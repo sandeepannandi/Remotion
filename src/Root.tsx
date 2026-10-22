@@ -8,8 +8,6 @@ import { Yt2 } from "./Yt2";
 import { Yt3, TOTAL_DURATION } from "./Yt3";
 import { Ore } from "./Ore";
 
-import { preloadAssets } from "./preload";
-
 //preloadAssets();
 
 import { ProductLaunch, productLaunchSchema, defaultProps } from "./ProductLaunch";

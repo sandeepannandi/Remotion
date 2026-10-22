@@ -212,9 +212,56 @@ const BRIDGE_STEP = 6; // frames between each piece popping in
 const CLI_START = BRIDGE_START + BRIDGE_FRAMES;
 const CLI_FRAMES = Math.ceil((219 / 60 / 1.6) * 30); // 219 frames @ 60fps -> 69
 
-// Scene 18: billing page with amount fluctuating to $0, then stonks overlay on multiple.png
-const BILL_START = VEN_START + VEN_FRAMES + 45; // appear 1.5 sec after venn diagram
+// Scene 17: a venn diagram - the open logo inside the left circle and the
+// omniroute logo inside the right one, the two circles overlapping in the
+// middle. It cuts straight in when the cli recording ends.
+const VEN_START = CLI_START + CLI_FRAMES;
+const VEN_FRAMES = Math.ceil(2 * 30); // 60 frames, the venn diagram only shows for 2s
+const VEN_R = 800; // radius of both circles
+const VEN_CY = 1080;
+const VEN_LEFT_CX = 1280; // pulled apart a bit
+const VEN_RIGHT_CX = 2560; // pulled apart a bit
+const VEN_OPEN_W = 600; // open.png
+const VEN_OPEN_H = 750;
+const VEN_OPEN_CX = 1185;
+const VEN_OMNI_W = 880; // omniroute.png
+const VEN_OMNI_CX = 2655;
+
+// Scene 18: an AI agent bill whose amount hazes out to $0, then stonks
+// overlay on multiple.png
+const BILL_START = VEN_START + VEN_FRAMES; // cuts straight in when the venn ends
 const BILL_FRAMES = Math.ceil(6 * 30); // ~6 seconds total for this scene
+
+const BILL_LABEL_STYLE: React.CSSProperties = {
+  fontSize: 26,
+  letterSpacing: "4px",
+  color: "#8A857A",
+  fontWeight: 700,
+};
+
+// Line items of the AI agent bill. They add up to the $149 total.
+const BILL_ROWS = [
+  {
+    label: "Claude Pro subscription",
+    detail: "Monthly plan · Feb 2026",
+    amount: "$20.00",
+  },
+  {
+    label: "Claude API usage",
+    detail: "Opus tokens · 12.4M",
+    amount: "$67.00",
+  },
+  {
+    label: "Claude API usage",
+    detail: "Sonnet tokens · 48.2M",
+    amount: "$20.00",
+  },
+  {
+    label: "Priority access",
+    detail: "Fast lane",
+    amount: "$42.00",
+  },
+];
 
 
 export const TOTAL_DURATION =
@@ -227,7 +274,6 @@ export const TOTAL_DURATION =
   BRIDGE_FRAMES +
   CLI_FRAMES +
   VEN_FRAMES +
-  45 +
   BILL_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
@@ -1093,13 +1139,21 @@ export const Yt3: React.FC = () => {
         >
           <Audio src={staticFile("opena.wav")} />
         </Sequence>
-        {/* openomni.wav plays fully after opena.wav ends */}
+        {/* openomni.wav plays over the venn diagram and fades out as it ends */}
         <Sequence
           layout="none"
-          from={OC_START + OC_FRAMES}
-          durationInFrames={Math.ceil(12 * 30)}
+          from={VEN_START}
+          durationInFrames={VEN_FRAMES}
         >
-          <Audio src={staticFile("openomni.wav")} />
+          <Audio
+            src={staticFile("openomni.wav")}
+            volume={(f) =>
+              interpolate(f, [VEN_FRAMES - 12, VEN_FRAMES], [1, 0], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              })
+            }
+          />
         </Sequence>
         {frame >= HUB_START && frame < CMD_START && (
           <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -1498,22 +1552,392 @@ export const Yt3: React.FC = () => {
           )}
         </AbsoluteFill>
       )}
-      {/* Scene 18: billing page with amount fluctuating to $0, then stonks overlay on multiple.png */}
-      {frame >= BILL_START && frame < BILL_START + BILL_FRAMES && (
+      {/* Scene 17: the venn diagram, the two logos sitting in their own
+          circle with the circles overlapping in the middle */}
+      {frame >= VEN_START && frame < VEN_START + VEN_FRAMES && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <svg
+            width={3840}
+            height={2160}
+            style={{ position: "absolute", left: 0, top: 0 }}
+          >
+            <defs>
+              <mask id="venn-left-only">
+                <rect width="3840" height="2160" fill="white" />
+                <circle cx={VEN_RIGHT_CX} cy={VEN_CY} r={VEN_R} fill="black" />
+              </mask>
+              <mask id="venn-right-only">
+                <rect width="3840" height="2160" fill="white" />
+                <circle cx={VEN_LEFT_CX} cy={VEN_CY} r={VEN_R} fill="black" />
+              </mask>
+              <mask id="venn-intersect">
+                <rect width="3840" height="2160" fill="black" />
+                <circle cx={VEN_LEFT_CX} cy={VEN_CY} r={VEN_R} fill="white" />
+                <circle cx={VEN_RIGHT_CX} cy={VEN_CY} r={VEN_R} fill="white" />
+              </mask>
+            </defs>
+            <circle
+              cx={VEN_LEFT_CX}
+              cy={VEN_CY}
+              r={VEN_R}
+              fill="none"
+              stroke="white"
+              strokeWidth={12}
+            />
+            <circle
+              cx={VEN_RIGHT_CX}
+              cy={VEN_CY}
+              r={VEN_R}
+              fill="none"
+              stroke="white"
+              strokeWidth={12}
+            />
+          </svg>
+          <Img
+            src={staticFile("open.png")}
+            style={{
+              position: "absolute",
+              left: VEN_OPEN_CX - VEN_OPEN_W / 2,
+              top: VEN_CY - VEN_OPEN_H / 2,
+              width: VEN_OPEN_W,
+              height: VEN_OPEN_H,
+              objectFit: "contain",
+            }}
+          />
+          <Img
+            src={staticFile("omniroute.png")}
+            style={{
+              position: "absolute",
+              left: VEN_OMNI_CX - VEN_OMNI_W / 2,
+              top: VEN_CY - VEN_OMNI_W / 3.1098 / 2,
+              width: VEN_OMNI_W,
+              height: VEN_OMNI_W / 3.1098,
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 18: an AI agent bill whose amount hazes out to $0, then
+          stonks over multiple.png */}
+      {frame >= BILL_START && frame < BILL_START + BILL_FRAMES && (
+        <AbsoluteFill style={{ backgroundColor: "#0B0B0B" }}>
           <Sequence layout="none" from={BILL_START}>
             <Audio src={staticFile("bills.wav")} />
           </Sequence>
           {frame < BILL_START + 90 && (
-            <AbsoluteFill>
-              <Img
-                src={staticFile("bills.jpg")}
+            <AbsoluteFill
+              style={{ justifyContent: "center", alignItems: "center" }}
+            >
+              <div
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
+                  width: 2800,
+                  height: 1600,
+                  padding: "90px 120px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: 32,
+                  backgroundColor: "#F7F5EF",
+                  fontFamily: interFontFamily,
+                  color: "#171717",
+                  boxShadow: "0 50px 140px rgba(0, 0, 0, 0.6)",
                 }}
-              />
+              >
+                {/* Header: the AI agent that sent the bill */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 28,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 92,
+                        height: 92,
+                        borderRadius: "50%",
+                        backgroundColor: "#D97757",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontSize: 52,
+                        fontWeight: 800,
+                      }}
+                    >
+                      C
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 80,
+                          fontWeight: 800,
+                          letterSpacing: "-3px",
+                          lineHeight: 1,
+                        }}
+                      >
+                        Claude
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 28,
+                          color: "#8A857A",
+                          marginTop: 12,
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        by Anthropic
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        letterSpacing: "8px",
+                        color: "#8A857A",
+                        fontWeight: 700,
+                      }}
+                    >
+                      INVOICE
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 40,
+                        fontWeight: 700,
+                        marginTop: 14,
+                      }}
+                    >
+                      #CLD-0149
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        color: "#8A857A",
+                        marginTop: 10,
+                      }}
+                    >
+                      Feb 14, 2026
+                    </div>
+                  </div>
+                </div>
+                {/* Who is billed and for which plan */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: 64,
+                  }}
+                >
+                  <div>
+                    <div style={BILL_LABEL_STYLE}>BILLED TO</div>
+                    <div
+                      style={{ fontSize: 44, fontWeight: 700, marginTop: 12 }}
+                    >
+                      You
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        color: "#8A857A",
+                        marginTop: 6,
+                      }}
+                    >
+                      you@example.com
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={BILL_LABEL_STYLE}>PLAN</div>
+                    <div
+                      style={{ fontSize: 44, fontWeight: 700, marginTop: 12 }}
+                    >
+                      Claude Pro
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        color: "#8A857A",
+                        marginTop: 6,
+                      }}
+                    >
+                      Monthly · Auto-renew
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    height: 2,
+                    backgroundColor: "#E3DFD4",
+                    marginTop: 44,
+                  }}
+                />
+                {/* Line items */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "30px 0 16px",
+                    fontSize: 26,
+                    letterSpacing: "4px",
+                    color: "#8A857A",
+                    fontWeight: 700,
+                  }}
+                >
+                  <span>DESCRIPTION</span>
+                  <span>AMOUNT</span>
+                </div>
+                {BILL_ROWS.map((row) => (
+                  <div
+                    key={row.label + row.detail}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "22px 0",
+                      borderBottom: "1.5px solid #ECE8DE",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 40, fontWeight: 600 }}>
+                        {row.label}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 28,
+                          color: "#8A857A",
+                          marginTop: 6,
+                        }}
+                      >
+                        {row.detail}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 40,
+                        fontWeight: 600,
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {row.amount}
+                    </div>
+                  </div>
+                ))}
+                {/* Total, which hazes out and fluctuates to $0 */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-end",
+                    marginTop: "auto",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 30,
+                        letterSpacing: "4px",
+                        color: "#8A857A",
+                        fontWeight: 700,
+                      }}
+                    >
+                      TOTAL DUE
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 26,
+                        color: "#8A857A",
+                        marginTop: 10,
+                      }}
+                    >
+                      Payment due upon receipt
+                    </div>
+                  </div>
+                  {(() => {
+                    const localFrame = frame - BILL_START;
+                    const numberStyle: React.CSSProperties = {
+                      fontSize: 240,
+                      fontWeight: 800,
+                      letterSpacing: "-10px",
+                      lineHeight: 0.9,
+                      display: "inline-block",
+                      transformOrigin: "right center",
+                      fontVariantNumeric: "tabular-nums",
+                    };
+                    if (localFrame < 30) {
+                      return (
+                        <span style={{ ...numberStyle, color: "#171717" }}>
+                          $149
+                        </span>
+                      );
+                    } else if (localFrame < 60) {
+                      const t = (localFrame - 30) / 30;
+                      const amount =
+                        t < 0.2
+                          ? 149
+                          : Math.floor(
+                              random(
+                                `bill-${Math.floor(localFrame / 4)}`,
+                              ) * 149,
+                            ) + 1;
+                      return (
+                        <span
+                          style={{
+                            ...numberStyle,
+                            color: "#171717",
+                            filter: `blur(${interpolate(
+                              t,
+                              [0, 1],
+                              [0, 22],
+                            )}px)`,
+                            opacity: interpolate(t, [0, 1], [1, 0]),
+                            transform: `scale(${interpolate(
+                              t,
+                              [0, 1],
+                              [1, 1.2],
+                            )})`,
+                          }}
+                        >
+                          ${amount}
+                        </span>
+                      );
+                    } else {
+                      const reveal = interpolate(
+                        localFrame,
+                        [60, 78],
+                        [0, 1],
+                        {
+                          extrapolateLeft: "clamp",
+                          extrapolateRight: "clamp",
+                        },
+                      );
+                      return (
+                        <span
+                          style={{
+                            ...numberStyle,
+                            color: "#16A34A",
+                            opacity: reveal,
+                            filter: `blur(${(1 - reveal) * 22}px)`,
+                            transform: `scale(${interpolate(
+                              reveal,
+                              [0, 1],
+                              [1.2, 1],
+                            )})`,
+                          }}
+                        >
+                          $0
+                        </span>
+                      );
+                    }
+                  })()}
+                </div>
+              </div>
             </AbsoluteFill>
           )}
           {frame >= BILL_START + 90 && (
@@ -1526,86 +1950,22 @@ export const Yt3: React.FC = () => {
                   objectFit: "cover",
                 }}
               />
-              <Img
-                src={staticFile("stonks.png")}
+              <AbsoluteFill
                 style={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  pointerEvents: "none",
                 }}
-              />
-            </AbsoluteFill>
-          )}
-          {frame < BILL_START + 90 && (
-            <AbsoluteFill
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                pointerEvents: "none",
-              }}
-            >
-              {(() => {
-                const localFrame = frame - BILL_START;
-                if (localFrame < 20) {
-                  return (
-                    <div
-                      style={{
-                        fontFamily,
-                        fontSize: 600,
-                        color: "black",
-                        fontWeight: 900,
-                      }}
-                    >
-                      $149
-                    </div>
-                  );
-                } else if (localFrame < 40) {
-                  return (
-                    <div
-                      style={{
-                        fontFamily,
-                        fontSize: 600,
-                        color: "black",
-                        fontWeight: 900,
-                        filter: `blur(${(localFrame - 20) * 1.5}px)`,
-                        opacity: 1 - (localFrame - 20) * 0.03,
-                        transform: `scale(${1 + (localFrame - 20) * 0.01})`,
-                      }}
-                    >
-                      $149
-                    </div>
-                  );
-                } else if (localFrame < 60) {
-                  const fluct = Math.floor(random(`bill-${localFrame}`) * 150);
-                  return (
-                    <div
-                      style={{
-                        fontFamily,
-                        fontSize: 600,
-                        color: "black",
-                        fontWeight: 900,
-                        filter: `blur(${3 + (localFrame - 40) * 0.5}px)`,
-                      }}
-                    >
-                      ${fluct}
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div
-                      style={{
-                        fontFamily,
-                        fontSize: 600,
-                        color: "#22C55E",
-                        fontWeight: 900,
-                      }}
-                    >
-                      $0
-                    </div>
-                  );
-                }
-              })()}
+              >
+                <Img
+                  src={staticFile("stonks.png")}
+                  style={{
+                    width: 1800,
+                    height: 1347,
+                    objectFit: "contain",
+                  }}
+                />
+              </AbsoluteFill>
             </AbsoluteFill>
           )}
         </AbsoluteFill>
