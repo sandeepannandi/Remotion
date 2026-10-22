@@ -212,20 +212,10 @@ const BRIDGE_STEP = 6; // frames between each piece popping in
 const CLI_START = BRIDGE_START + BRIDGE_FRAMES;
 const CLI_FRAMES = Math.ceil((219 / 60 / 1.6) * 30); // 219 frames @ 60fps -> 69
 
-// Scene 17: a venn diagram - the open logo inside the left circle and the
-// omniroute logo inside the right one, the two circles overlapping in the
-// middle. It cuts straight in when the cli recording ends.
-const VEN_START = CLI_START + CLI_FRAMES;
-const VEN_FRAMES = Math.ceil(12 * 30); // 360 frames, plays for full openomni.wav
-const VEN_R = 800; // radius of both circles
-const VEN_CY = 1080;
-const VEN_LEFT_CX = 1280; // pulled apart a bit
-const VEN_RIGHT_CX = 2560; // pulled apart a bit
-const VEN_OPEN_W = 600; // open.png
-const VEN_OPEN_H = 750;
-const VEN_OPEN_CX = 1185;
-const VEN_OMNI_W = 880; // omniroute.png
-const VEN_OMNI_CX = 2655;
+// Scene 18: billing page with amount fluctuating to $0, then stonks overlay on multiple.png
+const BILL_START = VEN_START + VEN_FRAMES + 45; // appear 1.5 sec after venn diagram
+const BILL_FRAMES = Math.ceil(6 * 30); // ~6 seconds total for this scene
+
 
 export const TOTAL_DURATION =
   TOOL_START +
@@ -236,7 +226,9 @@ export const TOTAL_DURATION =
   OC_FRAMES +
   BRIDGE_FRAMES +
   CLI_FRAMES +
-  VEN_FRAMES;
+  VEN_FRAMES +
+  45 +
+  BILL_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1489,71 +1481,133 @@ export const Yt3: React.FC = () => {
               }}
             />
           </Sequence>
+          {/* Show ZEN just 500ms before the video ends */}
+          {frame >= CLI_START + CLI_FRAMES - 15 && frame < CLI_START + CLI_FRAMES && (
+            <AbsoluteFill
+              style={{
+                justifyContent: "flex-end",
+                alignItems: "center",
+                pointerEvents: "none",
+                paddingBottom: 100,
+              }}
+            >
+              <div style={TEXT_STYLE}>
+                <span>ZEN</span>
+              </div>
+            </AbsoluteFill>
+          )}
         </AbsoluteFill>
       )}
-      {/* Scene 17: the venn diagram, the two logos sitting in their own
-          circle with the circles overlapping in the middle */}
-      {frame >= VEN_START && (
+      {/* Scene 18: billing page with amount fluctuating to $0, then stonks overlay on multiple.png */}
+      {frame >= BILL_START && frame < BILL_START + BILL_FRAMES && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <svg
-            width={3840}
-            height={2160}
-            style={{ position: "absolute", left: 0, top: 0 }}
-          >
-            <defs>
-              <mask id="venn-left-only">
-                <rect width="3840" height="2160" fill="white" />
-                <circle cx={VEN_RIGHT_CX} cy={VEN_CY} r={VEN_R} fill="black" />
-              </mask>
-              <mask id="venn-right-only">
-                <rect width="3840" height="2160" fill="white" />
-                <circle cx={VEN_LEFT_CX} cy={VEN_CY} r={VEN_R} fill="black" />
-              </mask>
-              <mask id="venn-intersect">
-                <rect width="3840" height="2160" fill="black" />
-                <circle cx={VEN_LEFT_CX} cy={VEN_CY} r={VEN_R} fill="white" />
-                <circle cx={VEN_RIGHT_CX} cy={VEN_CY} r={VEN_R} fill="white" />
-              </mask>
-            </defs>
-            <circle
-              cx={VEN_LEFT_CX}
-              cy={VEN_CY}
-              r={VEN_R}
-              fill="none"
-              stroke="white"
-              strokeWidth={12}
-            />
-            <circle
-              cx={VEN_RIGHT_CX}
-              cy={VEN_CY}
-              r={VEN_R}
-              fill="none"
-              stroke="white"
-              strokeWidth={12}
-            />
-          </svg>
-          <Img
-            src={staticFile("open.png")}
-            style={{
-              position: "absolute",
-              left: VEN_OPEN_CX - VEN_OPEN_W / 2,
-              top: VEN_CY - VEN_OPEN_H / 2,
-              width: VEN_OPEN_W,
-              height: VEN_OPEN_H,
-              objectFit: "contain",
-            }}
-          />
-          <Img
-            src={staticFile("omniroute.png")}
-            style={{
-              position: "absolute",
-              left: VEN_OMNI_CX - VEN_OMNI_W / 2,
-              top: VEN_CY - VEN_OMNI_W / 3.1098 / 2,
-              width: VEN_OMNI_W,
-              height: VEN_OMNI_W / 3.1098,
-              objectFit: "contain",
-            }}
-          />
+          <Sequence layout="none" from={BILL_START}>
+            <Audio src={staticFile("bills.wav")} />
+          </Sequence>
+          {frame < BILL_START + 90 && (
+            <AbsoluteFill>
+              <Img
+                src={staticFile("bills.jpg")}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </AbsoluteFill>
+          )}
+          {frame >= BILL_START + 90 && (
+            <AbsoluteFill>
+              <Img
+                src={staticFile("multiple.png")}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              <Img
+                src={staticFile("stonks.png")}
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </AbsoluteFill>
+          )}
+          {frame < BILL_START + 90 && (
+            <AbsoluteFill
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              {(() => {
+                const localFrame = frame - BILL_START;
+                if (localFrame < 20) {
+                  return (
+                    <div
+                      style={{
+                        fontFamily,
+                        fontSize: 600,
+                        color: "black",
+                        fontWeight: 900,
+                      }}
+                    >
+                      $149
+                    </div>
+                  );
+                } else if (localFrame < 40) {
+                  return (
+                    <div
+                      style={{
+                        fontFamily,
+                        fontSize: 600,
+                        color: "black",
+                        fontWeight: 900,
+                        filter: `blur(${(localFrame - 20) * 1.5}px)`,
+                        opacity: 1 - (localFrame - 20) * 0.03,
+                        transform: `scale(${1 + (localFrame - 20) * 0.01})`,
+                      }}
+                    >
+                      $149
+                    </div>
+                  );
+                } else if (localFrame < 60) {
+                  const fluct = Math.floor(random(`bill-${localFrame}`) * 150);
+                  return (
+                    <div
+                      style={{
+                        fontFamily,
+                        fontSize: 600,
+                        color: "black",
+                        fontWeight: 900,
+                        filter: `blur(${3 + (localFrame - 40) * 0.5}px)`,
+                      }}
+                    >
+                      ${fluct}
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div
+                      style={{
+                        fontFamily,
+                        fontSize: 600,
+                        color: "#22C55E",
+                        fontWeight: 900,
+                      }}
+                    >
+                      $0
+                    </div>
+                  );
+                }
+              })()}
+            </AbsoluteFill>
+          )}
         </AbsoluteFill>
       )}
     </>
