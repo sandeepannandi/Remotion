@@ -8,6 +8,11 @@ import { Yt2 } from "./Yt2";
 import { Yt3, TOTAL_DURATION } from "./Yt3";
 import { Ore } from "./Ore";
 
+// Yt3's length is derived inside Yt3.tsx (it ends exactly when the final
+// audio ends) and already includes the Kilo Code card, so no separate frame
+// adjustment is needed here.
+const YT3_DURATION = TOTAL_DURATION;
+
 //preloadAssets();
 
 import { ProductLaunch, productLaunchSchema, defaultProps } from "./ProductLaunch";
@@ -75,7 +80,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="Yt3"
         component={Yt3}
-        durationInFrames={TOTAL_DURATION} // video ends when final audio ends
+        durationInFrames={YT3_DURATION} // video ends when final audio ends
         fps={30}
         width={3840}
         height={2160}

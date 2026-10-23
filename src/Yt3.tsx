@@ -195,10 +195,18 @@ const OC_AUDIO_FRAMES = Math.ceil(1.92 * 30);
 // the audio, so opena.wav is never cut off
 const OC_FRAMES = Math.max(Math.ceil(2.24 * 30), OC_AUDIO_FRAMES);
 
-// Scene 15: the closing bridge - open.png (opencode) on the left, cursor.png
+// Scene 15: the same card again, this time for Kilo Code
+// (badge "3" in the top left corner, the name in the middle of the frame)
+const KILO_START = OC_START + OC_FRAMES;
+// tkilo.wav = 1.6s -> 48 frames, and the card stays exactly until the audio
+// fully completes
+const KILO_AUDIO_FRAMES = Math.ceil(1.6 * 30);
+const KILO_FRAMES = KILO_AUDIO_FRAMES;
+
+// Scene 16: the closing bridge - open.png (opencode) on the left, cursor.png
 // on the right and a two way arrow between them. Plain black screen, no
 // transition, the three pieces just pop in one after another.
-const BRIDGE_START = OC_START + OC_FRAMES;
+const BRIDGE_START = KILO_START + KILO_FRAMES;
 const BRIDGE_FRAMES = 75; // 2.5s
 const BRIDGE_LOGO_H = 900; // both logos are the same height
 const BRIDGE_OPEN_X = 510; // open.png sits on the left
@@ -207,16 +215,37 @@ const BRIDGE_ARROW_X = 1380; // the arrow fills the gap between them
 const BRIDGE_ARROW_W = 900;
 const BRIDGE_STEP = 6; // frames between each piece popping in
 
-// Scene 16: the opencli.mp4 terminal recording, full screen. It is played
+// Scene 17: the opencli.mp4 terminal recording, full screen. It is played
 // back at 1.6x so it goes by quickly: 3.65s of footage becomes 2.28s.
-const CLI_START = BRIDGE_START + BRIDGE_FRAMES;
-const CLI_FRAMES = Math.ceil((219 / 60 / 1.6) * 30); // 219 frames @ 60fps -> 69
+// It cuts in 500ms earlier than the end of the bridge hold, so the recording
+// shows up sooner (the rest of the timeline moves with it).
+const CLI_START = BRIDGE_START + BRIDGE_FRAMES - 15;
+// 219 frames @ 60fps at 1.6x -> 69 frames of footage
+const CLI_VIDEO_FRAMES = Math.ceil((219 / 60 / 1.6) * 30);
+// hold the scene 300ms longer before cutting to the venn diagram
+const CLI_HOLD_FRAMES = 9;
+const CLI_FRAMES = CLI_VIDEO_FRAMES + CLI_HOLD_FRAMES;
 
-// Scene 17: a venn diagram - the open logo inside the left circle and the
+// Scene 18: a venn diagram - the open logo inside the left circle and the
 // omniroute logo inside the right one, the two circles overlapping in the
 // middle. It cuts straight in when the cli recording ends.
 const VEN_START = CLI_START + CLI_FRAMES;
-const VEN_FRAMES = Math.ceil(2 * 30); // 60 frames, the venn diagram only shows for 2s
+const VEN_FRAMES = Math.ceil(2 * 30) + 12; // 2s + 400ms hold before the next scene
+
+// Scene 19: stonks over multiple.png
+const STONKS_START = VEN_START + VEN_FRAMES;
+const STONKS_FRAMES = Math.ceil(3 * 30); // 90 frames, the same hold as before
+
+// Scene 20: an AI agent bill whose amount churns and snaps to $0. It closes
+// the video.
+const BILL_START = STONKS_START + STONKS_FRAMES;
+const BILL_FRAMES = Math.ceil(3 * 30); // 90 frames, enough for the $0 reveal
+
+// openomni.wav = 12s. It starts the moment tkilo.wav ends, so the narration
+// never stops, and carries through the bridge, the cli recording, the venn
+// diagram and into the bill.
+const OPENOMNI_START = KILO_START + KILO_AUDIO_FRAMES;
+const OPENOMNI_FRAMES = Math.ceil(12 * 30); // 12s -> 360 frames
 const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
@@ -226,11 +255,6 @@ const VEN_OPEN_H = 750;
 const VEN_OPEN_CX = 1185;
 const VEN_OMNI_W = 880; // omniroute.png
 const VEN_OMNI_CX = 2655;
-
-// Scene 18: an AI agent bill whose amount hazes out to $0, then stonks
-// overlay on multiple.png
-const BILL_START = VEN_START + VEN_FRAMES; // cuts straight in when the venn ends
-const BILL_FRAMES = Math.ceil(6 * 30); // ~6 seconds total for this scene
 
 const BILL_LABEL_STYLE: React.CSSProperties = {
   fontSize: 26,
@@ -263,18 +287,10 @@ const BILL_ROWS = [
   },
 ];
 
-
-export const TOTAL_DURATION =
-  TOOL_START +
-  TOOL_SEGMENTS.reduce((acc, s) => acc + s.frames, 0) +
-  HUB_FRAMES +
-  CMD_FRAMES +
-  FREE_FRAMES +
-  OC_FRAMES +
-  BRIDGE_FRAMES +
-  CLI_FRAMES +
-  VEN_FRAMES +
-  BILL_FRAMES;
+// The composition ends the instant the final audio (openomni.wav) ends, so
+// there is no silent tail after the narration. The bill's $0 lands on the
+// last spoken word, right before this cut.
+export const TOTAL_DURATION = OPENOMNI_START + OPENOMNI_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -386,7 +402,8 @@ const FREE_TOOLS = (() => {
   return layout.map((tile) => ({ ...tile, popIndex: popIndex[tile.src] }));
 })();
 // The "$0" badge lands in the middle of the ring once the last tile is up
-const BADGE_START = SCATTER2_START + (FREE_TOOL_ORDER.length - 1) * LOGO_STEP + 10;
+const BADGE_START =
+  SCATTER2_START + (FREE_TOOL_ORDER.length - 1) * LOGO_STEP + 10;
 
 // Scattered scene: same-size logos scattered randomly across the frame
 // (top-left positions sized against each asset's measured aspect ratio so
@@ -454,7 +471,11 @@ export const Yt3: React.FC = () => {
     <>
       <Audio src={staticFile("recently.wav")} playbackRate={0.9} />
       {/* cursor.wav plays until gemini scene starts, then stops */}
-      <Sequence layout="none" from={CURSOR_AUDIO_START} durationInFrames={GEMINI_START - CURSOR_AUDIO_START}>
+      <Sequence
+        layout="none"
+        from={CURSOR_AUDIO_START}
+        durationInFrames={GEMINI_START - CURSOR_AUDIO_START}
+      >
         <Audio src={staticFile("cursor.wav")} />
       </Sequence>
       {/* gemini.wav plays at start of gemini scene */}
@@ -466,7 +487,11 @@ export const Yt3: React.FC = () => {
         <Audio src={staticFile("nottomention.wav")} />
       </Sequence>
       {/* 90.wav narrates the expensive scene, which is cut when it ends */}
-      <Sequence layout="none" from={EXPENSIVE_START} durationInFrames={EXPENSIVE_FRAMES}>
+      <Sequence
+        layout="none"
+        from={EXPENSIVE_START}
+        durationInFrames={EXPENSIVE_FRAMES}
+      >
         <Audio src={staticFile("90.wav")} />
       </Sequence>
       {/* nomore.wav narrates the nomen scene, which plays until the audio ends */}
@@ -477,14 +502,14 @@ export const Yt3: React.FC = () => {
       <Sequence layout="none" from={RUB_START} durationInFrames={RUB_FRAMES}>
         <Audio src={staticFile("sauce.wav")} />
       </Sequence>
-       {/* gobroke.wav plays during the broke scene */}
-       <Sequence layout="none" from={BROKE_START}>
-         <Audio src={staticFile("gobroke.wav")} />
-       </Sequence>
-       {/* work.wav plays during the new free-alts scene at 0.9x speed */}
-       <Sequence layout="none" from={WORK_START} durationInFrames={WORK_FRAMES}>
-         <Audio src={staticFile("work.wav")} playbackRate={0.9} />
-       </Sequence>
+      {/* gobroke.wav plays during the broke scene */}
+      <Sequence layout="none" from={BROKE_START}>
+        <Audio src={staticFile("gobroke.wav")} />
+      </Sequence>
+      {/* work.wav plays during the new free-alts scene at 0.9x speed */}
+      <Sequence layout="none" from={WORK_START} durationInFrames={WORK_FRAMES}>
+        <Audio src={staticFile("work.wav")} playbackRate={0.9} />
+      </Sequence>
       {/* Scene 1: RECENTLY... (first 1s) */}
       {frame < VIDEO_START && (
         <AbsoluteFill
@@ -587,7 +612,8 @@ export const Yt3: React.FC = () => {
                     borderRadius: 20,
                   }}
                 />
-              </div>              {frame >= BOX20_START && (
+              </div>{" "}
+              {frame >= BOX20_START && (
                 <div
                   style={{
                     position: "absolute",
@@ -820,7 +846,11 @@ export const Yt3: React.FC = () => {
               frame,
               [appearFrame, appearFrame + 24],
               [0, 1],
-              { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) },
+              {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: Easing.out(Easing.cubic),
+              },
             );
             return (
               <Img
@@ -882,7 +912,9 @@ export const Yt3: React.FC = () => {
               >
                 <span>$90</span>
                 {frame >= TEXT_START + WORD_STEP ? <span>PER</span> : null}
-                {frame >= TEXT_START + WORD_STEP * 2 ? <span>MONTH</span> : null}
+                {frame >= TEXT_START + WORD_STEP * 2 ? (
+                  <span>MONTH</span>
+                ) : null}
               </div>
             ) : null}
           </AbsoluteFill>
@@ -916,8 +948,12 @@ export const Yt3: React.FC = () => {
           >
             <div style={TEXT_STYLE}>
               <span style={{ opacity: 1 }}>I</span>
-              <span style={{ opacity: frame >= LAUGH_START + 12 ? 1 : 0 }}>PAY</span>
-              <span style={{ opacity: frame >= LAUGH_START + 24 ? 1 : 0 }}>$0</span>
+              <span style={{ opacity: frame >= LAUGH_START + 12 ? 1 : 0 }}>
+                PAY
+              </span>
+              <span style={{ opacity: frame >= LAUGH_START + 24 ? 1 : 0 }}>
+                $0
+              </span>
             </div>
           </AbsoluteFill>
         </AbsoluteFill>
@@ -957,276 +993,281 @@ export const Yt3: React.FC = () => {
             }}
           >
             <div style={TEXT_STYLE}>
-              <span style={{ opacity: frame >= BROKE_START + 15 ? 1 : 0 }}>GO</span>
-              <span style={{ opacity: frame >= BROKE_START + 27 ? 1 : 0 }}>BROKE</span>
+              <span style={{ opacity: frame >= BROKE_START + 15 ? 1 : 0 }}>
+                GO
+              </span>
+              <span style={{ opacity: frame >= BROKE_START + 27 ? 1 : 0 }}>
+                BROKE
+              </span>
             </div>
           </AbsoluteFill>
         </AbsoluteFill>
       )}
-       {/* Scene 9: "SO I FOUND" hits on the black frame, then the free-alt
+      {/* Scene 9: "SO I FOUND" hits on the black frame, then the free-alt
            tool tiles appear instantly one by one around a ring, with a "$0"
            badge landing in the middle once the ring is complete */}
-       {frame >= WORK_START && (
-         <AbsoluteFill style={{ backgroundColor: "black" }}>
-           {frame < SCATTER2_START && (
-             <AbsoluteFill
-               style={{
-                 justifyContent: "center",
-                 alignItems: "center",
-                 pointerEvents: "none",
-               }}
-             >
-               <div style={TEXT_STYLE}>
-                 {BUTWAIT_WORDS.map((w, i) => (
-                   <span
-                     key={w}
-                     style={{
-                       opacity:
-                         frame >= WORK_START + i * BUTWAIT_STEP
-                           ? interpolate(
-                               frame,
-                               [SCATTER2_START, SCATTER2_START + 8],
-                               [1, 0],
-                               { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-                             )
-                           : 0,
-                     }}
-                   >
-                     {w}
-                   </span>
-                 ))}
-               </div>
-             </AbsoluteFill>
-           )}
-           {frame >= SCATTER2_START && (
-             <AbsoluteFill style={{ pointerEvents: "none" }}>
-               {FREE_TOOLS.map((tool) =>
-                 frame >= SCATTER2_START + tool.popIndex * LOGO_STEP ? (
-                   <Img
-                     key={tool.src}
-                     src={staticFile(tool.src)}
-                     style={{
-                       position: "absolute",
-                       left: tool.left,
-                       top: tool.top,
-                       width: TILE_WIDTH,
-                       height: "auto",
-                       borderRadius: 24,
-                       border: "4px solid rgba(255, 255, 255, 0.14)",
-                       transform: `rotate(${tool.rot}deg)`,
-                       filter: "drop-shadow(0 30px 60px rgba(0, 0, 0, 0.65))",
-                     }}
-                   />
-                 ) : null,
-               )}
-             </AbsoluteFill>
-           )}
-           {/* Centre badge: lands in the middle of the ring once every tool
+      {frame >= WORK_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {frame < SCATTER2_START && (
+            <AbsoluteFill
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div style={TEXT_STYLE}>
+                {BUTWAIT_WORDS.map((w, i) => (
+                  <span
+                    key={w}
+                    style={{
+                      opacity:
+                        frame >= WORK_START + i * BUTWAIT_STEP
+                          ? interpolate(
+                              frame,
+                              [SCATTER2_START, SCATTER2_START + 8],
+                              [1, 0],
+                              {
+                                extrapolateLeft: "clamp",
+                                extrapolateRight: "clamp",
+                              },
+                            )
+                          : 0,
+                    }}
+                  >
+                    {w}
+                  </span>
+                ))}
+              </div>
+            </AbsoluteFill>
+          )}
+          {frame >= SCATTER2_START && (
+            <AbsoluteFill style={{ pointerEvents: "none" }}>
+              {FREE_TOOLS.map((tool) =>
+                frame >= SCATTER2_START + tool.popIndex * LOGO_STEP ? (
+                  <Img
+                    key={tool.src}
+                    src={staticFile(tool.src)}
+                    style={{
+                      position: "absolute",
+                      left: tool.left,
+                      top: tool.top,
+                      width: TILE_WIDTH,
+                      height: "auto",
+                      borderRadius: 24,
+                      border: "4px solid rgba(255, 255, 255, 0.14)",
+                      transform: `rotate(${tool.rot}deg)`,
+                      filter: "drop-shadow(0 30px 60px rgba(0, 0, 0, 0.65))",
+                    }}
+                  />
+                ) : null,
+              )}
+            </AbsoluteFill>
+          )}
+          {/* Centre badge: lands in the middle of the ring once every tool
                is on screen */}
-           {frame >= BADGE_START && (
-             <AbsoluteFill
-               style={{
-                 justifyContent: "center",
-                 alignItems: "center",
-                 pointerEvents: "none",
-               }}
-             >
-               <div
-                 style={{
-                   backgroundColor: "#14532d",
-                   color: "white",
-                   fontFamily,
-                   lineHeight: 1,
-                   padding: "34px 78px",
-                   borderRadius: 26,
-                   fontSize: 380,
-                   fontWeight: 900,
-                 }}
-               >
-                 $0
-               </div>
-               <div
-                 style={{
-                   fontFamily,
-                   color: "#F5F2E3",
-                   fontSize: 96,
-                   letterSpacing: "0.14em",
-                   marginTop: 26,
-                 }}
-               >
-                 PER MONTH
-               </div>
-             </AbsoluteFill>
-           )}
-          </AbsoluteFill>
-        )}
-       {/* Scene 10: per-tool showcase - tool name on top, logo underneath */}
-       {TOOL_TIMELINE.map((seg) => (
-         <React.Fragment key={seg.src}>
-           {seg.audio ? (
-             <Sequence
-               layout="none"
-               from={seg.start}
-               durationInFrames={seg.frames}
-             >
-               <Audio src={staticFile(seg.audio)} />
-             </Sequence>
-           ) : null}
-           {frame >= seg.start && frame < seg.start + seg.frames ? (
-             <AbsoluteFill style={{ backgroundColor: "black" }}>
-             {/* Numbered marker in the top left corner */}
-             <div
-               style={{
-                 position: "absolute",
-                 left: 120,
-                 top: 120,
-                 backgroundColor: "#DC2626",
-                 color: "white",
-                 fontFamily,
-                 fontSize: 380,
-                 fontWeight: 900,
-                 lineHeight: 1,
-                 letterSpacing: "0.02em",
-                 padding: "34px 48px",
-                 borderRadius: 12,
-                 opacity: frame >= seg.start + TOOL_TITLE_DELAY ? 1 : 0,
-                 pointerEvents: "none",
-               }}
-             >
-               {seg.index}
-             </div>
-             {/* Tool name in the centre of the frame */}
-             <AbsoluteFill
-               style={{
-                 justifyContent: "center",
-                 alignItems: "center",
-                 pointerEvents: "none",
-               }}
-             >
-               <div style={TEXT_STYLE}>
-                 {seg.title.split(" ").map((word, i) => (
-                   <span
-                     key={word}
-                     style={{
-                       opacity:
-                         frame >= seg.start + TOOL_TITLE_DELAY + i * TOOL_WORD_STEP
-                           ? 1
-                           : 0,
-                     }}
-                   >
-                     {word}
-                   </span>
-                 ))}
+          {frame >= BADGE_START && (
+            <AbsoluteFill
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "#14532d",
+                  color: "white",
+                  fontFamily,
+                  lineHeight: 1,
+                  padding: "34px 78px",
+                  borderRadius: 26,
+                  fontSize: 380,
+                  fontWeight: 900,
+                }}
+              >
+                $0
+              </div>
+              <div
+                style={{
+                  fontFamily,
+                  color: "#F5F2E3",
+                  fontSize: 96,
+                  letterSpacing: "0.14em",
+                  marginTop: 26,
+                }}
+              >
+                PER MONTH
+              </div>
+            </AbsoluteFill>
+          )}
+        </AbsoluteFill>
+      )}
+      {/* Scene 10: per-tool showcase - tool name on top, logo underneath */}
+      {TOOL_TIMELINE.map((seg) => (
+        <React.Fragment key={seg.src}>
+          {seg.audio ? (
+            <Sequence
+              layout="none"
+              from={seg.start}
+              durationInFrames={seg.frames}
+            >
+              <Audio src={staticFile(seg.audio)} />
+            </Sequence>
+          ) : null}
+          {frame >= seg.start && frame < seg.start + seg.frames ? (
+            <AbsoluteFill style={{ backgroundColor: "black" }}>
+              {/* Numbered marker in the top left corner */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: 120,
+                  top: 120,
+                  backgroundColor: "#DC2626",
+                  color: "white",
+                  fontFamily,
+                  fontSize: 380,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  letterSpacing: "0.02em",
+                  padding: "34px 48px",
+                  borderRadius: 12,
+                  opacity: frame >= seg.start + TOOL_TITLE_DELAY ? 1 : 0,
+                  pointerEvents: "none",
+                }}
+              >
+                {seg.index}
+              </div>
+              {/* Tool name in the centre of the frame */}
+              <AbsoluteFill
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div style={TEXT_STYLE}>
+                  {seg.title.split(" ").map((word, i) => (
+                    <span
+                      key={word}
+                      style={{
+                        opacity:
+                          frame >=
+                          seg.start + TOOL_TITLE_DELAY + i * TOOL_WORD_STEP
+                            ? 1
+                            : 0,
+                      }}
+                    >
+                      {word}
+                    </span>
+                  ))}
                 </div>
               </AbsoluteFill>
             </AbsoluteFill>
           ) : null}
-         </React.Fragment>
-       ))}
-       {/* Scene 11: OmniRoute hub diagram */}
-        <Sequence
-          layout="none"
-          from={HUB_START}
-          durationInFrames={HUB_FRAMES}
-        >
-          <Audio src={staticFile("connects.wav")} />
-        </Sequence>
-        {/* opena.wav plays the whole way through the opencode card */}
-        <Sequence
-          layout="none"
-          from={OC_START}
-          durationInFrames={OC_FRAMES}
-        >
-          <Audio src={staticFile("opena.wav")} />
-        </Sequence>
-        {/* openomni.wav plays over the venn diagram and fades out as it ends */}
-        <Sequence
-          layout="none"
-          from={VEN_START}
-          durationInFrames={VEN_FRAMES}
-        >
-          <Audio
-            src={staticFile("openomni.wav")}
-            volume={(f) =>
-              interpolate(f, [VEN_FRAMES - 12, VEN_FRAMES], [1, 0], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              })
-            }
-          />
-        </Sequence>
-        {frame >= HUB_START && frame < CMD_START && (
-          <AbsoluteFill style={{ backgroundColor: "black" }}>
-            {/* Curved lines from the hub out to every tool, drawn on frame */}
-           <svg
-             width={3840}
-             height={2160}
-             style={{ position: "absolute", left: 0, top: 0 }}
-           >
-             {HUB_ROWS.map((row) => {
-               // the cable starts at the omniroute hub and sweeps right out
-               // to the logo, so it reads left to right
-               const x1 = HUB_COLUMN_X;
-               const y1 = row.y;
-               const x2 = HUB_HUB_LINE_END;
-               const y2 = HUB_NODE_Y;
-               const span = x1 - x2;
-               const cx1 = x1 - span * 0.45;
-               const cx2 = x2 + span * 0.45;
-               const len = bezierLength(x1, y1, cx1, y1, cx2, y2, x2, y2);
-               const p = interpolate(
-                 frame,
-                 [HUB_START + row.delay, HUB_START + row.delay + HUB_LINE_DRAW],
-                 [0, 1],
-                 {
-                   extrapolateLeft: "clamp",
-                   extrapolateRight: "clamp",
-                   easing: Easing.linear,
-                 },
-               );
-               return (
-                 <path
-                   key={row.src}
-                   d={`M ${x2} ${y2} C ${cx2} ${y2}, ${cx1} ${y1}, ${x1} ${y1}`}
-                   fill="none"
-                   stroke="#22C55E"
-                   strokeWidth={7}
-                   strokeLinecap="round"
-                   strokeDasharray={len}
-                   strokeDashoffset={len * (1 - p)}
-                 />
-               );
-             })}
+        </React.Fragment>
+      ))}
+      {/* Scene 11: OmniRoute hub diagram */}
+      <Sequence layout="none" from={HUB_START} durationInFrames={HUB_FRAMES}>
+        <Audio src={staticFile("connects.wav")} />
+      </Sequence>
+      {/* opena.wav plays the whole way through the opencode card */}
+      <Sequence layout="none" from={OC_START} durationInFrames={OC_FRAMES}>
+        <Audio src={staticFile("opena.wav")} />
+      </Sequence>
+      {/* tkilo.wav plays the whole way through the Kilo Code card */}
+      <Sequence layout="none" from={KILO_START} durationInFrames={KILO_FRAMES}>
+        <Audio src={staticFile("tkilo.wav")} />
+      </Sequence>
+      {/* openomni.wav starts right after tkilo.wav ends and carries through
+            the closing scenes, fading out as it finishes */}
+      <Sequence
+        layout="none"
+        from={OPENOMNI_START}
+        durationInFrames={OPENOMNI_FRAMES}
+      >
+        <Audio
+          src={staticFile("openomni.wav")}
+          volume={(f) =>
+            interpolate(f, [OPENOMNI_FRAMES - 12, OPENOMNI_FRAMES], [1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            })
+          }
+        />
+      </Sequence>
+      {frame >= HUB_START && frame < CMD_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* Curved lines from the hub out to every tool, drawn on frame */}
+          <svg
+            width={3840}
+            height={2160}
+            style={{ position: "absolute", left: 0, top: 0 }}
+          >
+            {HUB_ROWS.map((row) => {
+              // the cable starts at the omniroute hub and sweeps right out
+              // to the logo, so it reads left to right
+              const x1 = HUB_COLUMN_X;
+              const y1 = row.y;
+              const x2 = HUB_HUB_LINE_END;
+              const y2 = HUB_NODE_Y;
+              const span = x1 - x2;
+              const cx1 = x1 - span * 0.45;
+              const cx2 = x2 + span * 0.45;
+              const len = bezierLength(x1, y1, cx1, y1, cx2, y2, x2, y2);
+              const p = interpolate(
+                frame,
+                [HUB_START + row.delay, HUB_START + row.delay + HUB_LINE_DRAW],
+                [0, 1],
+                {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                  easing: Easing.linear,
+                },
+              );
+              return (
+                <path
+                  key={row.src}
+                  d={`M ${x2} ${y2} C ${cx2} ${y2}, ${cx1} ${y1}, ${x1} ${y1}`}
+                  fill="none"
+                  stroke="#22C55E"
+                  strokeWidth={7}
+                  strokeLinecap="round"
+                  strokeDasharray={len}
+                  strokeDashoffset={len * (1 - p)}
+                />
+              );
+            })}
 
-             {/* straight connector between the hub and "50+ AI" - it also
+            {/* straight connector between the hub and "50+ AI" - it also
                  starts at the hub and grows out to the left */}
-             {(() => {
-               const { hubX, aiX, delay } = HUB_LEFT_LINE;
-               const len = hubX - aiX;
-               const p = interpolate(
-                 frame,
-                 [HUB_START + delay, HUB_START + delay + HUB_LINE_DRAW],
-                 [0, 1],
-                 {
-                   extrapolateLeft: "clamp",
-                   extrapolateRight: "clamp",
-                   easing: Easing.linear,
-                 },
-               );
-               return (
-                 <line
-                   x1={hubX}
-                   y1={HUB_NODE_Y}
-                   x2={aiX}
-                   y2={HUB_NODE_Y}
-                   stroke="#22C55E"
-                   strokeWidth={7}
-                   strokeLinecap="round"
-                   strokeDasharray={len}
-                   strokeDashoffset={len * (1 - p)}
-                 />
-               );
-             })()}
+            {(() => {
+              const { hubX, aiX, delay } = HUB_LEFT_LINE;
+              const len = hubX - aiX;
+              const p = interpolate(
+                frame,
+                [HUB_START + delay, HUB_START + delay + HUB_LINE_DRAW],
+                [0, 1],
+                {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                  easing: Easing.linear,
+                },
+              );
+              return (
+                <line
+                  x1={hubX}
+                  y1={HUB_NODE_Y}
+                  x2={aiX}
+                  y2={HUB_NODE_Y}
+                  stroke="#22C55E"
+                  strokeWidth={7}
+                  strokeLinecap="round"
+                  strokeDasharray={len}
+                  strokeDashoffset={len * (1 - p)}
+                />
+              );
+            })()}
           </svg>
 
           {/* "50+ AI" on the left, in a box that lands red and flips to
@@ -1287,16 +1328,11 @@ export const Yt3: React.FC = () => {
               },
             );
             const boxStart = HUB_START + HUB_HUB_FRAMES;
-            const box = interpolate(
-              frame,
-              [boxStart, boxStart + 6],
-              [0, 1],
-              {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-                easing: Easing.out(Easing.cubic),
-              },
-            );
+            const box = interpolate(frame, [boxStart, boxStart + 6], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+              easing: Easing.out(Easing.cubic),
+            });
             return (
               <div
                 style={{
@@ -1336,7 +1372,9 @@ export const Yt3: React.FC = () => {
                       zIndex: 0,
                     }}
                   />
-                  <span style={{ position: "relative", zIndex: 1 }}>omniroute</span>
+                  <span style={{ position: "relative", zIndex: 1 }}>
+                    omniroute
+                  </span>
                 </div>
               </div>
             );
@@ -1370,7 +1408,11 @@ export const Yt3: React.FC = () => {
             pointerEvents: "none",
           }}
         >
-          <Sequence layout="none" from={CMD_START} durationInFrames={CMD_FRAMES}>
+          <Sequence
+            layout="none"
+            from={CMD_START}
+            durationInFrames={CMD_FRAMES}
+          >
             <Audio src={staticFile("runo.wav")} />
           </Sequence>
           <div
@@ -1395,7 +1437,11 @@ export const Yt3: React.FC = () => {
       {/* Scene 13: the omnifree poster, full screen on black */}
       {frame >= FREE_START && frame < OC_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
-          <Sequence layout="none" from={FREE_START} durationInFrames={FREE_FRAMES}>
+          <Sequence
+            layout="none"
+            from={FREE_START}
+            durationInFrames={FREE_FRAMES}
+          >
             <Audio src={staticFile("all.wav")} />
           </Sequence>
           <Img
@@ -1410,7 +1456,7 @@ export const Yt3: React.FC = () => {
         </AbsoluteFill>
       )}
       {/* Scene 14: the same card as scene 10, but for opencode */}
-      {frame >= OC_START && frame < BRIDGE_START && (
+      {frame >= OC_START && frame < KILO_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           {/* Numbered marker in the top left corner */}
           <div
@@ -1446,7 +1492,45 @@ export const Yt3: React.FC = () => {
           </AbsoluteFill>
         </AbsoluteFill>
       )}
-      {/* Scene 15: the closing bridge - opencode on the left, cursor on the
+      {/* Scene 15: the same card again, but for Kilo Code */}
+      {frame >= KILO_START && frame < BRIDGE_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* Numbered marker in the top left corner */}
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            3
+          </div>
+          {/* Tool name in the centre of the frame */}
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>KILO</span>
+              <span>CODE</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 16: the closing bridge - opencode on the left, cursor on the
           right and a two way arrow between them. No transition, the pieces
           just pop in one after another. */}
       {frame >= BRIDGE_START && (
@@ -1535,21 +1619,23 @@ export const Yt3: React.FC = () => {
               }}
             />
           </Sequence>
-          {/* Show ZEN just 500ms before the video ends */}
-          {frame >= CLI_START + CLI_FRAMES - 15 && frame < CLI_START + CLI_FRAMES && (
-            <AbsoluteFill
-              style={{
-                justifyContent: "flex-end",
-                alignItems: "center",
-                pointerEvents: "none",
-                paddingBottom: 100,
-              }}
-            >
-              <div style={TEXT_STYLE}>
-                <span>ZEN</span>
-              </div>
-            </AbsoluteFill>
-          )}
+          {/* Show ZEN 300ms before the footage ends, and keep it on
+              screen through the extra 300ms hold */}
+          {frame >= CLI_START + CLI_VIDEO_FRAMES - 9 &&
+            frame < CLI_START + CLI_FRAMES && (
+              <AbsoluteFill
+                style={{
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  pointerEvents: "none",
+                  paddingBottom: 100,
+                }}
+              >
+                <div style={TEXT_STYLE}>
+                  <span>ZEN</span>
+                </div>
+              </AbsoluteFill>
+            )}
         </AbsoluteFill>
       )}
       {/* Scene 17: the venn diagram, the two logos sitting in their own
@@ -1617,357 +1703,320 @@ export const Yt3: React.FC = () => {
           />
         </AbsoluteFill>
       )}
-      {/* Scene 18: an AI agent bill whose amount hazes out to $0, then
-          stonks over multiple.png */}
-      {frame >= BILL_START && frame < BILL_START + BILL_FRAMES && (
-        <AbsoluteFill style={{ backgroundColor: "#0B0B0B" }}>
-          <Sequence layout="none" from={BILL_START}>
-            <Audio src={staticFile("bills.wav")} />
-          </Sequence>
-          {frame < BILL_START + 90 && (
+      {/* Scene 18: stonks over multiple.png */}
+      {frame >= STONKS_START && frame < STONKS_START + STONKS_FRAMES && (
+        <AbsoluteFill>
+          <AbsoluteFill
+            style={{ justifyContent: "center", alignItems: "center" }}
+          >
+            <Img
+              src={staticFile("multiple.png")}
+              style={{
+                width: "92%",
+                height: "92%",
+                objectFit: "contain",
+              }}
+            />
+          </AbsoluteFill>
+          {frame >= STONKS_START + 15 && (
             <AbsoluteFill
-              style={{ justifyContent: "center", alignItems: "center" }}
+              style={{
+                justifyContent: "flex-end",
+                alignItems: "flex-start",
+                padding: 100,
+                pointerEvents: "none",
+              }}
             >
-              <div
-                style={{
-                  width: 2800,
-                  height: 1600,
-                  padding: "90px 120px",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  flexDirection: "column",
-                  borderRadius: 32,
-                  backgroundColor: "#F7F5EF",
-                  fontFamily: interFontFamily,
-                  color: "#171717",
-                  boxShadow: "0 50px 140px rgba(0, 0, 0, 0.6)",
-                }}
-              >
-                {/* Header: the AI agent that sent the bill */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 28,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 92,
-                        height: 92,
-                        borderRadius: "50%",
-                        backgroundColor: "#D97757",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "white",
-                        fontSize: 52,
-                        fontWeight: 800,
-                      }}
-                    >
-                      C
-                    </div>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: 80,
-                          fontWeight: 800,
-                          letterSpacing: "-3px",
-                          lineHeight: 1,
-                        }}
-                      >
-                        Claude
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 28,
-                          color: "#8A857A",
-                          marginTop: 12,
-                          letterSpacing: "1px",
-                        }}
-                      >
-                        by Anthropic
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div
-                      style={{
-                        fontSize: 28,
-                        letterSpacing: "8px",
-                        color: "#8A857A",
-                        fontWeight: 700,
-                      }}
-                    >
-                      INVOICE
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 40,
-                        fontWeight: 700,
-                        marginTop: 14,
-                      }}
-                    >
-                      #CLD-0149
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 28,
-                        color: "#8A857A",
-                        marginTop: 10,
-                      }}
-                    >
-                      Feb 14, 2026
-                    </div>
-                  </div>
-                </div>
-                {/* Who is billed and for which plan */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: 64,
-                  }}
-                >
-                  <div>
-                    <div style={BILL_LABEL_STYLE}>BILLED TO</div>
-                    <div
-                      style={{ fontSize: 44, fontWeight: 700, marginTop: 12 }}
-                    >
-                      You
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 30,
-                        color: "#8A857A",
-                        marginTop: 6,
-                      }}
-                    >
-                      you@example.com
-                    </div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={BILL_LABEL_STYLE}>PLAN</div>
-                    <div
-                      style={{ fontSize: 44, fontWeight: 700, marginTop: 12 }}
-                    >
-                      Claude Pro
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 30,
-                        color: "#8A857A",
-                        marginTop: 6,
-                      }}
-                    >
-                      Monthly · Auto-renew
-                    </div>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    height: 2,
-                    backgroundColor: "#E3DFD4",
-                    marginTop: 44,
-                  }}
-                />
-                {/* Line items */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "30px 0 16px",
-                    fontSize: 26,
-                    letterSpacing: "4px",
-                    color: "#8A857A",
-                    fontWeight: 700,
-                  }}
-                >
-                  <span>DESCRIPTION</span>
-                  <span>AMOUNT</span>
-                </div>
-                {BILL_ROWS.map((row) => (
-                  <div
-                    key={row.label + row.detail}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "22px 0",
-                      borderBottom: "1.5px solid #ECE8DE",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 40, fontWeight: 600 }}>
-                        {row.label}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 28,
-                          color: "#8A857A",
-                          marginTop: 6,
-                        }}
-                      >
-                        {row.detail}
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 40,
-                        fontWeight: 600,
-                        fontVariantNumeric: "tabular-nums",
-                      }}
-                    >
-                      {row.amount}
-                    </div>
-                  </div>
-                ))}
-                {/* Total, which hazes out and fluctuates to $0 */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-end",
-                    marginTop: "auto",
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{
-                        fontSize: 30,
-                        letterSpacing: "4px",
-                        color: "#8A857A",
-                        fontWeight: 700,
-                      }}
-                    >
-                      TOTAL DUE
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 26,
-                        color: "#8A857A",
-                        marginTop: 10,
-                      }}
-                    >
-                      Payment due upon receipt
-                    </div>
-                  </div>
-                  {(() => {
-                    const localFrame = frame - BILL_START;
-                    const numberStyle: React.CSSProperties = {
-                      fontSize: 240,
-                      fontWeight: 800,
-                      letterSpacing: "-10px",
-                      lineHeight: 0.9,
-                      display: "inline-block",
-                      transformOrigin: "right center",
-                      fontVariantNumeric: "tabular-nums",
-                    };
-                    if (localFrame < 30) {
-                      return (
-                        <span style={{ ...numberStyle, color: "#171717" }}>
-                          $149
-                        </span>
-                      );
-                    } else if (localFrame < 60) {
-                      const t = (localFrame - 30) / 30;
-                      const amount =
-                        t < 0.2
-                          ? 149
-                          : Math.floor(
-                              random(
-                                `bill-${Math.floor(localFrame / 4)}`,
-                              ) * 149,
-                            ) + 1;
-                      return (
-                        <span
-                          style={{
-                            ...numberStyle,
-                            color: "#171717",
-                            filter: `blur(${interpolate(
-                              t,
-                              [0, 1],
-                              [0, 22],
-                            )}px)`,
-                            opacity: interpolate(t, [0, 1], [1, 0]),
-                            transform: `scale(${interpolate(
-                              t,
-                              [0, 1],
-                              [1, 1.2],
-                            )})`,
-                          }}
-                        >
-                          ${amount}
-                        </span>
-                      );
-                    } else {
-                      const reveal = interpolate(
-                        localFrame,
-                        [60, 78],
-                        [0, 1],
-                        {
-                          extrapolateLeft: "clamp",
-                          extrapolateRight: "clamp",
-                        },
-                      );
-                      return (
-                        <span
-                          style={{
-                            ...numberStyle,
-                            color: "#16A34A",
-                            opacity: reveal,
-                            filter: `blur(${(1 - reveal) * 22}px)`,
-                            transform: `scale(${interpolate(
-                              reveal,
-                              [0, 1],
-                              [1.2, 1],
-                            )})`,
-                          }}
-                        >
-                          $0
-                        </span>
-                      );
-                    }
-                  })()}
-                </div>
-              </div>
-            </AbsoluteFill>
-          )}
-          {frame >= BILL_START + 90 && (
-            <AbsoluteFill>
               <Img
-                src={staticFile("multiple.png")}
+                src={staticFile("stonks.png")}
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
+                  width: 1100,
+                  height: "auto",
+                  objectFit: "contain",
                 }}
               />
-              <AbsoluteFill
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                <Img
-                  src={staticFile("stonks.png")}
-                  style={{
-                    width: 1800,
-                    height: 1347,
-                    objectFit: "contain",
-                  }}
-                />
-              </AbsoluteFill>
             </AbsoluteFill>
           )}
+        </AbsoluteFill>
+      )}
+      {/* Scene 20: an AI agent bill whose amount churns and snaps to $0 */}
+      {frame >= BILL_START && frame < BILL_START + BILL_FRAMES && (
+        <AbsoluteFill style={{ backgroundColor: "#0B0B0B" }}>
+          <AbsoluteFill
+            style={{ justifyContent: "center", alignItems: "center" }}
+          >
+            <div
+              style={{
+                width: 2800,
+                height: 1600,
+                padding: "90px 120px",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 32,
+                backgroundColor: "#F7F5EF",
+                fontFamily: interFontFamily,
+                color: "#171717",
+                boxShadow: "0 50px 140px rgba(0, 0, 0, 0.6)",
+              }}
+            >
+              {/* Header: the AI agent that sent the bill */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 28,
+                  }}
+                >
+                  <Img
+                    src={staticFile("claude.webp")}
+                    style={{
+                      width: 150,
+                      height: 92,
+                      objectFit: "contain",
+                    }}
+                  />
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 80,
+                        fontWeight: 800,
+                        letterSpacing: "-3px",
+                        lineHeight: 1,
+                      }}
+                    >
+                      Claude
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        color: "#8A857A",
+                        marginTop: 12,
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      by Anthropic
+                    </div>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div
+                    style={{
+                      fontSize: 28,
+                      letterSpacing: "8px",
+                      color: "#8A857A",
+                      fontWeight: 700,
+                    }}
+                  >
+                    INVOICE
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 40,
+                      fontWeight: 700,
+                      marginTop: 14,
+                    }}
+                  >
+                    #CLD-0149
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 28,
+                      color: "#8A857A",
+                      marginTop: 10,
+                    }}
+                  >
+                    Feb 14, 2026
+                  </div>
+                </div>
+              </div>
+              {/* Who is billed and for which plan */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: 64,
+                }}
+              >
+                <div>
+                  <div style={BILL_LABEL_STYLE}>BILLED TO</div>
+                  <div style={{ fontSize: 44, fontWeight: 700, marginTop: 12 }}>
+                    You
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      color: "#8A857A",
+                      marginTop: 6,
+                    }}
+                  >
+                    you@example.com
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={BILL_LABEL_STYLE}>PLAN</div>
+                  <div style={{ fontSize: 44, fontWeight: 700, marginTop: 12 }}>
+                    Claude Pro
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      color: "#8A857A",
+                      marginTop: 6,
+                    }}
+                  >
+                    Monthly · Auto-renew
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  height: 2,
+                  backgroundColor: "#E3DFD4",
+                  marginTop: 44,
+                }}
+              />
+              {/* Line items */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "30px 0 16px",
+                  fontSize: 26,
+                  letterSpacing: "4px",
+                  color: "#8A857A",
+                  fontWeight: 700,
+                }}
+              >
+                <span>DESCRIPTION</span>
+                <span>AMOUNT</span>
+              </div>
+              {BILL_ROWS.map((row) => (
+                <div
+                  key={row.label + row.detail}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "22px 0",
+                    borderBottom: "1.5px solid #ECE8DE",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 40, fontWeight: 600 }}>
+                      {row.label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        color: "#8A857A",
+                        marginTop: 6,
+                      }}
+                    >
+                      {row.detail}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 40,
+                      fontWeight: 600,
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {row.amount}
+                  </div>
+                </div>
+              ))}
+              {/* Total, which hazes out and fluctuates to $0 */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-end",
+                  marginTop: "auto",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontSize: 30,
+                      letterSpacing: "4px",
+                      color: "#8A857A",
+                      fontWeight: 700,
+                    }}
+                  >
+                    TOTAL DUE
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 26,
+                      color: "#8A857A",
+                      marginTop: 10,
+                    }}
+                  >
+                    Payment due upon receipt
+                  </div>
+                </div>
+                {(() => {
+                  const localFrame = frame - BILL_START;
+                  const numberStyle: React.CSSProperties = {
+                    fontSize: 320,
+                    fontWeight: 800,
+                    letterSpacing: "-14px",
+                    lineHeight: 0.9,
+                    display: "inline-block",
+                    transformOrigin: "right center",
+                    fontVariantNumeric: "tabular-nums",
+                    color: "#171717",
+                  };
+                  if (localFrame < 20) {
+                    return <span style={numberStyle}>$149</span>;
+                  }
+                  if (localFrame < 36) {
+                    // Rapidly churn through amounts with heavy per-frame
+                    // jitter. No fade, blur or scale - the numbers just
+                    // flicker and shake until the bill snaps to $0.
+                    const amount =
+                      localFrame < 24
+                        ? 149
+                        : Math.floor(
+                            random(`bill-${localFrame}`) * 999,
+                          ) + 1;
+                    const jitterX =
+                      (random(`bill-jx-${localFrame}`) - 0.5) * 120;
+                    const jitterY =
+                      (random(`bill-jy-${localFrame}`) - 0.5) * 70;
+                    const skew =
+                      (random(`bill-sk-${localFrame}`) - 0.5) * 40;
+                    const rotate =
+                      (random(`bill-rot-${localFrame}`) - 0.5) * 8;
+                    return (
+                      <span
+                        style={{
+                          ...numberStyle,
+                          transform: `translate(${jitterX}px, ${jitterY}px) skewX(${skew}deg) rotate(${rotate}deg)`,
+                        }}
+                      >
+                        ${amount}
+                      </span>
+                    );
+                  }
+                  return (
+                    <span style={{ ...numberStyle, color: "#000000" }}>
+                      $0
+                    </span>
+                  );
+                })()}
+              </div>
+            </div>
+          </AbsoluteFill>
         </AbsoluteFill>
       )}
     </>
