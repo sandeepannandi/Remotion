@@ -195,18 +195,10 @@ const OC_AUDIO_FRAMES = Math.ceil(1.92 * 30);
 // the audio, so opena.wav is never cut off
 const OC_FRAMES = Math.max(Math.ceil(2.24 * 30), OC_AUDIO_FRAMES);
 
-// Scene 15: the same card again, this time for Kilo Code
-// (badge "3" in the top left corner, the name in the middle of the frame)
-const KILO_START = OC_START + OC_FRAMES;
-// tkilo.wav = 1.6s -> 48 frames, and the card stays exactly until the audio
-// fully completes
-const KILO_AUDIO_FRAMES = Math.ceil(1.6 * 30);
-const KILO_FRAMES = KILO_AUDIO_FRAMES;
-
 // Scene 16: the closing bridge - open.png (opencode) on the left, cursor.png
 // on the right and a two way arrow between them. Plain black screen, no
 // transition, the three pieces just pop in one after another.
-const BRIDGE_START = KILO_START + KILO_FRAMES;
+const BRIDGE_START = OC_START + OC_FRAMES;
 const BRIDGE_FRAMES = 75; // 2.5s
 const BRIDGE_LOGO_H = 900; // both logos are the same height
 const BRIDGE_OPEN_X = 510; // open.png sits on the left
@@ -214,12 +206,12 @@ const BRIDGE_CURSOR_X = 2430; // cursor.png sits on the right
 const BRIDGE_ARROW_X = 1380; // the arrow fills the gap between them
 const BRIDGE_ARROW_W = 900;
 const BRIDGE_STEP = 6; // frames between each piece popping in
+const CLI_START = BRIDGE_START + BRIDGE_FRAMES - 15;
 
 // Scene 17: the opencli.mp4 terminal recording, full screen. It is played
 // back at 1.6x so it goes by quickly: 3.65s of footage becomes 2.28s.
 // It cuts in 500ms earlier than the end of the bridge hold, so the recording
 // shows up sooner (the rest of the timeline moves with it).
-const CLI_START = BRIDGE_START + BRIDGE_FRAMES - 15;
 // 219 frames @ 60fps at 1.6x -> 69 frames of footage
 const CLI_VIDEO_FRAMES = Math.ceil((219 / 60 / 1.6) * 30);
 // hold the scene 300ms longer before cutting to the venn diagram
@@ -236,16 +228,38 @@ const VEN_FRAMES = Math.ceil(2 * 30) + 12; // 2s + 400ms hold before the next sc
 const STONKS_START = VEN_START + VEN_FRAMES;
 const STONKS_FRAMES = Math.ceil(3 * 30); // 90 frames, the same hold as before
 
-// Scene 20: an AI agent bill whose amount churns and snaps to $0. It closes
-// the video.
-const BILL_START = STONKS_START + STONKS_FRAMES;
-const BILL_FRAMES = Math.ceil(3 * 30); // 90 frames, enough for the $0 reveal
-
-// openomni.wav = 12s. It starts the moment tkilo.wav ends, so the narration
+// openomni.wav = 12s. It starts the moment opena.wav ends, so the narration
 // never stops, and carries through the bridge, the cli recording, the venn
 // diagram and into the bill.
-const OPENOMNI_START = KILO_START + KILO_AUDIO_FRAMES;
+const OPENOMNI_START = OC_START + OC_AUDIO_FRAMES;
 const OPENOMNI_FRAMES = Math.ceil(12 * 30); // 12s -> 360 frames
+
+// Scene 20: an AI agent bill whose amount churns and snaps to $0. It runs
+// exactly until openomni.wav ends, then cuts straight to the Kilo Code card.
+const BILL_START = STONKS_START + STONKS_FRAMES;
+const BILL_FRAMES = OPENOMNI_START + OPENOMNI_FRAMES - BILL_START;
+
+// Scene 21: the same card again, this time for Kilo Code (at the end)
+const KILO_START = BILL_START + BILL_FRAMES;
+// tkilo.wav = 1.6s -> 48 frames, and the card stays exactly until the audio
+// fully completes
+const KILO_AUDIO_FRAMES = Math.ceil(1.6 * 30);
+const KILO_FRAMES = KILO_AUDIO_FRAMES;
+// Scene 22: kilo.png on left, opencode.png on right, "similar to" text between
+const SIMILAR_START = KILO_START + KILO_FRAMES;
+const SIMILAR_FRAMES = Math.ceil(3.44 * 30); // similar.wav = 3.44s
+const DOLLAR_FRAMES = Math.ceil(SIMILAR_FRAMES / 2) + 15;
+const DOLLAR_START = SIMILAR_START;
+const KILO2_OPEN_START = SIMILAR_START + DOLLAR_FRAMES;
+const SIMILAR_LOGO_H = 750;
+const DOLLAR_LOGO_H = 1100;
+const SIMILAR_KILO_X = 300;
+const SIMILAR_OC_X = 2800;
+const SIMILAR_STEP = 6;
+const CLI2_START = SIMILAR_START + SIMILAR_FRAMES;
+const CLI2_FRAMES = Math.ceil(6.88 * 30); // manymodes.wav = 6.88s
+const GROQ_START = CLI2_START + CLI2_FRAMES;
+const GROQ_FRAMES = Math.ceil(1.92 * 30); // 4groq.wav = 1.92s
 const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
@@ -287,10 +301,9 @@ const BILL_ROWS = [
   },
 ];
 
-// The composition ends the instant the final audio (openomni.wav) ends, so
-// there is no silent tail after the narration. The bill's $0 lands on the
-// last spoken word, right before this cut.
-export const TOTAL_DURATION = OPENOMNI_START + OPENOMNI_FRAMES;
+// The composition ends when the final Kilo Code card ends, so its audio
+// (tkilo.wav) always plays out completely.
+export const TOTAL_DURATION = GROQ_START + GROQ_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1179,7 +1192,7 @@ export const Yt3: React.FC = () => {
       <Sequence layout="none" from={KILO_START} durationInFrames={KILO_FRAMES}>
         <Audio src={staticFile("tkilo.wav")} />
       </Sequence>
-      {/* openomni.wav starts right after tkilo.wav ends and carries through
+      {/* openomni.wav starts right after opena.wav ends and carries through
             the closing scenes, fading out as it finishes */}
       <Sequence
         layout="none"
@@ -1456,7 +1469,7 @@ export const Yt3: React.FC = () => {
         </AbsoluteFill>
       )}
       {/* Scene 14: the same card as scene 10, but for opencode */}
-      {frame >= OC_START && frame < KILO_START && (
+      {frame >= OC_START && frame < BRIDGE_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           {/* Numbered marker in the top left corner */}
           <div
@@ -1488,44 +1501,6 @@ export const Yt3: React.FC = () => {
           >
             <div style={TEXT_STYLE}>
               <span>OPENCODE</span>
-            </div>
-          </AbsoluteFill>
-        </AbsoluteFill>
-      )}
-      {/* Scene 15: the same card again, but for Kilo Code */}
-      {frame >= KILO_START && frame < BRIDGE_START && (
-        <AbsoluteFill style={{ backgroundColor: "black" }}>
-          {/* Numbered marker in the top left corner */}
-          <div
-            style={{
-              position: "absolute",
-              left: 120,
-              top: 120,
-              backgroundColor: "#DC2626",
-              color: "white",
-              fontFamily,
-              fontSize: 380,
-              fontWeight: 900,
-              lineHeight: 1,
-              letterSpacing: "0.02em",
-              padding: "34px 48px",
-              borderRadius: 12,
-              pointerEvents: "none",
-            }}
-          >
-            3
-          </div>
-          {/* Tool name in the centre of the frame */}
-          <AbsoluteFill
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              pointerEvents: "none",
-            }}
-          >
-            <div style={TEXT_STYLE}>
-              <span>KILO</span>
-              <span>CODE</span>
             </div>
           </AbsoluteFill>
         </AbsoluteFill>
@@ -2015,6 +1990,198 @@ export const Yt3: React.FC = () => {
                   );
                 })()}
               </div>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 21: the Kilo Code card, the very last thing in the video. It is
+          rendered last on purpose so it sits on top of every earlier scene
+          (the bridge in particular never unmounts). */}
+      {frame >= KILO_START && frame < KILO_START + KILO_FRAMES && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {/* Numbered marker in the top left corner */}
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            3
+          </div>
+          {/* Tool name in the centre of the frame */}
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>KILO</span>
+              <span>CODE</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* similar.wav plays across both dollar and similar-to scenes */}
+      <Sequence
+        layout="none"
+        from={SIMILAR_START}
+        durationInFrames={SIMILAR_FRAMES}
+      >
+        <Audio src={staticFile("similar.wav")} />
+      </Sequence>
+      {frame >= DOLLAR_START && frame < KILO2_OPEN_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {frame >= DOLLAR_START && (
+            <AbsoluteFill
+              style={{
+                width: "30%",
+                left: "20%",
+                justifyContent: "center",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <Img
+                src={staticFile("kilo2.png")}
+                style={{
+                  height: DOLLAR_LOGO_H,
+                  width: "auto",
+                  objectFit: "contain",
+                }}
+              />
+            </AbsoluteFill>
+          )}
+          {frame >= DOLLAR_START + SIMILAR_STEP && (
+            <AbsoluteFill
+              style={{
+                left: "50%",
+                width: "40%",
+                justifyContent: "center",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div style={{ ...TEXT_STYLE, fontSize: 900 }}>$0</div>
+            </AbsoluteFill>
+          )}
+        </AbsoluteFill>
+      )}
+      {/* Scene 22b: kilo2.png on left, open.png on right, "similar to" text between */}
+      {frame >= KILO2_OPEN_START && frame < SIMILAR_START + SIMILAR_FRAMES && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          {frame >= KILO2_OPEN_START && (
+            <Img
+              src={staticFile("kilo2.png")}
+              style={{
+                position: "absolute",
+                left: SIMILAR_KILO_X,
+                top: 1080 - SIMILAR_LOGO_H / 2,
+                height: SIMILAR_LOGO_H,
+                width: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {frame >= KILO2_OPEN_START + SIMILAR_STEP && (
+            <AbsoluteFill
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div style={{ ...TEXT_STYLE, fontSize: 320 }}>similar to</div>
+            </AbsoluteFill>
+          )}
+          {frame >= KILO2_OPEN_START + SIMILAR_STEP * 2 && (
+            <Img
+              src={staticFile("open.png")}
+              style={{
+                position: "absolute",
+                left: SIMILAR_OC_X,
+                top: 1080 - SIMILAR_LOGO_H / 2,
+                height: SIMILAR_LOGO_H,
+                width: "auto",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </AbsoluteFill>
+      )}
+      {/* Final: kilocli.mp4 full screen with manymodes.wav */}
+      {frame >= CLI2_START && frame < CLI2_START + CLI2_FRAMES && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence from={CLI2_START}>
+            <OffthreadVideo
+              src={staticFile("kilocli.mp4")}
+              startFrom={0}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Sequence>
+          <Sequence
+            layout="none"
+            from={CLI2_START}
+            durationInFrames={CLI2_FRAMES}
+          >
+            <Audio src={staticFile("manymodes.wav")} />
+          </Sequence>
+        </AbsoluteFill>
+      )}
+      {/* Scene: 4. GROQ card, same style as Kilo Code */}
+      {frame >= GROQ_START && frame < GROQ_START + GROQ_FRAMES && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence
+            layout="none"
+            from={GROQ_START}
+            durationInFrames={GROQ_FRAMES}
+          >
+            <Audio src={staticFile("4groq.wav")} />
+          </Sequence>
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            4
+          </div>
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>GROQ</span>
             </div>
           </AbsoluteFill>
         </AbsoluteFill>
