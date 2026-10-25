@@ -13,11 +13,13 @@ import {
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/BebasNeue";
 import { loadFont as loadInterFont } from "@remotion/google-fonts/Inter";
+import { loadFont as loadJetBrainsMono } from "@remotion/google-fonts/JetBrainsMono";
 import { Gif } from "@remotion/gif";
 import React from "react";
 
 const { fontFamily } = loadFont();
 const { fontFamily: interFontFamily } = loadInterFont();
+const { fontFamily: jetBrainsMonoFontFamily } = loadJetBrainsMono();
 
 const TEXT_STYLE: React.CSSProperties = {
   fontFamily,
@@ -260,6 +262,48 @@ const CLI2_START = SIMILAR_START + SIMILAR_FRAMES;
 const CLI2_FRAMES = Math.ceil(6.88 * 30); // manymodes.wav = 6.88s
 const GROQ_START = CLI2_START + CLI2_FRAMES;
 const GROQ_FRAMES = Math.ceil(1.92 * 30); // 4groq.wav = 1.92s
+// Scene 24: the closing free-key card, cutting straight in after the GROQ
+// card. "FREE" sits on top in the video's title style, the sample API key
+// underneath in JetBrains Mono. It holds for 2s, then the drooling scene
+// cuts in while groqfull.wav keeps playing to the end.
+const FREE_KEY_START = GROQ_START + GROQ_FRAMES;
+const FREE_KEY_FRAMES = Math.ceil(2 * 30);
+const SAMPLE_API_KEY = "sk_free_9c4a7e1b6d2f8a0c5e3b7d1f4a9c2e6b";
+// groqfull.wav = 16.96s; it starts on the free-key card and runs through the
+// drooling scene, and the composition ends when the audio completes.
+const GROQFULL_FRAMES = Math.ceil(16.96 * 30);
+// Scene 25: drooling.png full screen with "14400" and "requests per day"
+// overlaid. It holds 2s plus an extra 500ms, then the gif scene cuts in.
+const DROOL_START = FREE_KEY_START + FREE_KEY_FRAMES;
+const DROOL_FRAMES = Math.ceil(2 * 30) + 15;
+// Scene 26: embares.gif looping on the right, "EMBARRASSINGLY FAST" on the
+// left. One loop of the gif is 2.8s.
+const EMBARES_START = DROOL_START + DROOL_FRAMES;
+const EMBARES_FRAMES = Math.ceil(2.8 * 30);
+// Scene 27: bigb.png on the right, "2000 tokens/sec" on the left. It holds
+// 3s minus 800ms so the batmans scene arrives earlier.
+const BIGB_START = EMBARES_START + EMBARES_FRAMES;
+const BIGB_FRAMES = Math.ceil(3 * 30) - 24;
+// Scenes 28-30: batmans.png -> freeapi.png -> imin.png, all contained
+// full-frame. They are a continuation of groqfull.wav, so together they
+// fill the remaining audio time and the video ends when it ends.
+const BATMAN_START = BIGB_START + BIGB_FRAMES;
+const BATMAN_FRAMES = 72;
+const FREEAPI_START = BATMAN_START + BATMAN_FRAMES;
+const FREEAPI_FRAMES = 72;
+const IMIN_START = FREEAPI_START + FREEAPI_FRAMES;
+const IMIN_FRAMES =
+  GROQFULL_FRAMES -
+  FREE_KEY_FRAMES -
+  DROOL_FRAMES -
+  EMBARES_FRAMES -
+  BIGB_FRAMES -
+  BATMAN_FRAMES -
+  FREEAPI_FRAMES;
+// Scene 31: "5 / CODEX CLI" numbered card, starting right after the audio
+// ends. codexc.wav (1.6s) plays fully inside the scene.
+const CODEX_START = IMIN_START + IMIN_FRAMES;
+const CODEX_FRAMES = Math.ceil(1.6 * 30);
 const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
@@ -301,9 +345,8 @@ const BILL_ROWS = [
   },
 ];
 
-// The composition ends when the final Kilo Code card ends, so its audio
-// (tkilo.wav) always plays out completely.
-export const TOTAL_DURATION = GROQ_START + GROQ_FRAMES;
+// The composition ends with the CODEX CLI card after the audio completes.
+export const TOTAL_DURATION = CODEX_START + CODEX_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1208,6 +1251,15 @@ export const Yt3: React.FC = () => {
             })
           }
         />
+      </Sequence>
+      {/* groqfull.wav starts with the free-key card and keeps playing through
+          the drooling scene until the audio completes */}
+      <Sequence
+        layout="none"
+        from={FREE_KEY_START}
+        durationInFrames={GROQFULL_FRAMES}
+      >
+        <Audio src={staticFile("groqfull.wav")} />
       </Sequence>
       {frame >= HUB_START && frame < CMD_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -2182,6 +2234,255 @@ export const Yt3: React.FC = () => {
           >
             <div style={TEXT_STYLE}>
               <span>GROQ</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 24: the closing free-key card - "FREE" on top in the same
+          title style used across the video, the sample API key below it in
+          JetBrains Mono. It cuts in the instant the GROQ card ends. */}
+      {frame >= FREE_KEY_START && frame < DROOL_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 140,
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>FREE</span>
+            </div>
+            <div
+              style={{
+                fontFamily: jetBrainsMonoFontFamily,
+                color: "#F5F2E3",
+                fontSize: 120,
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                whiteSpace: "nowrap",
+                opacity: 0.92,
+              }}
+            >
+              {SAMPLE_API_KEY}
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+      {/* Scene 25: drooling.png full screen with "14400" and "requests"
+          overlaid in the middle, cutting in 2s after the free-key card while
+          groqfull.wav keeps playing */}
+      {frame >= DROOL_START && frame < EMBARES_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("drooling.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              justifyContent: "flex-start",
+              alignItems: "center",
+              paddingTop: 170,
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ ...TEXT_STYLE, color: "#FFFFFF" }}>
+                <span>14400</span>
+              </div>
+              <div
+                style={{
+                  fontFamily,
+                  color: "#FFFFFF",
+                  fontSize: 150,
+                  letterSpacing: "0.12em",
+                  marginTop: 40,
+                }}
+              >
+                requests per day
+              </div>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 26: embares.gif centred full-frame with "EMBARRASSINGLY
+          FAST" split over two lines and centred on top */}
+      {frame >= EMBARES_START && frame < BIGB_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Gif
+            src={staticFile("embares.gif")}
+            fit="cover"
+            loopBehavior="loop"
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                ...TEXT_STYLE,
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0,
+                fontSize: 340,
+                lineHeight: 0.95,
+              }}
+            >
+              <span>EMBARRASSINGLY</span>
+              <span>FAST</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 27: bigb.png centred full-frame with "2000" and
+          "tokens/sec" centred on top */}
+      {frame >= BIGB_START && frame < BATMAN_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("bigb.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingBottom: 120,
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ ...TEXT_STYLE, color: "#000000" }}>
+                <span>2000</span>
+              </div>
+              <div
+                style={{
+                  fontFamily,
+                  color: "#000000",
+                  fontSize: 140,
+                  letterSpacing: "0.12em",
+                  marginTop: 20,
+                }}
+              >
+                tokens/sec
+              </div>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 28: batmans.png contained full-frame, same narration */}
+      {frame >= BATMAN_START && frame < FREEAPI_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("batmans.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 29: freeapi.png contained full-frame, same narration */}
+      {frame >= FREEAPI_START && frame < IMIN_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("freeapi.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 30: imin.png contained full-frame, ending with the audio */}
+      {frame >= IMIN_START && frame < CODEX_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("imin.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 31: "5 / CODEX CLI" card, same style as the other numbered
+          tool cards, after the narration has finished */}
+      {frame >= CODEX_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence
+            layout="none"
+            from={CODEX_START}
+            durationInFrames={CODEX_FRAMES}
+          >
+            <Audio src={staticFile("codexc.wav")} />
+          </Sequence>
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            5
+          </div>
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>CODEX</span>
+              <span>CLI</span>
             </div>
           </AbsoluteFill>
         </AbsoluteFill>
