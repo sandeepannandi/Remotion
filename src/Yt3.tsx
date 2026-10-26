@@ -304,6 +304,35 @@ const IMIN_FRAMES =
 // ends. codexc.wav (1.6s) plays fully inside the scene.
 const CODEX_START = IMIN_START + IMIN_FRAMES;
 const CODEX_FRAMES = Math.ceil(1.6 * 30);
+// Scene 32: the codexv.mp4 recording, full screen. It shows for 2.5s while
+// codexfull.wav keeps playing, then the image scenes continue the narration.
+const CODEXV_START = CODEX_START + CODEX_FRAMES;
+const CODEXV_FRAMES = Math.ceil(2.5 * 30);
+const CODEXV_AUDIO_FRAMES = Math.ceil(13.2 * 30);
+// Scene 33: codexp.png contained full-frame, 500ms shorter so the ac scene
+// lands 500ms earlier, over the same narration.
+const CODEXP_START = CODEXV_START + CODEXV_FRAMES;
+const CODEXP_FRAMES = Math.ceil(2.5 * 30) - 15;
+// Scene 34: ac.png on the left, "MORE SLOP" on the right and a curved red
+// arrow pointing from the text to the image, all tilted slightly left.
+// It is 800ms shorter so the astra scene lands 800ms earlier.
+const SLOP_START = CODEXP_START + CODEXP_FRAMES;
+const SLOP_FRAMES = Math.ceil(3 * 30) - 24;
+// Scene 35: "ASTRA" on the left, "&" in the middle and "LUNA" on the right,
+// all shown together for 3s minus 200ms so route.png lands 200ms earlier.
+const ASTRA_START = SLOP_START + SLOP_FRAMES;
+const ASTRA_FRAMES = Math.ceil(3 * 30) - 6;
+// Scene 36: route.png contained full-frame after the astra card.
+const ROUTE_START = ASTRA_START + ASTRA_FRAMES;
+const ROUTE_FRAMES = Math.ceil(2 * 30);
+// Scene 37: vm.gif fills the remaining narration; the video ends exactly when
+// codexfull.wav ends.
+const VM_START = ROUTE_START + ROUTE_FRAMES;
+const CODEXFULL_END = CODEXV_START + CODEXV_AUDIO_FRAMES;
+// Scene 38: "6 / MISTRAL" numbered card after the narration ends; 6m.wav
+// (1.68s) plays fully inside the scene.
+const MISTRAL_START = CODEXFULL_END;
+const MISTRAL_FRAMES = Math.ceil(1.68 * 30);
 const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
@@ -345,8 +374,8 @@ const BILL_ROWS = [
   },
 ];
 
-// The composition ends with the CODEX CLI card after the audio completes.
-export const TOTAL_DURATION = CODEX_START + CODEX_FRAMES;
+// The composition ends with the MISTRAL card after the narration.
+export const TOTAL_DURATION = MISTRAL_START + MISTRAL_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1260,6 +1289,15 @@ export const Yt3: React.FC = () => {
         durationInFrames={GROQFULL_FRAMES}
       >
         <Audio src={staticFile("groqfull.wav")} />
+      </Sequence>
+      {/* codexfull.wav starts with the codexv recording and keeps playing
+          through the astra / luna scene until the audio completes */}
+      <Sequence
+        layout="none"
+        from={CODEXV_START}
+        durationInFrames={CODEXV_AUDIO_FRAMES}
+      >
+        <Audio src={staticFile("codexfull.wav")} />
       </Sequence>
       {frame >= HUB_START && frame < CMD_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -2445,7 +2483,7 @@ export const Yt3: React.FC = () => {
       )}
       {/* Scene 31: "5 / CODEX CLI" card, same style as the other numbered
           tool cards, after the narration has finished */}
-      {frame >= CODEX_START && (
+      {frame >= CODEX_START && frame < CODEXV_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
           <Sequence
             layout="none"
@@ -2483,6 +2521,232 @@ export const Yt3: React.FC = () => {
             <div style={TEXT_STYLE}>
               <span>CODEX</span>
               <span>CLI</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 32: codexv.mp4 full screen for 2.5s while codexfull.wav keeps
+          playing; the image scenes continue the same narration */}
+      {frame >= CODEXV_START && frame < CODEXP_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence from={CODEXV_START}>
+            <OffthreadVideo
+              src={staticFile("codexv.mp4")}
+              startFrom={0}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Sequence>
+        </AbsoluteFill>
+      )}
+      {/* Scene 33: codexp.png contained full-frame, same narration */}
+      {frame >= CODEXP_START && frame < SLOP_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("codexp.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 34: ac.png on the left, "MORE SLOP" on the right with a curved
+          red arrow pointing from the text to the image, tilted left */}
+      {frame >= SLOP_START && frame < ASTRA_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("ac.png")}
+            style={{
+              position: "absolute",
+              left: 200,
+              top: "50%",
+              width: 1200,
+              height: 1720,
+              transform: "translateY(-50%)",
+              objectFit: "contain",
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              transform: "rotate(-7deg)",
+              transformOrigin: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <svg
+              viewBox="0 0 3840 2160"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              <defs>
+                <marker
+                  id="slop-arrowhead"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="4"
+                  markerHeight="4"
+                  orient="auto"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 Z" fill="#DC2626" />
+                </marker>
+              </defs>
+              <path
+                d="M 2050 1400 C 1850 1580, 1600 1450, 1368 1067"
+                fill="none"
+                stroke="#DC2626"
+                strokeWidth={36}
+                strokeLinecap="round"
+                markerEnd="url(#slop-arrowhead)"
+              />
+            </svg>
+            <div
+              style={{
+                ...TEXT_STYLE,
+                position: "absolute",
+                right: 240,
+                top: "50%",
+                transform: "translateY(-50%)",
+                fontSize: 500,
+              }}
+            >
+              more slop
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 35: "ASTRA" on the left, "&" in the middle and "LUNA" on the
+          right, all shown together for 3s */}
+      {frame >= ASTRA_START && frame < ROUTE_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: "50%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={{ ...TEXT_STYLE, fontSize: 600 }}>
+              <span>ASTRA</span>
+            </div>
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={{ ...TEXT_STYLE, fontSize: 600 }}>
+              <span>&amp;</span>
+            </div>
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: "50%",
+              width: "50%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={{ ...TEXT_STYLE, fontSize: 600 }}>
+              <span>LUNA</span>
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+      {/* Scene 36: route.png contained full-frame */}
+      {frame >= ROUTE_START && frame < VM_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("route.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 37: vm.gif fills the remaining narration, cutting exactly when
+          codexfull.wav ends */}
+      {frame >= VM_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Gif
+            src={staticFile("vm.gif")}
+            fit="contain"
+            loopBehavior="loop"
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 38: "6 / MISTRAL" card in the same numbered-card style */}
+      {frame >= MISTRAL_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence
+            layout="none"
+            from={MISTRAL_START}
+            durationInFrames={MISTRAL_FRAMES}
+          >
+            <Audio src={staticFile("6m.wav")} />
+          </Sequence>
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            6
+          </div>
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>MISTRAL</span>
             </div>
           </AbsoluteFill>
         </AbsoluteFill>
