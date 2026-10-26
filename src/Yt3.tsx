@@ -333,6 +333,47 @@ const CODEXFULL_END = CODEXV_START + CODEXV_AUDIO_FRAMES;
 // (1.68s) plays fully inside the scene.
 const MISTRAL_START = CODEXFULL_END;
 const MISTRAL_FRAMES = Math.ceil(1.68 * 30);
+// Scene 39: msf.png contained full-frame with black "1B tokens" at
+// center-left; the text appears 1700ms after the image. It holds 500ms longer
+// so dnw.png lands 500ms later.
+const MSF_START = MISTRAL_START + MISTRAL_FRAMES;
+const MSF_FRAMES = Math.ceil(3.5 * 30) + 15;
+// Scenes 40-42: dnw.png -> mm.png -> yp.png over the same mfull.wav
+// narration; the video ends when the audio ends.
+const MFULL_FRAMES = Math.ceil(14.08 * 30);
+const DNW_START = MSF_START + MSF_FRAMES;
+// dnw holds 3.5s minus 1s so mm.png lands 1s earlier.
+const DNW_FRAMES = Math.ceil(3.5 * 30) - 30;
+const MM_START = DNW_START + DNW_FRAMES;
+const MM_FRAMES = Math.ceil(3.5 * 30);
+const YP_START = MM_START + MM_FRAMES;
+const YP_FRAMES = MFULL_FRAMES - MSF_FRAMES - DNW_FRAMES - MM_FRAMES;
+// Scene 43: "7 / FREEBUFF" numbered card after the narration ends; fre.wav
+// (1.92s) plays fully inside the scene.
+const FREEBUFF_START = YP_START + YP_FRAMES;
+const FREEBUFF_FRAMES = Math.ceil(1.92 * 30);
+// Scene 44: fr.png holds 4.4s (2.5s + 800ms + 600ms + 500ms), then continued
+// fads.png for 4s (2.5s + 600ms + 600ms + 300ms), then the crossed-out words
+// and the install command — all inside frf.wav (14.64s), which plays fully
+// across them.
+const FR_START = FREEBUFF_START + FREEBUFF_FRAMES;
+const FR_FRAMES = Math.ceil((2.5 + 0.8 + 0.6 + 0.5) * 30);
+const FRF_FRAMES = Math.ceil(14.64 * 30);
+const FADS_START = FR_START + FR_FRAMES;
+const FADS_FRAMES = Math.ceil((2.5 + 0.6 + 0.6 + 0.3) * 30);
+// Scene 46: "SUBSCRIPTION", "CREDITS" and "API" stacked and crossed out in
+// red, appearing one by one from top to bottom as a continuation of the
+// fads scene while frf.wav keeps playing.
+const CROSSED_START = FADS_START + FADS_FRAMES;
+const CROSSED_FRAMES = Math.ceil(5 * 30) - 18; // install command cuts in 600ms early
+const CROSSED_WORD_STEP = 15 + 12 + 12; // 1.3s between subscription / credits / api
+const CROSSED_FONT_SIZE = 420;
+const CROSSED_ROW_HEIGHT = 470;
+const CROSSED_STROKE = 34;
+// Scene 47: the Freebuff install command, styled like the OmniRoute one and
+// still finishing with frf.wav.
+const FREEBUFF_CMD_START = CROSSED_START + CROSSED_FRAMES;
+const FREEBUFF_CMD_FRAMES = FR_START + FRF_FRAMES - FREEBUFF_CMD_START;
 const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
@@ -374,8 +415,8 @@ const BILL_ROWS = [
   },
 ];
 
-// The composition ends with the MISTRAL card after the narration.
-export const TOTAL_DURATION = MISTRAL_START + MISTRAL_FRAMES;
+// The composition ends with the crossed-out words scene.
+export const TOTAL_DURATION = FREEBUFF_CMD_START + FREEBUFF_CMD_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1298,6 +1339,24 @@ export const Yt3: React.FC = () => {
         durationInFrames={CODEXV_AUDIO_FRAMES}
       >
         <Audio src={staticFile("codexfull.wav")} />
+      </Sequence>
+      {/* mfull.wav starts with the msf scene and keeps playing through the
+          dnw / mm / yp images until the audio completes */}
+      <Sequence
+        layout="none"
+        from={MSF_START}
+        durationInFrames={MFULL_FRAMES}
+      >
+        <Audio src={staticFile("mfull.wav")} />
+      </Sequence>
+      {/* frf.wav starts with the fr scene and keeps playing through fads.png
+          until the audio completes */}
+      <Sequence
+        layout="none"
+        from={FR_START}
+        durationInFrames={FRF_FRAMES}
+      >
+        <Audio src={staticFile("frf.wav")} />
       </Sequence>
       {frame >= HUB_START && frame < CMD_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -2749,6 +2808,265 @@ export const Yt3: React.FC = () => {
               <span>MISTRAL</span>
             </div>
           </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 39: msf.png contained full-frame, with black "1B tokens" at
+          center-left appearing 1700ms after the image */}
+      {frame >= MSF_START && frame < DNW_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("msf.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+          {frame >= MSF_START + 51 && (
+            <div
+              style={{
+                position: "absolute",
+                left: "36%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{ ...TEXT_STYLE, fontSize: 400, color: "#000000" }}
+              >
+                <span>1B</span>
+              </div>
+              <div
+                style={{
+                  fontFamily,
+                  color: "#000000",
+                  fontSize: 150,
+                  letterSpacing: "0.12em",
+                  marginTop: 10,
+                }}
+              >
+                tokens
+              </div>
+            </div>
+          )}
+        </AbsoluteFill>
+      )}
+      {/* Scene 40: dnw.png contained full-frame, same narration */}
+      {frame >= DNW_START && frame < MM_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("dnw.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 41: mm.png contained full-frame, same narration */}
+      {frame >= MM_START && frame < YP_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("mm.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 42: yp.png contained full-frame, ending with mfull.wav */}
+      {frame >= YP_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("yp.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 43: "7 / FREEBUFF" card in the same numbered-card style */}
+      {frame >= FREEBUFF_START && frame < FR_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Sequence
+            layout="none"
+            from={FREEBUFF_START}
+            durationInFrames={FREEBUFF_FRAMES}
+          >
+            <Audio src={staticFile("fre.wav")} />
+          </Sequence>
+          <div
+            style={{
+              position: "absolute",
+              left: 120,
+              top: 120,
+              backgroundColor: "#DC2626",
+              color: "white",
+              fontFamily,
+              fontSize: 380,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+              padding: "34px 48px",
+              borderRadius: 12,
+              pointerEvents: "none",
+            }}
+          >
+            7
+          </div>
+          <AbsoluteFill
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div style={TEXT_STYLE}>
+              <span>FREEBUFF</span>
+            </div>
+          </AbsoluteFill>
+        </AbsoluteFill>
+      )}
+      {/* Scene 44: fr.png contained full-frame for 4.4s, same narration */}
+      {frame >= FR_START && frame < FADS_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("fr.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 45: fads.png contained full-frame, until the crossed words */}
+      {frame >= FADS_START && frame < CROSSED_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("fads.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 46: subscription / credits / api stacked and crossed out in
+          red, appearing one by one from top to bottom. Each row keeps a fixed
+          height so the words below never push the earlier ones up. */}
+      {frame >= CROSSED_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            {[
+              { label: "SUBSCRIPTION", at: 0 },
+              { label: "CREDITS", at: CROSSED_WORD_STEP },
+              { label: "API", at: 2 * CROSSED_WORD_STEP },
+            ].map(({ label, at }) => {
+              const shown = frame >= CROSSED_START + at;
+              return (
+                <div
+                  key={label}
+                  style={{
+                    height: CROSSED_ROW_HEIGHT,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    visibility: shown ? "visible" : "hidden",
+                  }}
+                >
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    <div style={{ ...TEXT_STYLE, fontSize: CROSSED_FONT_SIZE }}>
+                      <span>{label}</span>
+                    </div>
+                    <svg
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      <line
+                        x1="2"
+                        y1="6"
+                        x2="98"
+                        y2="94"
+                        stroke="#DC2626"
+                        strokeWidth={CROSSED_STROKE}
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                      <line
+                        x1="2"
+                        y1="94"
+                        x2="98"
+                        y2="6"
+                        stroke="#DC2626"
+                        strokeWidth={CROSSED_STROKE}
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </AbsoluteFill>
+      )}
+      {/* Scene 47: the Freebuff install command, same style as the OmniRoute one */}
+      {frame >= FREEBUFF_CMD_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              fontFamily: interFontFamily,
+              fontSize: CMD_FONT_SIZE,
+              lineHeight: 1,
+              fontWeight: 700,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span style={{ color: "#FFFFFF" }}>$</span>
+            <span style={{ color: "#F5F2E3" }}>&nbsp;</span>
+            <span style={{ color: "#3B82F6" }}>npm</span>
+            <span style={{ color: "#F5F2E3" }}>&nbsp;install&nbsp;-g&nbsp;</span>
+            <span style={{ color: "#22C55E" }}>freebuff</span>
+          </div>
         </AbsoluteFill>
       )}
     </>
