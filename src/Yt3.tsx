@@ -365,7 +365,7 @@ const FADS_FRAMES = Math.ceil((2.5 + 0.6 + 0.6 + 0.3) * 30);
 // red, appearing one by one from top to bottom as a continuation of the
 // fads scene while frf.wav keeps playing.
 const CROSSED_START = FADS_START + FADS_FRAMES;
-const CROSSED_FRAMES = Math.ceil(5 * 30) - 18; // install command cuts in 600ms early
+const CROSSED_FRAMES = Math.ceil(5 * 30) - 18 - 12; // install command cuts in 1s early
 const CROSSED_WORD_STEP = 15 + 12 + 12; // 1.3s between subscription / credits / api
 const CROSSED_FONT_SIZE = 420;
 const CROSSED_ROW_HEIGHT = 470;
@@ -374,6 +374,32 @@ const CROSSED_STROKE = 34;
 // still finishing with frf.wav.
 const FREEBUFF_CMD_START = CROSSED_START + CROSSED_FRAMES;
 const FREEBUFF_CMD_FRAMES = FR_START + FRF_FRAMES - FREEBUFF_CMD_START;
+// Scene 48: fast one-by-one recap of every free tool, timed to ye.wav.
+const RECAP_START = FREEBUFF_CMD_START + FREEBUFF_CMD_FRAMES;
+const RECAP_FRAMES = Math.ceil(3.12 * 30); // ye.wav = 3.12s -> 94 frames
+const RECAP_ROW_STEP = Math.floor(RECAP_FRAMES / 7); // 13 frames -> spans the audio
+const RECAP_FONT_SIZE = 120;
+const RECAP_ARROW_SIZE = 170;
+const RECAP_ROW_GAP = 50;
+const RECAP_ITEMS = [
+  { tool: "OmniRoute", desc: "free gateway for every agent" },
+  { tool: "OpenCode", desc: "free CLI coding agent" },
+  { tool: "Kilo Code", desc: "free Chinese models" },
+  { tool: "Groq", desc: "14,400 free requests/day" },
+  { tool: "Codex CLI", desc: "free terminal agent" },
+  { tool: "Mistral", desc: "1B free tokens/month" },
+  { tool: "Freebuff", desc: "find even more free tools" },
+];
+// Scene 49: gb.png shown full-frame on black while gb.wav (2.16s) plays fully.
+const GB_START = RECAP_START + RECAP_FRAMES;
+const GB_FRAMES = Math.ceil(2.16 * 30);
+// Scene 50: closing "LINKS IN DESCRIPTION" line in the Recently... style,
+// lasting exactly as long as ld.wav (2s).
+const LINKS_START = GB_START + GB_FRAMES;
+const LINKS_FRAMES = Math.ceil(2 * 30); // ld.wav = 2s -> 60 frames
+// Scene 51: sub.png shown full-frame while sub.wav (3.52s) plays fully.
+const SUB_START = LINKS_START + LINKS_FRAMES;
+const SUB_FRAMES = Math.ceil(3.52 * 30);
 const VEN_R = 800; // radius of both circles
 const VEN_CY = 1080;
 const VEN_LEFT_CX = 1280; // pulled apart a bit
@@ -416,7 +442,7 @@ const BILL_ROWS = [
 ];
 
 // The composition ends with the crossed-out words scene.
-export const TOTAL_DURATION = FREEBUFF_CMD_START + FREEBUFF_CMD_FRAMES;
+export const TOTAL_DURATION = SUB_START + SUB_FRAMES;
 
 // Free-alt tools scattered in a circular cloud around the centre of the
 // frame. Slots are spread around an ellipse (a circle would push the top and
@@ -1357,6 +1383,38 @@ export const Yt3: React.FC = () => {
         durationInFrames={FRF_FRAMES}
       >
         <Audio src={staticFile("frf.wav")} />
+      </Sequence>
+      {/* ye.wav plays across the whole free-tools recap scene */}
+      <Sequence
+        layout="none"
+        from={RECAP_START}
+        durationInFrames={RECAP_FRAMES}
+      >
+        <Audio src={staticFile("ye.wav")} />
+      </Sequence>
+      {/* gb.wav plays fully over the gb.png scene */}
+      <Sequence
+        layout="none"
+        from={GB_START}
+        durationInFrames={GB_FRAMES}
+      >
+        <Audio src={staticFile("gb.wav")} />
+      </Sequence>
+      {/* ld.wav plays fully over the links scene */}
+      <Sequence
+        layout="none"
+        from={LINKS_START}
+        durationInFrames={LINKS_FRAMES}
+      >
+        <Audio src={staticFile("ld.wav")} />
+      </Sequence>
+      {/* sub.wav plays fully over the subscribe scene */}
+      <Sequence
+        layout="none"
+        from={SUB_START}
+        durationInFrames={SUB_FRAMES}
+      >
+        <Audio src={staticFile("sub.wav")} />
       </Sequence>
       {frame >= HUB_START && frame < CMD_START && (
         <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -3067,6 +3125,115 @@ export const Yt3: React.FC = () => {
             <span style={{ color: "#F5F2E3" }}>&nbsp;install&nbsp;-g&nbsp;</span>
             <span style={{ color: "#22C55E" }}>freebuff</span>
           </div>
+        </AbsoluteFill>
+      )}
+      {/* Scene 48: the free-tools recap, each row popping in fast from top to
+          bottom while ye.wav plays across the whole scene. A centred grid keeps
+          the names left-aligned and every arrow in the same column, with all
+          slots reserved so nothing shifts */}
+      {frame >= RECAP_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            display: "grid",
+            gridTemplateColumns: "max-content 200px max-content",
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center",
+            columnGap: 40,
+            rowGap: RECAP_ROW_GAP,
+            pointerEvents: "none",
+          }}
+        >
+          {RECAP_ITEMS.flatMap((item, i) => {
+            const visibility: React.CSSProperties["visibility"] =
+              frame >= RECAP_START + i * RECAP_ROW_STEP ? "visible" : "hidden";
+            return [
+              <div
+                key={`${item.tool}-name`}
+                style={{
+                  visibility,
+                  fontFamily: interFontFamily,
+                  fontSize: RECAP_FONT_SIZE,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  whiteSpace: "nowrap",
+                  color: "#F5F2E3",
+                }}
+              >
+                {item.tool}
+              </div>,
+              <div
+                key={`${item.tool}-arrow`}
+                style={{
+                  visibility,
+                  fontFamily: interFontFamily,
+                  fontSize: RECAP_ARROW_SIZE,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  textAlign: "center",
+                  color: "#DC2626",
+                }}
+              >
+                →
+              </div>,
+              <div
+                key={`${item.tool}-desc`}
+                style={{
+                  visibility,
+                  fontFamily: interFontFamily,
+                  fontSize: RECAP_FONT_SIZE,
+                  fontWeight: 400,
+                  lineHeight: 1,
+                  whiteSpace: "nowrap",
+                  color: "#CFC9B8",
+                }}
+              >
+                {item.desc}
+              </div>,
+            ];
+          })}
+        </AbsoluteFill>
+      )}
+      {/* Scene 49: gb.png contained full-frame on black */}
+      {frame >= GB_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("gb.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        </AbsoluteFill>
+      )}
+      {/* Scene 50: closing "links in description" line, white, in the same
+          style as the Recently... text that opens the video */}
+      {frame >= LINKS_START && (
+        <AbsoluteFill
+          style={{
+            backgroundColor: "black",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ ...TEXT_STYLE, color: "#FFFFFF", fontSize: 460 }}>
+            <span>LINKS IN DESCRIPTION</span>
+          </div>
+        </AbsoluteFill>
+      )}
+      {/* Scene 51: sub.png contained full-frame on black */}
+      {frame >= SUB_START && (
+        <AbsoluteFill style={{ backgroundColor: "black" }}>
+          <Img
+            src={staticFile("sub.png")}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
         </AbsoluteFill>
       )}
     </>
